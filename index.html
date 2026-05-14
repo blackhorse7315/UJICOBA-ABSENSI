@@ -2282,6 +2282,11 @@
                     showFormError("Isi alasan berada di luar radius kantor!");
                     return;
                 }
+                // VALIDASI KERAS: Cek jika hanya berisi tanda hubung
+                if (officeReason === "-" || officeReason === "--") {
+                    showFormError("⚠️ TINDAKAN DITOLAK! Harap masukkan alasan yang valid dan jelas, dilarang hanya menggunakan tanda hubung.");
+                    return;
+                }
             }
             // Memastikan waktu yang diambil dari jam dashboard menggunakan format titik dua
             const timeStr = document.getElementById('current-time').textContent.replace(/\./g, ':');
@@ -2348,6 +2353,11 @@
                     outsideReasonOut = document.getElementById('outside-office-reason').value.trim();
                     if (!outsideReasonOut) {
                         showFormError("Isi alasan berada di luar radius kantor!");
+                        return;
+                    }
+                    // VALIDASI KERAS: Cek jika hanya berisi tanda hubung (Check Out)
+                    if (outsideReasonOut === "-" || outsideReasonOut === "--") {
+                        showFormError("⚠️ TINDAKAN DITOLAK! Harap masukkan alasan yang valid dan jelas, dilarang hanya menggunakan tanda hubung.");
                         return;
                     }
                 }
