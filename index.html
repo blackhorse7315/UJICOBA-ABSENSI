@@ -987,13 +987,15 @@
     <div id="explorer-modal" class="fixed inset-0 z-[700] bg-white hidden-element">
         <div class="absolute top-6 left-6 z-[710] flex items-center gap-3">
             <button onclick="closeExplorer()" class="w-12 h-12 bg-white shadow-2xl rounded-full flex items-center justify-center text-slate-800 active:scale-90 transition-transform"><i class="fas fa-arrow-left"></i></button>
-            <div class="bg-white px-4 py-2 shadow-2xl rounded-2xl border border-slate-100">
-                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Lokasi</p>
-                <p class="text-xs font-bold text-blue-600">Peta Jalur Tugas</p>
+            <div class="bg-white px-5 py-3 shadow-2xl rounded-2xl border border-slate-100 min-w-[150px]">
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Tracking Movement</p>
+                <p id="explorer-distance-text" class="text-xs font-black text-blue-600">Menghitung jarak...</p>
             </div>
         </div>
-        <button onclick="closeExplorer()" class="absolute top-6 right-6 z-[710] w-12 h-12 bg-red-500 text-white shadow-2xl rounded-full flex items-center justify-center active:scale-90 transition-transform"><i class="fas fa-times"></i></button>
+        <button onclick="closeExplorer()" class="absolute top-6 right-6 z-[710] w-12 h-12 bg-slate-900 text-white shadow-2xl rounded-full flex items-center justify-center active:scale-90 transition-transform"><i class="fas fa-times"></i></button>
         <div id="full-explorer-map"></div>
+        <!-- Shortcut Navigasi -->
+        <div id="explorer-nav-buttons" class="absolute bottom-8 left-1/2 -translate-x-1/2 z-[710] flex gap-3 w-[90%] max-w-sm"></div>
     </div>
 
     <!-- Success Feedback Modal -->
@@ -2702,7 +2704,7 @@
                         </div>
                         <div class="grid grid-cols-2 gap-3 mb-4">
                             <img src="${s.checkIn.photo}" class="w-full aspect-square object-cover rounded-2xl border-2 border-slate-50">
-                            <div id="map-in-${s.id}" onclick="openFullMap('${s.id}')" class="w-full aspect-square rounded-2xl border-2 border-slate-50 bg-slate-50 overflow-hidden cursor-pointer active:scale-95 transition-all"></div>
+                            <div id="map-in-${s.id}" onclick="openExplorer('${s.id}')" class="w-full aspect-square rounded-2xl border-2 border-slate-50 bg-slate-50 overflow-hidden cursor-pointer active:scale-95 transition-all"></div>
                         </div>
                         <div class="flex justify-between items-end">
                             <div>
@@ -2725,7 +2727,7 @@
                         </div>
                         <div class="grid grid-cols-2 gap-3 mb-4">
                             <img src="${s.checkOut.photo}" class="w-full aspect-square object-cover rounded-2xl border-2 border-slate-50">
-                            <div id="map-out-${s.id}" onclick="openFullMap('${s.id}')" class="w-full aspect-square rounded-2xl border-2 border-slate-50 bg-slate-50 overflow-hidden cursor-pointer active:scale-95 transition-all"></div>
+                            <div id="map-out-${s.id}" onclick="openExplorer('${s.id}')" class="w-full aspect-square rounded-2xl border-2 border-slate-50 bg-slate-50 overflow-hidden cursor-pointer active:scale-95 transition-all"></div>
                         </div>
                         <div class="flex justify-between items-end">
                             <div>
@@ -2785,34 +2787,67 @@
         window.openExplorer = function(id) {
             const s = dutyHistory.find(x => x.id == id);
             if (!s) return;
+            
+            const distEl = document.getElementById('explorer-distance-text');
+            const navCont = document.getElementById('explorer-nav-buttons');
+            if(distEl) distEl.textContent = "Checking GPS...";
+            if(navCont) navCont.innerHTML = "";
+
             document.getElementById('explorer-modal').classList.remove('hidden-element');
+            
             if (!explorerMap) {
-                explorerMap = L.map('full-explorer-map').setView([s.checkIn.lat, s.checkIn.lng], 15);
-                getSatelliteLayer().addTo(explorerMap);
+                explorerMap = L.map('full-explorer-map', { zoomControl: false, attributionControl: false }).setView([s.checkIn.lat, s.checkIn.lng], 15);
+                L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}').addTo(explorerMap);
             }
+            
+            // Bersihkan marker lama
             explorerMarkers.forEach(m => explorerMap.removeLayer(m));
             explorerMarkers = [];
-            const ci = L.marker([s.checkIn.lat, s.checkIn.lng]).addTo(explorerMap).bindPopup("In: " + s.checkIn.time).openPopup();
+
+            // Marker Check In
+            const ci = L.marker([s.checkIn.lat, s.checkIn.lng]).addTo(explorerMap)
+                        .bindPopup("<div class='text-[10px] font-bold'>CHECK IN POINT</div><div class='text-[9px]'>" + s.checkIn.time + "</div>");
             explorerMarkers.push(ci);
-            if (s.checkOut) {
-                const co = L.marker([s.checkOut.lat || s.checkIn.lat, s.checkOut.lng || s.checkIn.lng]).addTo(explorerMap).bindPopup("Out: " + s.checkOut.time);
+
+            // Tombol Navigasi Google Maps (Check In)
+            if(navCont) {
+                navCont.insertAdjacentHTML('beforeend', `<button onclick="window.open('https://www.google.com/maps?q=${s.checkIn.lat},${s.checkIn.lng}', '_blank')" class="flex-grow py-4 bg-white/90 backdrop-blur-md text-slate-800 rounded-2xl text-[10px] font-black shadow-xl border border-slate-100 uppercase tracking-tighter">Navigate In</button>`);
+            }
+
+            if (s.checkOut && s.checkOut.lat) {
+                // Marker Check Out
+                const co = L.marker([s.checkOut.lat, s.checkOut.lng]).addTo(explorerMap)
+                            .bindPopup("<div class='text-[10px] font-bold'>CHECK OUT POINT</div><div class='text-[9px]'>" + s.checkOut.time + "</div>");
                 explorerMarkers.push(co);
-                const p = L.polyline([
-                    [s.checkIn.lat, s.checkIn.lng],
-                    [s.checkOut.lat || s.checkIn.lat, s.checkOut.lng || s.checkIn.lng]
-                ], {
-                    color: 'white',
-                    weight: 4,
-                    dashArray: '10, 10'
+
+                // Garis Track (Polyline)
+                const p = L.polyline([[s.checkIn.lat, s.checkIn.lng], [s.checkOut.lat, s.checkOut.lng]], {
+                    color: '#3b82f6',
+                    weight: 6,
+                    opacity: 0.9,
+                    dashArray: '12, 12'
                 }).addTo(explorerMap);
                 explorerMarkers.push(p);
-                explorerMap.fitBounds(p.getBounds(), {
-                    padding: [80, 80]
-                });
+
+                // Hitung Jarak via haversine (reuse getDistance)
+                const distance = getDistance(s.checkIn.lat, s.checkIn.lng, s.checkOut.lat, s.checkOut.lng);
+                const distanceText = distance < 1000 ? Math.round(distance) + " Meter" : (distance / 1000).toFixed(2) + " KM";
+                if(distEl) distEl.textContent = "Jarak: " + distanceText;
+
+                // Tombol Navigasi Google Maps (Check Out)
+                if(navCont) {
+                    navCont.insertAdjacentHTML('beforeend', `<button onclick="window.open('https://www.google.com/maps?q=${s.checkOut.lat},${s.checkOut.lng}', '_blank')" class="flex-grow py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black shadow-xl uppercase tracking-tighter">Navigate Out</button>`);
+                }
+
+                // Auto Zoom menyesuaikan kedua titik
+                explorerMap.fitBounds(p.getBounds(), { padding: [100, 100] });
             } else {
+                if(distEl) distEl.textContent = "Sedang Bertugas";
                 explorerMap.setView([s.checkIn.lat, s.checkIn.lng], 17);
+                ci.openPopup();
             }
-            setTimeout(() => explorerMap.invalidateSize(), 200);
+            
+            setTimeout(() => explorerMap.invalidateSize(), 300);
         };
 
         window.closeExplorer = function() {
