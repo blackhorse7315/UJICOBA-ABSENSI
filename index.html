@@ -1,0 +1,3149 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ECrew-Attendant List - Transwisata Prima Aviation
+</title>
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="E-Crew">
+    
+    <!-- Ikon Web & Shortcut -->
+    <link rel="icon" type="image/png" href="https://lh3.googleusercontent.com/d/14XvFbNETCuybdeUeH6BPrPaC33uBijMc">
+    <link rel="shortcut icon" href="https://lh3.googleusercontent.com/d/14XvFbNETCuybdeUeH6BPrPaC33uBijMc">
+    <link rel="apple-touch-icon" href="https://lh3.googleusercontent.com/d/14XvFbNETCuybdeUeH6BPrPaC33uBijMc">
+    
+    <link rel="manifest" id="pwa-manifest">
+
+    <!-- Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #f4f7fa;
+            touch-action: manipulation;
+        }
+
+        /* Layout Helpers */
+        .gradient-bg {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+
+        .hidden-element {
+            display: none !important;
+        }
+
+        /* Components */
+        #camera-preview,
+        #photo-result {
+            transform: scaleX(-1);
+            border-radius: 1.25rem;
+            object-fit: cover;
+        }
+
+        .map-container {
+            height: 160px;
+            width: 100%;
+            border-radius: 1.25rem;
+            z-index: 1;
+            border: 1px solid #e2e8f0;
+        }
+
+        #full-explorer-map {
+            height: 100%;
+            width: 100%;
+        }
+
+        .btn-disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: .5;
+            }
+        }
+
+        .working-pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Leaflet Tweaks */
+        .leaflet-control-attribution {
+            display: none;
+        }
+
+        .detail-map {
+            height: 120px;
+            border-radius: 1rem;
+            margin-top: 8px;
+            cursor: zoom-in;
+        }
+
+        /* Tabs */
+        .history-tab.active,
+        .admin-tab.active {
+            background: #1e293b;
+            color: white;
+            border-color: #1e293b;
+        }
+
+        .history-tab,
+        .admin-tab {
+            transition: all 0.2s ease;
+            border: 1px solid #e2e8f0;
+        }
+
+        /* UI Elements */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .news-card {
+            min-width: 260px;
+            scroll-snap-align: start;
+            cursor: pointer;
+        }
+
+        .news-container {
+            scroll-snap-type: x mandatory;
+        }
+
+        .justify-text {
+            text-align: justify;
+            text-justify: inter-word;
+        }
+
+        .birthday-gradient {
+            background: linear-gradient(135deg, #f472b6 0%, #fb923c 100%);
+        }
+
+        /* Toast Sync */
+        #sync-toast {
+            position: fixed;
+            bottom: 85px;
+            right: 20px;
+            z-index: 4000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #1e293b;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 10px;
+            font-weight: 800;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+
+        #sync-toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .spin-loader {
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-top: 2px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        /* Web Viewer Style */
+        #webview-container {
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            background: white;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #external-frame {
+            flex-grow: 1;
+            border: none;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen text-slate-800 pb-20">
+
+    <!-- Global Toast Notifications -->
+    <div id="sync-toast">
+        <div class="spin-loader"></div>
+        <span id="sync-text">SINKRONISASI...</span>
+    </div>
+
+    <!-- Login Page -->
+    <div id="login-page" class="fixed inset-0 z-[1000] gradient-bg flex items-center justify-center p-6">
+        <div class="w-full max-sm login-card p-8 rounded-[2.5rem] shadow-2xl animate-fade">
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center overflow-hidden mx-auto mb-4 shadow-lg p-2">
+                    <img src="https://lh3.googleusercontent.com/d/14XvFbNETCuybdeUeH6BPrPaC33uBijMc" alt="Logo" class="w-full h-full object-contain" />
+                </div>
+                <h1 class="text-2xl font-black text-slate-800">E Crew <span class="text-blue-600">Attendant List</span></h1>
+                <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Transwisata Prima Aviation</p>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="text-[10px] font-black text-slate-400 uppercase ml-2 mb-1 block">Username</label>
+                    <input type="text" id="login-username" class="w-full p-4 bg-white border border-slate-100 rounded-2xl outline-none text-sm font-bold shadow-sm focus:ring-2 focus:ring-blue-500 transition-all" placeholder="Enter username">
+                </div>
+                <div>
+                    <label class="text-[10px] font-black text-slate-400 uppercase ml-2 mb-1 block">Password</label>
+                    <input type="password" id="login-password" class="w-full p-4 bg-white border border-slate-100 rounded-2xl outline-none text-sm font-bold shadow-sm focus:ring-2 focus:ring-blue-500 transition-all" placeholder="Enter password">
+                </div>
+                <div id="login-error" class="hidden-element text-center py-2 bg-red-50 text-red-500 text-[10px] font-bold rounded-xl border border-red-100">
+                    Username atau password salah!
+                </div>
+                <button onclick="handleLogin()" class="w-full py-4 bg-blue-600 text-white rounded-2xl font-black shadow-xl shadow-blue-900/20 hover:bg-blue-700 transition-all active:scale-95">
+                    LOG IN
+                </button>
+            </div>
+            <p class="text-center text-[9px] text-slate-400 mt-8 font-medium italic">Powered by SkyOps Solution v2.0</p>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div id="app-content" class="hidden-element">
+        <!-- Navigation Header -->
+        <nav class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-[100] px-4 py-3">
+            <div class="max-w-md mx-auto flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <div class="w-10 h-10 bg-white border border-slate-100 rounded-xl flex items-center justify-center overflow-hidden shadow-sm p-1">
+                        <img src="https://lh3.googleusercontent.com/d/14XvFbNETCuybdeUeH6BPrPaC33uBijMc" alt="Logo" class="w-full h-full object-contain" />
+                    </div>
+                    <h1 class="font-bold text-lg tracking-tight">E Crew <span class="text-blue-600">Attendant List</span></h1>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div id="working-badge" class="hidden-element flex items-center gap-2 text-[10px] font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-100 working-pulse">
+                        <i class="fas fa-satellite-dish"></i> ON DUTY
+                    </div>
+                    <div id="user-nav-icons" class="flex gap-1.5">
+                        <button onclick="syncWithCloud()" title="Sinkronisasi Manual" class="w-10 h-10 flex items-center justify-center bg-slate-50 text-slate-400 rounded-xl hover:text-blue-500 transition-colors">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                        <button id="btn-my-profile" onclick="openMyProfile()" class="hidden-element w-10 h-10 flex items-center justify-center bg-slate-50 text-slate-400 rounded-xl hover:text-blue-500 transition-colors">
+                            <i class="fas fa-user-circle"></i>
+                        </button>
+                        <button onclick="handleLogout()" class="w-10 h-10 flex items-center justify-center bg-slate-50 text-slate-400 rounded-xl hover:text-red-500 transition-colors">
+                            <i class="fas fa-power-off"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Admin View -->
+        <div id="admin-view" class="hidden-element max-w-md mx-auto px-4 mt-6 animate-fade">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-black text-slate-800">Admin Panel</h2>
+            </div>
+
+            <div class="flex gap-2 mb-6 overflow-x-auto pb-2 no-scrollbar">
+                <button onclick="setAdminTab('users')" id="admin-tab-users" class="admin-tab active whitespace-nowrap px-4 py-2 rounded-xl text-[10px] font-bold bg-white text-slate-500">KARYAWAN</button>
+                <button onclick="setAdminTab('all-logs')" id="admin-tab-all-logs" class="admin-tab whitespace-nowrap px-4 py-2 rounded-xl text-[10px] font-bold bg-white text-slate-500">RIWAYAT SEMUA</button>
+                <button onclick="setAdminTab('news')" id="admin-tab-news" class="admin-tab whitespace-nowrap px-4 py-2 rounded-xl text-[10px] font-bold bg-white text-slate-500">BERITA & INFO</button>
+                <button onclick="setAdminTab('links')" id="admin-tab-links" class="admin-tab whitespace-nowrap px-4 py-2 rounded-xl text-[10px] font-bold bg-white text-slate-500">LINK PERSONAL</button>
+                <button onclick="setAdminTab('worklists')" id="admin-tab-worklists" class="admin-tab whitespace-nowrap px-4 py-2 rounded-xl text-[10px] font-bold bg-white text-slate-500">LIST TUGAS</button>
+                <button onclick="setAdminTab('config')" id="admin-tab-config" class="admin-tab whitespace-nowrap px-4 py-2 rounded-xl text-[10px] font-bold bg-white text-slate-500">ATURAN WAKTU</button>
+            </div>
+
+            <!-- Admin Section: Users -->
+            <div id="admin-section-users" class="space-y-6">
+                <div class="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
+                    <input type="text" id="filter-user-name" oninput="renderUserList()" class="w-full sm:w-1/2 p-3 bg-white rounded-xl text-xs font-bold border border-slate-200 shadow-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Cari nama atau username...">
+                    <div class="flex justify-end gap-2">
+                        <button onclick="openBulkImport()" class="bg-emerald-600 text-white px-4 py-2 rounded-xl text-[10px] font-black shadow-lg">IMPORT DATA MASAL</button>
+                        <button onclick="openUserForm()" class="bg-blue-600 text-white px-4 py-2 rounded-xl text-[10px] font-black shadow-lg">ADD NEW USER</button>
+                    </div>
+                </div>
+                <div id="user-list-container" class="space-y-8 pb-10"></div>
+            </div>
+
+            <!-- Admin Section: All Logs -->
+            <div id="admin-section-all-logs" class="hidden-element space-y-6">
+                <div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm space-y-4">
+                    <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest">Filter Riwayat</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">Cari Nama</label>
+                            <input type="text" id="filter-all-name" list="admin-user-datalist" oninput="renderAllLogs()" class="w-full p-3 bg-slate-50 rounded-xl text-xs font-bold border border-slate-100" placeholder="Ketik nama karyawan...">
+                            <datalist id="admin-user-datalist"></datalist>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">Mulai Tanggal</label>
+                                <input type="date" id="filter-all-start" onchange="renderAllLogs()" class="w-full p-3 bg-slate-50 rounded-xl text-xs font-bold border border-slate-100">
+                            </div>
+                            <div>
+                                <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">Sampai Tanggal</label>
+                                <input type="date" id="filter-all-end" onchange="renderAllLogs()" class="w-full p-3 bg-slate-50 rounded-xl text-xs font-bold border border-slate-100">
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="printFilteredLogs()" class="flex-grow py-2 bg-slate-900 text-white rounded-xl text-[10px] font-black shadow-lg">
+                                <i class="fas fa-print mr-1"></i> CETAK PDF
+                            </button>
+                            <button onclick="resetAdminFilters()" class="px-6 py-2 bg-slate-100 text-slate-500 rounded-xl text-[10px] font-bold">RESET</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="all-logs-container" class="space-y-4 pb-10"></div>
+            </div>
+
+            <!-- Admin Section: News -->
+            <div id="admin-section-news" class="hidden-element space-y-6">
+                <div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm space-y-4">
+                    <h3 id="news-form-title" class="text-sm font-black text-slate-800 uppercase tracking-widest">Tambah Pengumuman</h3>
+                    <input type="hidden" id="edit-news-id">
+                    <div class="space-y-3">
+                        <div>
+                            <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">Unggah Gambar</label>
+                            <div onclick="document.getElementById('news-image-input').click()" class="relative w-full h-32 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 flex items-center justify-center overflow-hidden cursor-pointer hover:bg-slate-100 transition-all group">
+                                <input type="file" id="news-image-input" accept="image/*" class="hidden" onchange="handleNewsImage(this)">
+                                <div id="news-image-placeholder" class="text-center">
+                                    <i class="fas fa-image text-2xl text-slate-300 group-hover:text-blue-400"></i>
+                                    <p class="text-[9px] font-bold text-slate-400">Pilih Foto Berita</p>
+                                </div>
+                                <img id="news-image-preview" class="hidden-element w-full h-full object-cover">
+                                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                                    <i class="fas fa-camera text-white"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">Judul</label>
+                            <input type="text" id="news-title-input" class="w-full p-3 bg-slate-50 rounded-xl text-xs font-bold border border-slate-100" placeholder="Judul berita/pengumuman...">
+                        </div>
+                        <div>
+                            <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">Tipe</label>
+                            <select id="news-type-input" class="w-full p-3 bg-slate-50 rounded-xl text-xs font-bold border border-slate-100">
+                                <option value="news">Berita Terkini</option>
+                                <option value="info">Pengumuman Penting</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">Isi Pesan</label>
+                            <textarea id="news-content-input" rows="4" class="w-full p-3 bg-slate-50 rounded-xl text-xs font-medium border border-slate-100 justify-text" placeholder="Detail berita..."></textarea>
+                        </div>
+                        <div class="flex gap-2">
+                            <button id="btn-submit-news" onclick="addNewsItem()" class="flex-grow py-3 bg-blue-600 text-white rounded-xl text-[10px] font-black shadow-lg">POSTING SEKARANG</button>
+                            <button id="btn-cancel-news" onclick="resetNewsForm()" class="hidden-element px-4 py-3 bg-slate-100 text-slate-500 rounded-xl text-[10px] font-black">BATAL</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="admin-news-list" class="space-y-3 pb-10"></div>
+            </div>
+
+            <!-- Admin Section: Personal Links -->
+            <div id="admin-section-links" class="hidden-element space-y-6">
+                <div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm space-y-4">
+                    <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest">Atur Link Personal</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">Pilih Karyawan</label>
+                            <select id="link-user-select" class="w-full p-3 bg-slate-50 rounded-xl text-xs font-bold border border-slate-100">
+                                <option value="">-- Pilih User --</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">Nama Menu</label>
+                            <input type="text" id="link-menu-name" class="w-full p-3 bg-slate-50 rounded-xl text-xs font-bold border border-slate-100" placeholder="Contoh: Personal Data">
+                        </div>
+                        <div>
+                            <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">URL / Link CV</label>
+                            <textarea id="link-url-input" rows="3" class="w-full p-3 bg-slate-50 rounded-xl text-xs font-medium border border-slate-100" placeholder="Tempel link https://... disini"></textarea>
+                        </div>
+                        <button onclick="savePersonalLink()" class="w-full py-3 bg-blue-600 text-white rounded-xl text-[10px] font-black shadow-lg">SIMPAN LINK KE USER</button>
+                    </div>
+                </div>
+                <div id="admin-link-list" class="space-y-3 pb-10"></div>
+            </div>
+
+            <!-- Admin Section: Worklists -->
+            <div id="admin-section-worklists" class="hidden-element space-y-8">
+                <div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
+                    <h3 class="text-sm font-black text-slate-800 mb-4 uppercase tracking-widest">Type of Work</h3>
+                    <div class="flex gap-2 mb-4">
+                        <input type="text" id="new-work-type" class="flex-grow p-3 bg-slate-50 rounded-xl outline-none text-xs font-bold border border-slate-100" placeholder="Tambah tipe baru...">
+                        <button onclick="addWorkType()" class="bg-slate-900 text-white px-4 rounded-xl text-xs"><i class="fas fa-plus"></i></button>
+                    </div>
+                    <div id="admin-work-type-list" class="space-y-2"></div>
+                </div>
+                <div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
+                    <h3 class="text-sm font-black text-slate-800 mb-4 uppercase tracking-widest">Duty Role</h3>
+                    <div class="flex gap-2 mb-4">
+                        <input type="text" id="new-duty-role" class="flex-grow p-3 bg-slate-50 rounded-xl outline-none text-xs font-bold border border-slate-100" placeholder="Tambah peran baru...">
+                        <button onclick="addDutyRole()" class="bg-slate-900 text-white px-4 rounded-xl text-xs"><i class="fas fa-plus"></i></button>
+                    </div>
+                    <div id="admin-duty-role-list" class="space-y-2"></div>
+                </div>
+            </div>
+
+            <!-- Admin Section: Config -->
+            <div id="admin-section-config" class="hidden-element space-y-6 pb-10">
+                <div class="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-6">
+                    <div>
+                        <h4 class="text-xs font-black text-blue-600 mb-4 uppercase tracking-widest">Jadwal Senin - Jumat</h4>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">Jam Masuk</label>
+                                <input type="time" id="cfg-weekday-in" class="w-full p-3 bg-slate-50 rounded-xl text-xs font-bold border border-slate-100">
+                            </div>
+                            <div>
+                                <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">Jam Pulang</label>
+                                <input type="time" id="cfg-weekday-out" class="w-full p-3 bg-slate-50 rounded-xl text-xs font-bold border border-slate-100">
+                            </div>
+                            <div class="col-span-2">
+                                <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">Batas Mulai Lembur</label>
+                                <input type="time" id="cfg-weekday-ot" class="w-full p-3 bg-slate-50 rounded-xl text-xs font-bold border border-slate-100">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pt-4 border-t border-slate-50">
+                        <h4 class="text-xs font-black text-orange-600 mb-4 uppercase tracking-widest">Jadwal Sabtu</h4>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">Jam Masuk</label>
+                                <input type="time" id="cfg-sat-in" class="w-full p-3 bg-slate-50 rounded-xl text-xs font-bold border border-slate-100">
+                            </div>
+                            <div>
+                                <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">Jam Pulang</label>
+                                <input type="time" id="cfg-sat-out" class="w-full p-3 bg-slate-50 rounded-xl text-xs font-bold border border-slate-100">
+                            </div>
+                            <div class="col-span-2">
+                                <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">Batas Mulai Lembur</label>
+                                <input type="time" id="cfg-sat-ot" class="w-full p-3 bg-slate-50 rounded-xl text-xs font-bold border border-slate-100">
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="saveScheduleConfig()" class="w-full py-4 gradient-bg text-white rounded-2xl font-black shadow-lg">UPDATE KONFIGURASI</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Attendance View -->
+        <main id="user-attendance-view" class="hidden-element max-w-md mx-auto px-4 mt-6">
+            <!-- Active Session Banner -->
+            <div id="status-banner" class="hidden-element mb-6 p-5 bg-blue-600 text-white rounded-[2rem] shadow-xl shadow-blue-200 animate-fade flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center">
+                        <i class="fas fa-clock text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold opacity-70 uppercase tracking-widest">Sesi Aktif</p>
+                        <p class="text-base font-bold">Anda sedang bekerja...</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p id="active-duration" class="text-xs font-mono font-bold">00:00:00</p>
+                </div>
+            </div>
+
+            <!-- Profile Header Card -->
+            <div class="gradient-bg rounded-[2.5rem] p-8 text-white shadow-2xl mb-8 relative overflow-hidden">
+                <div class="relative z-10 flex items-start justify-between">
+                    <div class="flex-grow">
+                        <p id="welcome-role" class="text-blue-300 text-sm font-medium">Operator Sistem,</p>
+                        <h2 id="welcome-name" class="text-2xl font-bold mb-6">Captain Ahmad</h2>
+                    </div>
+                    <div onclick="openMyProfile()" id="welcome-profile-pic-container" class="w-16 h-16 rounded-2xl overflow-hidden border-2 border-white/20 shadow-lg bg-white/10 flex-shrink-0 flex items-center justify-center cursor-pointer hover:border-white/50 transition-all"></div>
+                </div>
+                <div class="relative z-10 flex items-end justify-between mt-4">
+                    <div class="flex flex-col">
+                        <span id="current-time" class="text-4xl font-black tracking-tighter">00:00:00</span>
+                        <span id="current-date" class="text-slate-400 text-xs mt-1 font-medium">--</span>
+                    </div>
+                    <div class="text-right">
+                        <i id="weather-icon" class="fas fa-cloud-sun text-3xl text-slate-300 mb-1 animate-pulse"></i>
+                        <p id="weather-text" class="text-[10px] opacity-60">Mendeteksi cuaca...</p>
+                    </div>
+                </div>
+                <div class="absolute -top-10 -right-10 w-40 h-40 bg-blue-500/10 rounded-full blur-3xl"></div>
+            </div>
+
+            <div id="birthday-section" class="hidden-element mb-8 animate-fade"></div>
+
+            <!-- News & Info -->
+            <div id="user-info-section" class="space-y-6 mb-8">
+                <div>
+                    <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest mb-3 ml-1">Berita Terkini</h3>
+                    <div id="user-news-slider" class="flex gap-4 overflow-x-auto pb-4 news-container no-scrollbar"></div>
+                </div>
+                <div class="bg-blue-600 rounded-[2rem] p-6 text-white shadow-xl shadow-blue-100">
+                    <div class="flex items-center gap-3 mb-4">
+                        <i class="fas fa-bullhorn text-lg"></i>
+                        <h3 class="text-xs font-black uppercase tracking-widest">Pengumuman Penting</h3>
+                    </div>
+                    <div id="user-announcement-list" class="space-y-3"></div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div id="main-actions" class="grid grid-cols-2 gap-4 mb-8">
+                <button id="btn-open-checkin" onclick="openForm('check-in')" class="flex flex-col items-center justify-center bg-white p-6 rounded-3xl shadow-sm border border-slate-100 hover:shadow-md transition-all active:scale-95 group">
+                    <div class="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-blue-600 group-hover:text-white transition-all">
+                        <i class="fas fa-fingerprint text-2xl"></i>
+                    </div>
+                    <span class="font-bold text-slate-700">Check In</span>
+                </button>
+                <button id="btn-open-checkout" onclick="openForm('check-out')" class="flex flex-col items-center justify-center bg-white p-6 rounded-3xl shadow-sm border border-slate-100 hover:shadow-md transition-all active:scale-95 group btn-disabled">
+                    <div class="w-14 h-14 bg-orange-50 text-orange-600 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-orange-600 group-hover:text-white transition-all">
+                        <i class="fas fa-sign-out-alt text-2xl"></i>
+                    </div>
+                    <span class="font-bold text-slate-700">Check Out</span>
+                </button>
+                <button id="btn-open-leaves" onclick="openWebView('https://blackhorse7315.github.io/ECrew-Leaves/', 'MENU CUTI')" class="flex flex-col items-center justify-center bg-white p-6 rounded-3xl shadow-sm border border-slate-100 hover:shadow-md transition-all active:scale-95 group">
+                    <div class="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-emerald-600 group-hover:text-white transition-all">
+                        <i class="fas fa-calendar-check text-2xl"></i>
+                    </div>
+                    <span class="font-bold text-slate-700">Cuti</span>
+                </button>
+                <button id="btn-open-personal" onclick="handlePersonalDataClick()" class="hidden-element flex flex-col items-center justify-center bg-white p-6 rounded-3xl shadow-sm border border-slate-100 hover:shadow-md transition-all active:scale-95 group">
+                    <div class="w-14 h-14 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-purple-600 group-hover:text-white transition-all">
+                        <i class="fas fa-id-card text-2xl"></i>
+                    </div>
+                    <span id="label-personal-data" class="font-bold text-slate-700 text-center text-xs">Personal Data</span>
+                </button>
+            </div>
+
+            <!-- Attendance Form -->
+            <div id="form-container" class="hidden-element space-y-4 animate-fade">
+                <div class="bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-100">
+                    <div class="flex items-center justify-between mb-8">
+                        <h3 id="form-title" class="text-xl font-bold text-slate-800">Protokol Tugas</h3>
+                        <button onclick="closeForm()" class="w-10 h-10 flex items-center justify-center bg-slate-50 text-slate-400 rounded-full hover:text-red-500 transition-colors">
+                            <i class="fas fa-times text-lg"></i>
+                        </button>
+                    </div>
+
+                    <div id="attendance-notice" class="hidden-element mb-6 p-4 rounded-2xl text-xs font-bold flex items-start gap-3 border">
+                        <i class="fas fa-exclamation-triangle mt-0.5"></i>
+                        <p id="attendance-notice-text"></p>
+                    </div>
+
+                    <!-- Map/Location -->
+                    <div class="mb-8">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase mb-3 block tracking-widest">Verifikasi Wajah</label>
+                        <div class="relative w-full aspect-square bg-slate-100 rounded-[2rem] overflow-hidden border-2 border-slate-100 shadow-inner">
+                            <video id="camera-preview" class="w-full h-full object-cover" autoplay playsinline></video>
+                            <img id="photo-result" class="hidden-element w-full h-full object-cover">
+                            <canvas id="photo-canvas" class="hidden-element"></canvas>
+                        </div>
+                        <div class="mt-4 flex gap-3">
+                            <button id="btn-capture" onclick="takeSnapshot()" class="flex-grow py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase shadow-lg active:scale-95 transition-all">AMBIL FOTO SELFIE</button>
+                            <button id="btn-retake" onclick="resetCamera()" class="hidden-element flex-grow py-4 bg-slate-100 text-slate-500 rounded-2xl font-black text-[10px] uppercase">FOTO ULANG</button>
+                        </div>
+                    </div>
+
+                    <!-- Camera Section -->
+                    <!-- Form Fields -->
+                    <div id="form-fields" class="space-y-5">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="bg-slate-50 p-4 rounded-2xl">
+                                <p class="text-[8px] font-black text-slate-400 uppercase mb-1">Nama & Rank</p>
+                                <p id="form-user-name" class="text-[11px] font-bold text-slate-600">-</p>
+                            </div>
+                            <div class="bg-slate-50 p-4 rounded-2xl">
+                                <p class="text-[8px] font-black text-slate-400 uppercase mb-1">Jabatan</p>
+                                <p id="form-user-position" class="text-[11px] font-bold text-slate-600">-</p>
+                            </div>
+                            <div class="bg-slate-50 p-4 rounded-2xl col-span-2">
+                                <p class="text-[8px] font-black text-slate-400 uppercase mb-1">Divisi</p>
+                                <p id="form-user-division" class="text-[11px] font-bold text-slate-600">-</p>
+                            </div>
+                        </div>
+
+                        <div id="outside-office-reason-container" class="hidden-element">
+                            <label class="text-[10px] font-bold text-orange-600 uppercase mb-2 block tracking-widest">Alasan di Luar Kantor (Wajib diisi)</label>
+                            <textarea id="outside-office-reason" rows="2" class="w-full p-4 bg-orange-50 border border-orange-200 rounded-2xl outline-none text-sm font-medium resize-none" placeholder="Jelaskan kenapa Anda berada di luar radius kantor..."></textarea>
+                        </div>
+
+                        <div id="work-fields">
+                            <div>
+                                <label class="text-[10px] font-bold text-slate-400 uppercase mb-2 block tracking-widest">Tipe Pekerjaan <span class="text-red-500">*</span></label>
+                                <select id="type-of-work" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-sm font-bold appearance-none"></select>
+                            </div>
+                            <div class="mt-5">
+                                <label class="text-[10px] font-bold text-slate-400 uppercase mb-2 block tracking-widest">Peran Tugas <span class="text-red-500">*</span></label>
+                                <select id="duty-as" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-sm font-bold appearance-none"></select>
+                            </div>
+                        </div>
+
+                        <div id="late-reason-container" class="hidden-element">
+                            <label class="text-[10px] font-bold text-red-500 uppercase mb-2 block tracking-widest">Alasan Terlambat, karena anda check in diatas pukul 09:01 (Wajib diisi)</label>
+                            <textarea id="late-reason" rows="2" class="w-full p-4 bg-red-50 border border-red-200 rounded-2xl outline-none text-sm font-medium resize-none" placeholder="Kenapa terlambat?"></textarea>
+                        </div>
+
+                        <div id="checkout-fields" class="hidden-element space-y-5">
+                            <div id="checkout-status-reason-container" class="hidden-element">
+                                <label id="checkout-reason-label" class="text-[10px] font-bold text-blue-600 uppercase mb-2 block tracking-widest">Alasan (Wajib diisi)</label>
+                                <textarea id="checkout-status-reason" rows="2" class="w-full p-4 bg-blue-50 border border-blue-200 rounded-2xl outline-none text-sm font-medium resize-none" placeholder="Alasan..."></textarea>
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-bold text-slate-400 uppercase mb-2 block tracking-widest">Laporan Pekerjaan (Remarks) <span class="text-red-500">*</span></label>
+                                <textarea id="remarks" rows="4" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-sm font-medium resize-none" placeholder="Sebutkan detail pekerjaan hari ini secara lengkap..."></textarea>
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-bold text-slate-400 uppercase mb-2 block tracking-widest">Tambahan foto (mode landscape) <span class="text-red-500">*</span></label>
+                                <div onclick="document.getElementById('work-photo-input').click()" class="w-full p-6 border-2 border-dashed border-slate-200 bg-slate-50 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-slate-100 transition-colors">
+                                    <input type="file" id="work-photo-input" accept="image/*" class="hidden" onchange="handleWorkPhoto(this)">
+                                    <div id="work-photo-placeholder" class="flex flex-col items-center">
+                                        <i class="fas fa-image text-slate-300 text-3xl mb-2"></i>
+                                        <p class="text-xs font-bold text-slate-400">Pilih Foto Dokumentasi</p>
+                                    </div>
+                                    <img id="work-photo-preview" class="hidden w-full h-32 object-cover rounded-xl shadow-sm">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="form-error-msg" class="hidden-element p-3 bg-red-600 text-white text-[10px] font-bold rounded-xl animate-fade">
+                            <i class="fas fa-exclamation-circle mr-2"></i> <span id="error-text"></span>
+                        </div>
+
+                        <button id="btn-submit" onclick="submitAttendance()" class="w-full gradient-bg text-white py-5 rounded-[1.5rem] font-bold shadow-xl btn-disabled transition-all mt-4">
+                            KONFIRMASI PROTOKOL
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attendance Logs List -->
+            <div id="logs-container" class="mt-4 pb-10">
+                <div class="flex items-center justify-between mb-5">
+                    <h3 class="text-lg font-bold flex items-center gap-2 text-slate-800">
+                        <i class="fas fa-history text-blue-600"></i> Riwayat Absen
+                    </h3>
+                </div>
+
+                <div class="flex gap-2 mb-6 overflow-x-auto pb-2 no-scrollbar">
+                    <button onclick="setHistoryFilter('daily')" id="tab-daily" class="history-tab active whitespace-nowrap px-4 py-2 rounded-full text-[10px] font-bold bg-white text-slate-500">HARI INI</button>
+                    <button onclick="setHistoryFilter('weekly')" id="tab-weekly" class="history-tab whitespace-nowrap px-4 py-2 rounded-full text-[10px] font-bold bg-white text-slate-500">MINGGUAN</button>
+                    <button onclick="setHistoryFilter('monthly')" id="tab-monthly" class="history-tab whitespace-nowrap px-4 py-2 rounded-full text-[10px] font-bold bg-white text-slate-500">BULANAN</button>
+                    <button onclick="setHistoryFilter('yearly')" id="tab-yearly" class="history-tab whitespace-nowrap px-4 py-2 rounded-full text-[10px] font-bold bg-white text-slate-500">TAHUNAN</button>
+                </div>
+
+                <div id="attendance-list" class="space-y-6"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals & Containers -->
+
+    <!-- Web Viewer Container -->
+    <div id="webview-container" class="hidden-element animate-fade">
+        <nav class="bg-white shadow-md px-4 py-3 flex items-center justify-between z-[2100]">
+            <div class="flex items-center gap-3">
+                <button onclick="closeWebView()" class="w-10 h-10 flex items-center justify-center bg-slate-100 text-slate-600 rounded-xl active:scale-90 transition-transform">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div>
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Internal Portal</p>
+                    <p id="webview-title" class="text-xs font-bold text-blue-600">LOADING...</p>
+                </div>
+            </div>
+            <button onclick="closeWebView()" class="text-[10px] font-black text-white bg-slate-900 px-4 py-2 rounded-lg shadow-lg">KEMBALI KE DASHBOARD</button>
+        </nav>
+        <iframe id="external-frame" src="about:blank"></iframe>
+    </div>
+
+    <!-- News Detail Modal -->
+    <div id="news-detail-modal" class="fixed inset-0 z-[900] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/80 backdrop-blur-sm hidden-element">
+        <div class="bg-white w-full max-w-lg rounded-t-[3rem] sm:rounded-[2.5rem] p-0 animate-fade max-h-[92vh] overflow-y-auto overflow-x-hidden">
+            <div id="news-detail-image-container" class="w-full aspect-video bg-slate-100 relative">
+                <button onclick="closeNewsDetail()" class="absolute top-6 right-6 w-10 h-10 bg-black/20 backdrop-blur-md text-white rounded-full flex items-center justify-center z-10 hover:bg-black/40"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="p-8">
+                <div class="flex items-center gap-2 mb-4">
+                    <span id="news-detail-type" class="text-[9px] font-black px-3 py-1 rounded-full"></span>
+                    <span id="news-detail-date" class="text-[9px] font-bold text-slate-400 uppercase tracking-widest"></span>
+                </div>
+                <h4 id="news-detail-title" class="text-2xl font-black text-slate-800 leading-tight mb-4"></h4>
+                <div id="news-detail-content" class="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap justify-text"></div>
+                <button onclick="closeNewsDetail()" class="w-full py-5 bg-slate-900 text-white rounded-2xl font-bold mt-10 shadow-lg">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulk Import Modal -->
+    <div id="bulk-import-modal" class="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm hidden-element">
+        <div class="bg-white w-full max-w-md rounded-[2.5rem] p-8 animate-fade max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h4 class="text-xl font-black text-slate-800">Import Masal</h4>
+                <button onclick="closeBulkImport()" class="text-slate-300 hover:text-red-500 transition-colors"><i class="fas fa-times-circle text-2xl"></i></button>
+            </div>
+            <div class="space-y-4">
+                <div class="bg-blue-50 p-4 rounded-2xl border border-blue-100">
+                    <p class="text-[10px] font-bold text-blue-600 uppercase mb-2">Petunjuk Format:</p>
+                    <p class="text-[9px] text-blue-500 leading-relaxed font-medium italic">Nama | Rank | Jabatan | Divisi | Email | Username | Password | Tanggal Lahir (YYYY-MM-DD)</p>
+                    <p class="text-[9px] text-slate-400 mt-2 italic">* Masukkan 1 data per baris. Maksimal 100 data.</p>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase mb-2 block">Tempel Data Disini</label>
+                    <textarea id="bulk-input-text" rows="10" class="w-full p-4 bg-slate-50 rounded-2xl outline-none text-xs font-mono border border-slate-100" placeholder="Contoh: Muhamad Ramdani Masri | Captain | Chief Pilot | Operation | user@mail.com | user3 | user3 | 1990-04-27"></textarea>
+                </div>
+                <div id="bulk-error-msg" class="hidden-element p-3 bg-red-50 text-red-500 text-[10px] font-bold rounded-xl border border-red-100"></div>
+                <button onclick="processBulkImport()" class="w-full py-4 gradient-bg text-white rounded-2xl font-bold shadow-lg hover:opacity-90 transition-opacity">PROSES IMPORT</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- My Profile Modal -->
+    <div id="my-profile-modal" class="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm hidden-element">
+        <div class="bg-white w-full max-w-md rounded-[2.5rem] p-8 animate-fade max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-8">
+                <h4 class="text-xl font-black text-slate-800">Profil Saya</h4>
+                <button onclick="closeMyProfile()" class="text-slate-300 hover:text-red-500 transition-colors"><i class="fas fa-times-circle text-2xl"></i></button>
+            </div>
+            <div class="flex flex-col items-center mb-8">
+                <div id="my-profile-pic" class="w-24 h-24 rounded-3xl bg-slate-50 border border-slate-100 overflow-hidden flex items-center justify-center shadow-lg"></div>
+                <h5 id="my-profile-fullname" class="text-lg font-black text-slate-800 mt-4">-</h5>
+                <p id="my-profile-sub" class="text-[10px] font-bold text-blue-600 uppercase tracking-widest">-</p>
+            </div>
+            <div class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                        <p class="text-[8px] font-black text-slate-400 uppercase mb-1">Rank</p>
+                        <p id="my-profile-rank" class="text-xs font-bold text-slate-700">-</p>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                        <p class="text-[8px] font-black text-slate-400 uppercase mb-1">Jabatan</p>
+                        <p id="my-profile-position" class="text-xs font-bold text-slate-700">-</p>
+                    </div>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                    <p class="text-[8px] font-black text-slate-400 uppercase mb-1">Divisi</p>
+                    <p id="my-profile-division" class="text-xs font-bold text-slate-700">-</p>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                    <p class="text-[8px] font-black text-slate-400 uppercase mb-1">Email</p>
+                    <p id="my-profile-email" class="text-xs font-bold text-slate-700">-</p>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                    <p class="text-[8px] font-black text-slate-400 uppercase mb-1">Tanggal Lahir</p>
+                    <p id="my-profile-dob" class="text-xs font-bold text-slate-700">-</p>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                    <p class="text-[8px] font-black text-slate-400 uppercase mb-1">Username</p>
+                    <p id="my-profile-username" class="text-xs font-bold text-slate-700">-</p>
+                </div>
+                <div class="pt-4 border-t border-slate-100">
+                    <label class="text-[10px] font-black text-blue-600 uppercase mb-2 block">Ubah Password</label>
+                    <input type="text" id="my-profile-password" class="w-full p-4 bg-blue-50 border border-blue-100 rounded-2xl outline-none text-sm font-bold text-slate-800 focus:ring-2 focus:ring-blue-500" placeholder="Password Baru">
+                </div>
+                <button onclick="saveMyPassword()" class="w-full py-4 gradient-bg text-white rounded-2xl font-black shadow-lg mt-6 active:scale-95 transition-all">SIMPAN PERUBAHAN</button>
+            </div>
+            <div class="mt-6 border-t border-slate-100 pt-6">
+                <button id="pwa-install-btn" class="hidden-element w-full py-3 bg-emerald-50 text-emerald-600 rounded-xl text-[10px] font-black border border-emerald-100 flex items-center justify-center gap-2">
+                    <i class="fas fa-download"></i> INSTAL APLIKASI DI PERANGKAT
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Form Modal -->
+    <div id="user-form-modal" class="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm hidden-element">
+        <div class="bg-white w-full max-w-md rounded-[2.5rem] p-8 animate-fade max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h4 id="user-form-title" class="text-xl font-black text-slate-800">Tambah User</h4>
+                <button onclick="closeUserForm()" class="text-slate-300 hover:text-red-500 transition-colors"><i class="fas fa-times-circle text-2xl"></i></button>
+            </div>
+            <div class="space-y-5">
+                <input type="hidden" id="edit-user-id">
+                <div class="flex flex-col items-center mb-4">
+                    <div onclick="document.getElementById('profile-pic-input').click()" class="relative w-24 h-24 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200 flex items-center justify-center overflow-hidden cursor-pointer hover:bg-slate-100 transition-all group">
+                        <input type="file" id="profile-pic-input" accept="image/*" class="hidden" onchange="handleProfilePhoto(this)">
+                        <div id="profile-pic-placeholder" class="text-center">
+                            <i class="fas fa-user-circle text-2xl text-slate-300 group-hover:text-blue-400"></i>
+                        </div>
+                        <img id="profile-pic-preview" class="hidden w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                            <i class="fas fa-camera text-white"></i>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase mb-2 block">Nama</label>
+                    <input type="text" id="reg-name" class="w-full p-4 bg-slate-50 rounded-2xl outline-none text-sm font-bold border border-slate-100">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase mb-2 block">Tanggal Lahir (Date of Birth)</label>
+                    <input type="date" id="reg-dob" class="w-full p-4 bg-slate-50 rounded-2xl outline-none text-sm font-bold border border-slate-100">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase mb-2 block">Rank</label>
+                        <select id="reg-rank" onchange="toggleManualRank()" class="w-full p-4 bg-slate-50 rounded-2xl outline-none text-sm font-bold border border-slate-100"></select>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase mb-2 block">Jabatan</label>
+                        <input type="text" id="reg-position" class="w-full p-4 bg-slate-50 rounded-2xl outline-none text-sm font-bold border border-slate-100">
+                    </div>
+                </div>
+                <input type="text" id="reg-rank-manual" class="hidden-element w-full p-4 bg-blue-50 rounded-2xl outline-none text-sm font-bold border border-blue-100" placeholder="Rank baru...">
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase mb-2 block">Divisi</label>
+                    <select id="reg-division" onchange="toggleManualDiv()" class="w-full p-4 bg-slate-50 rounded-2xl outline-none text-sm font-bold border border-slate-100"></select>
+                </div>
+                <input type="text" id="reg-division-manual" class="hidden-element w-full p-4 bg-blue-50 rounded-2xl outline-none text-sm font-bold border border-blue-100" placeholder="Divisi baru...">
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase mb-2 block">Email</label>
+                    <input type="email" id="reg-email" class="w-full p-4 bg-slate-50 rounded-2xl outline-none text-sm font-bold border border-slate-100">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase mb-2 block">Username</label>
+                        <input type="text" id="reg-username" class="w-full p-4 bg-slate-50 rounded-2xl outline-none text-sm font-bold border border-slate-100">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase mb-2 block">Password</label>
+                        <input type="text" id="reg-password" class="w-full p-4 bg-slate-50 rounded-2xl outline-none text-sm font-bold border border-slate-100">
+                    </div>
+                </div>
+                <div class="flex gap-3 pt-4">
+                    <button onclick="saveUser()" class="flex-grow py-4 gradient-bg text-white rounded-2xl font-bold shadow-lg transition-opacity hover:opacity-90">SIMPAN</button>
+                    <button id="btn-delete-user" onclick="handleDeleteUser()" class="hidden-element px-6 py-4 bg-red-50 text-red-500 rounded-2xl font-bold border border-red-100"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detail Log Modal -->
+    <div id="detail-modal" class="fixed inset-0 z-[600] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/80 backdrop-blur-sm hidden-element">
+        <div class="bg-white w-full max-w-lg rounded-t-[3rem] sm:rounded-[2.5rem] p-8 animate-fade max-h-[92vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-8">
+                <div>
+                    <h4 class="text-2xl font-black text-slate-800">Laporan Tugas</h4>
+                    <p id="detail-id" class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">ID SESI: 000</p>
+                </div>
+                <button onclick="closeDetail()" class="w-12 h-12 flex items-center justify-center bg-slate-50 text-slate-400 rounded-full"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="detail-content" class="space-y-8"></div>
+            <button onclick="closeDetail()" class="w-full py-5 bg-slate-900 text-white rounded-2xl font-bold mt-10 shadow-lg">Tutup Laporan</button>
+        </div>
+    </div>
+
+    <!-- Edit Log Modal -->
+    <div id="log-edit-modal" class="fixed inset-0 z-[1100] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm hidden-element">
+        <div class="bg-white w-full max-w-md rounded-[2.5rem] p-8 animate-fade max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h4 class="text-xl font-black text-slate-800">Edit Data Absen</h4>
+                <button onclick="closeLogEdit()" class="text-slate-300 hover:text-red-500 transition-colors"><i class="fas fa-times-circle text-2xl"></i></button>
+            </div>
+            <div class="space-y-4">
+                <input type="hidden" id="edit-log-id">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-[9px] font-bold text-slate-400 uppercase mb-1">Tipe Kerja</label>
+                        <select id="edit-log-work-type" class="w-full p-3 bg-slate-50 rounded-xl outline-none text-xs font-bold border border-slate-100 appearance-none"></select>
+                    </div>
+                    <div>
+                        <label class="text-[9px] font-bold text-slate-400 uppercase mb-1">Peran Tugas</label>
+                        <select id="edit-log-duty-as" class="w-full p-3 bg-slate-50 rounded-xl outline-none text-xs font-bold border border-slate-100 appearance-none"></select>
+                    </div>
+                </div>
+                <div>
+                    <label class="text-[9px] font-bold text-blue-600 uppercase mb-1">--- DATA CHECK IN ---</label>
+                    <div class="space-y-3 mt-1 p-3 border border-blue-50 bg-blue-50/20 rounded-2xl">
+                        <div class="grid grid-cols-3 gap-2">
+                            <div class="col-span-1">
+                                <label class="text-[8px] font-bold text-slate-400">Jam (Tanggal & Waktu)</label>
+                                <input type="datetime-local" step="1" id="edit-log-in-time" class="w-full p-2 bg-white rounded-lg text-[10px] border border-slate-100">
+                            </div>
+                            <div class="col-span-1">
+                                <label class="text-[8px] font-bold text-slate-400">Lat</label>
+                                <input type="text" id="edit-log-in-lat" class="w-full p-2 bg-white rounded-lg text-[10px] border border-slate-100">
+                            </div>
+                            <div class="col-span-1">
+                                <label class="text-[8px] font-bold text-slate-400">Lng</label>
+                                <input type="text" id="edit-log-in-lng" class="w-full p-2 bg-white rounded-lg text-[10px] border border-slate-100">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-[8px] font-bold text-slate-400">Status Masuk</label>
+                            <input type="text" id="edit-log-status-in" class="w-full p-2 bg-white rounded-lg text-[10px] border border-slate-100">
+                        </div>
+                        <div>
+                            <label class="text-[8px] font-bold text-slate-400">Alasan Terlambat / Luar Radius</label>
+                            <textarea id="edit-log-in-reasons" rows="2" class="w-full p-2 bg-white rounded-lg text-[10px] border border-slate-100"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div id="edit-log-checkout-section">
+                    <label class="text-[9px] font-bold text-orange-600 uppercase mb-1">--- DATA CHECK OUT ---</label>
+                    <div class="space-y-3 mt-1 p-3 border border-orange-50 bg-orange-50/20 rounded-2xl">
+                        <div class="grid grid-cols-3 gap-2">
+                            <div class="col-span-1">
+                                <label class="text-[8px] font-bold text-slate-400">Jam (Tanggal & Waktu)</label>
+                                <input type="datetime-local" step="1" id="edit-log-out-time" class="w-full p-2 bg-white rounded-lg text-[10px] border border-slate-100">
+                            </div>
+                            <div class="col-span-1">
+                                <label class="text-[8px] font-bold text-slate-400">Lat</label>
+                                <input type="text" id="edit-log-out-lat" class="w-full p-2 bg-white rounded-lg text-[10px] border border-slate-100">
+                            </div>
+                            <div class="col-span-1">
+                                <label class="text-[8px] font-bold text-slate-400">Lng</label>
+                                <input type="text" id="edit-log-out-lng" class="w-full p-2 bg-white rounded-lg text-[10px] border border-slate-100">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-[8px] font-bold text-slate-400">Status Keluar</label>
+                            <input type="text" id="edit-log-status-out" class="w-full p-2 bg-white rounded-lg text-[10px] border border-slate-100">
+                        </div>
+                        <div>
+                            <label class="text-[8px] font-bold text-slate-400">Alasan / Remarks</label>
+                            <textarea id="edit-log-remarks" rows="2" class="w-full p-2 bg-white rounded-lg text-[10px] border border-slate-100"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="saveLogEdit()" class="w-full py-4 gradient-bg text-white rounded-2xl font-bold shadow-lg mt-2">SIMPAN PERUBAHAN</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Map Explorer Modal -->
+    <div id="explorer-modal" class="fixed inset-0 z-[700] bg-white hidden-element">
+        <div class="absolute top-6 left-6 z-[710] flex items-center gap-3">
+            <button onclick="closeExplorer()" class="w-12 h-12 bg-white shadow-2xl rounded-full flex items-center justify-center text-slate-800 active:scale-90 transition-transform"><i class="fas fa-arrow-left"></i></button>
+            <div class="bg-white px-4 py-2 shadow-2xl rounded-2xl border border-slate-100">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Lokasi</p>
+                <p class="text-xs font-bold text-blue-600">Peta Jalur Tugas</p>
+            </div>
+        </div>
+        <button onclick="closeExplorer()" class="absolute top-6 right-6 z-[710] w-12 h-12 bg-red-500 text-white shadow-2xl rounded-full flex items-center justify-center active:scale-90 transition-transform"><i class="fas fa-times"></i></button>
+        <div id="full-explorer-map"></div>
+    </div>
+
+    <!-- Success Feedback Modal -->
+    <div id="success-modal" class="fixed inset-0 z-[800] flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-md hidden-element">
+        <div class="bg-white w-full max-w-xs rounded-[2.5rem] p-10 text-center animate-fade shadow-2xl">
+            <div class="w-24 h-24 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-8"><i class="fas fa-check-double text-4xl"></i></div>
+            <h4 class="text-xl font-bold mb-3 text-slate-800">Berhasil!</h4>
+            <p id="success-msg" class="text-slate-400 text-sm mb-8 leading-relaxed">Submmit Berhasil</p>
+            <button onclick="closeSuccessModal()" class="w-full py-4 gradient-bg text-white rounded-2xl font-bold">Mengerti</button>
+        </div>
+    </div>
+
+    <script>
+        const webAppUrl = "https://script.google.com/macros/s/AKfycbxPz74lH6-mVAoWvHUN-tVbn6-Vm7gqhFiXrfsw63rrfmARGFvuopgnyVgGgUOGqm9iWg/exec";
+
+        // APP STATE
+        let users = [];
+        let currentUser = null;
+        let dutyHistory = [];
+        let profilePicBase64 = null;
+        let birthdayGreetings = [];
+        let newsItems = [];
+        let newsImageBase64 = null;
+
+        let availableRanks = ['Capt', 'FO', 'Engineer', 'HLO/FOO', 'HLO'];
+        let availableDivisions = ['Staff', 'Operation', 'Maintenance'];
+        let availableWorkTypes = ['Office Hour', 'Flight Duty VIP', 'Standby'];
+        let availableDutyAs = ['Pilot in Command', 'Second in Command', 'Staff'];
+
+        let scheduleConfig = {
+            weekday: { in: "09:00",
+                out: "17:00",
+                ot: "17:15"
+            },
+            saturday: { in: "09:00",
+                out: "14:30",
+                ot: "14:30"
+            }
+        };
+
+        const officePoints = [{
+            lat: -6.266849,
+            lng: 106.897418,
+            radius: 400
+        }, {
+            lat: -6.264241,
+            lng: 106.886014,
+            radius: 250
+        }];
+
+        let videoStream, capturedPhoto = null,
+            workPhotoBase64 = null;
+        let currentMode = 'check-in',
+            currentPos = {
+                lat: 0,
+                lng: 0
+            };
+        let mainMap, mainMarker, watchId, explorerMap, explorerMarkers = [];
+        let isWorking = false,
+            activeStartTime = null,
+            timerInterval;
+        let historyFilter = 'daily',
+            adminTab = 'users',
+            isOutsideOffice = false,
+            deferredPrompt;
+
+        // CLOUD SERVICES
+        function showMiniSync(msg = "SINKRONISASI...") {
+            const toast = document.getElementById('sync-toast'),
+                text = document.getElementById('sync-text');
+            if (text) text.textContent = msg;
+            if (toast) toast.classList.add('show');
+        }
+
+        function hideMiniSync() {
+            const toast = document.getElementById('sync-toast');
+            if (toast) toast.classList.remove('show');
+        }
+
+        async function callCloud(action, payload = {}) {
+            if (!webAppUrl) return {
+                status: "offline"
+            };
+            showMiniSync("MENGIRIM...");
+            try {
+                const response = await fetch(webAppUrl, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action,
+                        payload
+                    })
+                });
+                // PERCEPATAN 1: Jangan menunggu download data selesai agar UI instan!
+                // Cukup jalankan sinkronisasi secara diam-diam di background
+                syncWithCloud(true); 
+                hideMiniSync();
+                return {
+                    status: "success"
+                }
+            } catch (err) {
+                hideMiniSync();
+                return {
+                    status: "error"
+                }
+            }
+        }
+
+        async function syncWithCloud(isBackground = false) {
+            if (!webAppUrl) return;
+            if (!isBackground) showMiniSync("MEMPERBARUI...");
+            try {
+                // PERBAIKAN: Menambahkan { cache: "no-store" } untuk memaksa browser menarik data terbaru dari server
+                const response = await fetch(webAppUrl + "?action=syncData&t=" + Date.now(), { cache: "no-store" });
+                const data = await response.json();
+                if (data && data.users) {
+                    users = data.users || [];
+                    dutyHistory = data.logs || [];
+                    newsItems = data.news || [];
+                    if (data.config && data.config.weekday) scheduleConfig = data.config;
+                    if (data.workTypes) availableWorkTypes = data.workTypes;
+                    if (data.dutyRoles) availableDutyAs = data.dutyRoles;
+                    if (data.greetings) birthdayGreetings = data.greetings;
+
+                    updateUI();
+                    checkBirthdays();
+                    if (adminTab === 'users') renderUserList();
+                    if (adminTab === 'worklists') renderAdminWorkLists();
+                    console.log("Cloud Sync Completed");
+                }
+            } catch (e) {
+                console.error("Sync gagal:", e)
+            }
+            hideMiniSync();
+        }
+
+        // PERUBAHAN: Mengubah interval menjadi 180000 milidetik (3 Menit)
+        setInterval(() => syncWithCloud(true), 180000);
+
+        // UTILITIES
+        // FUNGSI GLOBAL UNTUK FORMAT WAKTU (Mencegah Error 1899 & UTC)
+        function formatTime(t) {
+    if (!t) return "";
+    let str = String(t);
+    
+    // Jika mengandung 'T' (ISO format 1899-12-30T13:48:16)
+    if (str.includes('T')) {
+        str = str.split('T')[1].split('.')[0];
+    }
+    
+    // Jika mengandung '+' atau spasi (Format +0707 Western Indonesia...)
+    // Kita ambil 8 karakter pertama (HH:mm:ss)
+    if (str.includes('+') || str.includes(' ')) {
+        const parts = str.split(' ');
+        // Cari bagian yang mengandung titik dua (jam)
+        const timePart = parts.find(p => p.includes(':') || p.includes('.'));
+        if (timePart) str = timePart;
+    }
+
+    return str.replace(/\./g, ':').substring(0, 8); // Ambil HH:mm:ss saja
+}
+
+        // PERCEPATAN 2: FUNGSI KOMPRESI GAMBAR OTOMATIS
+        // Mengecilkan ukuran gambar dari MB menjadi KB sebelum dikirim ke server
+        async function compressImage(dataUrl, maxWidth = 800, maxHeight = 800, quality = 0.6) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => {
+                    let width = img.width;
+                    let height = img.height;
+                    if (width > height) {
+                        if (width > maxWidth) {
+                            height = Math.round(height *= maxWidth / width);
+                            width = maxWidth;
+                        }
+                    } else {
+                        if (height > maxHeight) {
+                            width = Math.round(width *= maxHeight / height);
+                            height = maxHeight;
+                        }
+                    }
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    resolve(canvas.toDataURL('image/jpeg', quality));
+                };
+                img.src = dataUrl;
+            });
+        }
+
+        function getDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371e3;
+            const φ1 = lat1 * Math.PI / 180,
+                φ2 = lat2 * Math.PI / 180,
+                Δφ = (lat2 - lat1) * Math.PI / 180,
+                Δλ = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        }
+
+        function updateClock() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('id-ID', {
+                hour12: false,
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            }).replace(/\./g, ':'); // Mengganti titik menjadi titik dua
+            const clockEl = document.getElementById('current-time'),
+                dateEl = document.getElementById('current-date');
+            if (clockEl) clockEl.textContent = timeStr;
+            if (dateEl) dateEl.textContent = now.toLocaleDateString('id-ID', {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+        }
+        setInterval(updateClock, 1000);
+
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (!activeStartTime) return;
+                const now = new Date();
+                const diff = new Date(now - activeStartTime);
+                const h = String(diff.getUTCHours()).padStart(2, '0');
+                const m = String(diff.getUTCMinutes()).padStart(2, '0');
+                const s = String(diff.getUTCSeconds()).padStart(2, '0');
+                const durEl = document.getElementById('active-duration');
+                if (durEl) durEl.textContent = h + ":" + m + ":" + s;
+            }, 1000);
+        }
+
+        function getSatelliteLayer() {
+            return L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                maxZoom: 19
+            });
+        }
+
+        // MAP & LOCATION
+        function initMainMap(lat, lng) {
+            if (mainMap) {
+                mainMap.setView([lat, lng], 18);
+                mainMarker.setLatLng([lat, lng]);
+                return;
+            }
+            const mapEl = document.getElementById('map');
+            if (!mapEl) return;
+            mainMap = L.map('map', {
+                zoomControl: false
+            }).setView([lat, lng], 18);
+            getSatelliteLayer().addTo(mainMap);
+            mainMarker = L.circleMarker([lat, lng], {
+                radius: 10,
+                fillColor: "#3b82f6",
+                color: "#fff",
+                weight: 3,
+                opacity: 1,
+                fillOpacity: 1
+            }).addTo(mainMap);
+        }
+
+        function trackLocation() {
+            if (navigator.geolocation) {
+                watchId = navigator.geolocation.watchPosition((p) => {
+                    currentPos.lat = p.coords.latitude;
+                    currentPos.lng = p.coords.longitude;
+                    const dist1 = getDistance(currentPos.lat, currentPos.lng, officePoints[0].lat, officePoints[0].lng);
+                    const dist2 = getDistance(currentPos.lat, currentPos.lng, officePoints[1].lat, officePoints[1].lng);
+                    const isInsideP1 = dist1 <= officePoints[0].radius;
+                    const isInsideP2 = dist2 <= officePoints[1].radius;
+                    const isSunday = new Date().getDay() === 0;
+
+                    const badge = document.getElementById('office-status-badge');
+                    const icon = document.getElementById('office-status-icon');
+                    const text = document.getElementById('form-location-text');
+                    const reasonCont = document.getElementById('outside-office-reason-container');
+
+                    if (isInsideP1 || isInsideP2 || isSunday) {
+                        isOutsideOffice = false;
+                        if (badge) badge.className = "mt-3 flex items-center gap-2 text-[10px] font-bold p-2.5 rounded-xl border bg-emerald-50 text-emerald-600 border-emerald-100";
+                        if (icon) icon.className = "fas fa-check-circle";
+                        if (text) {
+                            if (isSunday && !(isInsideP1 || isInsideP2)) {
+                                text.textContent = "Hari Libur (Bebas Radius Lokasi)";
+                            } else {
+                                text.textContent = "Anda berada di dalam radius kantor";
+                            }
+                        }
+                        if (reasonCont) reasonCont.classList.add('hidden-element');
+                    } else {
+                        isOutsideOffice = true;
+                        if (badge) badge.className = "mt-3 flex items-center gap-2 text-[10px] font-bold p-2.5 rounded-xl border bg-orange-50 text-orange-600 border-orange-100";
+                        if (icon) icon.className = "fas fa-exclamation-circle";
+                        if (text) text.textContent = "Anda berada di luar radius Kantor";
+                        if (reasonCont) reasonCont.classList.remove('hidden-element');
+                    }
+                    initMainMap(currentPos.lat, currentPos.lng);
+                }, (err) => {
+                    const text = document.getElementById('form-location-text');
+                    if (text) text.textContent = "Mencari koordinat satelit...";
+                }, {
+                    enableHighAccuracy: true,
+                    timeout: 10000
+                });
+            }
+        }
+
+        // MEDIA HANDLERS
+        async function initCamera() {
+            try {
+                if (videoStream) videoStream.getTracks().forEach(t => t.stop());
+                
+                const constraints = {
+                    video: {
+                        facingMode: "user",
+                        width: { ideal: 640 },
+                        height: { ideal: 640 }
+                    }
+                };
+                
+                videoStream = await navigator.mediaDevices.getUserMedia(constraints);
+                const video = document.getElementById('camera-preview');
+                if (video) {
+                    video.srcObject = videoStream;
+                    // Pastikan video tampil dan tidak hidden
+                    video.classList.remove('hidden-element');
+                    video.play();
+                }
+            } catch (err) {
+                console.error("Kamera Error:", err);
+                showFormError("Gagal mengakses kamera. Mohon izinkan akses kamera di browser Anda.");
+            }
+        }
+
+        window.takeSnapshot = function() {
+            const video = document.getElementById('camera-preview'),
+                canvas = document.getElementById('photo-canvas'),
+                resultImg = document.getElementById('photo-result');
+            
+            if (!video || !video.videoWidth) return;
+            
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            
+            // Mirroring (Transform scaleX -1 jika ingin hasil foto searah preview)
+            ctx.translate(canvas.width, 0);
+            ctx.scale(-1, 1);
+            ctx.drawImage(video, 0, 0);
+            
+            capturedPhoto = canvas.toDataURL('image/jpeg', 0.6);
+            resultImg.src = capturedPhoto;
+            
+            // Switch UI
+            video.classList.add('hidden-element');
+            resultImg.classList.remove('hidden-element');
+            document.getElementById('btn-capture').classList.add('hidden-element');
+            document.getElementById('btn-retake').classList.remove('hidden-element');
+            
+            // AKTIFKAN TOMBOL SUBMIT SEKETIKA
+            document.getElementById('btn-submit').classList.remove('btn-disabled');
+        };
+
+        window.resetCamera = function() {
+            capturedPhoto = null;
+            document.getElementById('camera-preview').classList.remove('hidden-element');
+            document.getElementById('photo-result').classList.add('hidden-element');
+            document.getElementById('btn-capture').classList.remove('hidden-element');
+            document.getElementById('btn-retake').classList.add('hidden-element');
+            document.getElementById('btn-submit').classList.add('btn-disabled');
+        };
+
+        // AUTH & VIEWS
+        function handleLogin() {
+            const uInput = document.getElementById('login-username').value,
+                pInput = document.getElementById('login-password').value,
+                errorBox = document.getElementById('login-error');
+
+            // Membersihkan input dari spasi yang tidak disengaja di awal/akhir
+            const cleanUser = String(uInput).trim();
+            const cleanPass = String(pInput).trim();
+
+            if (cleanUser === 'admin' && cleanPass === 'TWA119-021') {
+                currentUser = {
+                    id: 'admin-001',
+                    role: 'admin',
+                    name: 'Administrator'
+                };
+                showView('admin');
+            } else if (cleanUser === 'news' && cleanPass === 'news119-021') {
+                currentUser = {
+                    id: 'news-admin-001',
+                    role: 'news_admin',
+                    name: 'Admin Berita & Info'
+                };
+                showView('admin');
+            } else {
+                // Membaca data dari Google Sheet sebagai teks murni (String)
+                // dan menghapus spasi gaib agar karakter spesial seperti @ terbaca persis
+                const foundUser = users.find(u => {
+                    const sheetUser = u.username ? String(u.username).trim() : "";
+                    const sheetPass = u.password ? String(u.password).trim() : "";
+                    return sheetUser === cleanUser && sheetPass === cleanPass;
+                });
+                
+                if (foundUser) {
+                    currentUser = {
+                        role: 'user',
+                        ...foundUser
+                    };
+                    showView('user');
+                } else {
+                    errorBox.classList.remove('hidden-element');
+                    setTimeout(() => errorBox.classList.add('hidden-element'), 3000);
+                }
+            }
+        }
+
+        function handleLogout() {
+            if (timerInterval) clearInterval(timerInterval);
+            currentUser = null;
+            document.getElementById('login-username').value = "";
+            document.getElementById('login-password').value = "";
+            document.getElementById('working-badge').classList.add('hidden-element');
+            document.getElementById('status-banner').classList.add('hidden-element');
+            showView('login');
+        }
+
+        function showView(view) {
+            document.getElementById('login-page').classList.add('hidden-element');
+            document.getElementById('app-content').classList.add('hidden-element');
+            document.getElementById('admin-view').classList.add('hidden-element');
+            document.getElementById('user-attendance-view').classList.add('hidden-element');
+            document.getElementById('btn-my-profile').classList.add('hidden-element');
+            document.getElementById('webview-container').classList.add('hidden-element');
+
+            if (view === 'login') {
+                document.getElementById('login-page').classList.remove('hidden-element');
+            } else {
+                document.getElementById('app-content').classList.remove('hidden-element');
+                if (view === 'admin') {
+                    document.getElementById('admin-view').classList.remove('hidden-element');
+                    
+                    if (currentUser && currentUser.role === 'news_admin') {
+                        document.getElementById('admin-tab-users').classList.add('hidden-element');
+                        document.getElementById('admin-tab-all-logs').classList.add('hidden-element');
+                        document.getElementById('admin-tab-links').classList.add('hidden-element');
+                        document.getElementById('admin-tab-worklists').classList.add('hidden-element');
+                        document.getElementById('admin-tab-config').classList.add('hidden-element');
+                        setAdminTab('news');
+                    } else {
+                        document.getElementById('admin-tab-users').classList.remove('hidden-element');
+                        document.getElementById('admin-tab-all-logs').classList.remove('hidden-element');
+                        document.getElementById('admin-tab-links').classList.remove('hidden-element');
+                        document.getElementById('admin-tab-worklists').classList.remove('hidden-element');
+                        document.getElementById('admin-tab-config').classList.remove('hidden-element');
+                        setAdminTab('users');
+                    }
+                } else {
+                    document.getElementById('btn-my-profile').classList.remove('hidden-element');
+                    document.getElementById('user-attendance-view').classList.remove('hidden-element');
+                    const formattedName = (currentUser.rank ? (['Capt', 'FO'].includes(currentUser.rank) ? currentUser.rank + '. ' : currentUser.rank + ' ') : '') + currentUser.name;
+                    document.getElementById('welcome-name').textContent = formattedName;
+                    document.getElementById('welcome-role').textContent = (currentUser.jabatan || "-") + " - " + (currentUser.divisi || "-");
+                    const picCont = document.getElementById('welcome-profile-pic-container');
+                    if (currentUser.profilePic) {
+                        picCont.innerHTML = '<img src="' + currentUser.profilePic + '" class="w-full h-full object-cover">'
+                    } else {
+                        picCont.innerHTML = '<i class="fas fa-user text-white/50 text-2xl"></i>'
+                    }
+                    updateUI();
+                    checkBirthdays();
+                    updateWeather();
+                }
+            }
+        }
+
+        // LOGIC FUNCTIONS
+        async function updateWeather() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(async (position) => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+
+                    try {
+                        // 1. Ambil Cuaca (Open-Meteo API - Gratis)
+                        const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`);
+                        const weatherData = await weatherRes.json();
+                        const temp = Math.round(weatherData.current_weather.temperature);
+                        const code = weatherData.current_weather.weathercode;
+
+                        // 2. Mapping Ikon Cuaca
+                        let icon = "fas fa-cloud-sun text-orange-300";
+                        if (code === 0) icon = "fas fa-sun text-yellow-400";
+                        else if (code >= 1 && code <= 3) icon = "fas fa-cloud-sun text-orange-300";
+                        else if (code >= 45 && code <= 48) icon = "fas fa-smog text-slate-400";
+                        else if (code >= 51 && code <= 67) icon = "fas fa-cloud-rain text-blue-400";
+                        else if (code >= 71 && code <= 77) icon = "fas fa-snowflake text-blue-200";
+                        else if (code >= 80 && code <= 82) icon = "fas fa-cloud-showers-heavy text-blue-500";
+                        else if (code >= 95 && code <= 99) icon = "fas fa-bolt text-yellow-500";
+
+                        // 3. Ambil Nama Kota (BigDataCloud API - Gratis)
+                        const geoRes = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=id`);
+                        const geoData = await geoRes.json();
+                        const city = geoData.city || geoData.locality || "Lokasi Anda";
+
+                        // 4. Update UI
+                        const iconEl = document.getElementById('weather-icon');
+                        const textEl = document.getElementById('weather-text');
+                        if (iconEl) iconEl.className = icon + " text-3xl mb-1";
+                        if (textEl) textEl.textContent = `${temp}°C ${city}`;
+
+                    } catch (error) {
+                        console.error("Gagal memuat cuaca:", error);
+                        document.getElementById('weather-text').textContent = "--°C Offline";
+                    }
+                }, () => {
+                    document.getElementById('weather-text').textContent = "GPS Nonaktif";
+                });
+            }
+        }
+
+        function checkBirthdays() {
+            const section = document.getElementById('birthday-section');
+            if (!currentUser || currentUser.role === 'admin') {
+                section.classList.add('hidden-element');
+                return;
+            }
+            const today = new Date(),
+                tDay = today.getDate(),
+                tMonth = today.getMonth();
+            let isMyBirthday = false;
+            if (currentUser.dob) {
+                const myDob = new Date(currentUser.dob);
+                if (myDob.getDate() === tDay && myDob.getMonth() === tMonth) isMyBirthday = true;
+            }
+            const othersBirthday = users.filter(u => {
+                if (u.id == currentUser.id || !u.dob) return false;
+                const uDob = new Date(u.dob);
+                return uDob.getDate() === tDay && uDob.getMonth() === tMonth;
+            });
+
+            if (isMyBirthday) {
+                const myGreetings = birthdayGreetings.filter(g => g.toId == currentUser.id);
+                let greetingsListHtml = "";
+                if (myGreetings.length > 0) {
+                    greetingsListHtml = '<div class="mt-4 p-4 bg-white/10 rounded-2xl border border-white/20"><p class="text-[10px] font-black uppercase tracking-widest mb-3 flex items-center gap-2"><i class="fas fa-heart text-white animate-pulse"></i> Ucapan Masuk (' + myGreetings.length + ')</p><div class="space-y-2 max-h-40 overflow-y-auto no-scrollbar">' + myGreetings.map(g => '<div class="flex items-center gap-3 bg-white/10 p-3 rounded-xl border border-white/10 animate-fade"><div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-xs">🎉</div><div><p class="text-[10px] font-bold">' + g.fromName + '</p><p class="text-[8px] opacity-70">Mengirimkan doa terbaik untuk Anda</p></div></div>').join('') + '</div></div>';
+                }
+                section.innerHTML = '<div class="birthday-gradient p-6 rounded-[2.5rem] text-white shadow-xl shadow-pink-100 flex flex-col gap-4"><div class="flex items-center gap-5"><div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center text-3xl animate-bounce">🎂</div><div><h3 class="text-sm font-black uppercase tracking-widest mb-1">Happy Birthday!</h3><p class="text-[11px] leading-relaxed font-medium">Segenap Management dan Staff Transwisata mengucapkan selamat ulang tahun untuk Anda. Sukses selalu!</p></div></div>' + greetingsListHtml + '</div>';
+                section.classList.remove('hidden-element');
+            } else if (othersBirthday.length > 0) {
+                const birthdayPerson = othersBirthday[0],
+                    displayName = (birthdayPerson.rank ? birthdayPerson.rank + " " : "") + birthdayPerson.name;
+                section.innerHTML = '<div class="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col gap-4"><div class="flex items-center gap-4"><div class="w-12 h-12 bg-pink-50 text-pink-500 rounded-2xl flex items-center justify-center text-xl">🎉</div><div><h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest">Hari Bahagia</h3><p class="text-xs font-bold text-slate-700">' + displayName + ' berulang tahun hari ini!</p></div></div><button onclick="sendBirthdayGreeting(\'' + displayName + '\', \'' + birthdayPerson.id + '\')" class="w-full py-3 birthday-gradient text-white rounded-xl text-[10px] font-black shadow-lg shadow-pink-100 active:scale-95 transition-transform">KIRIM UCAPAN SEKARANG</button></div>';
+                section.classList.remove('hidden-element');
+            } else {
+                section.classList.add('hidden-element');
+            }
+        }
+
+        window.sendBirthdayGreeting = async function(name, toId) {
+            const senderName = (currentUser.rank ? currentUser.rank + " " : "") + currentUser.name;
+            await callCloud("saveGreeting", {
+                toId,
+                fromName: senderName,
+                timestamp: new Date().toISOString()
+            });
+            document.getElementById('success-modal').classList.remove('hidden-element');
+        };
+
+        // ADMIN FUNCTIONS
+        window.setAdminTab = function(tab) {
+            adminTab = tab;
+            // Update daftar tab untuk menyertakan 'links'
+            ['users', 'all-logs', 'news', 'links', 'worklists', 'config'].forEach(t => {
+                const btn = document.getElementById("admin-tab-" + t),
+                    sec = document.getElementById("admin-section-" + t);
+                if (btn) btn.classList.toggle('active', t === tab);
+                if (sec) sec.classList.toggle('hidden-element', t !== tab);
+            });
+            
+            if (tab === 'users') renderUserList();
+            if (tab === 'all-logs') {
+                updateAdminUserDatalist();
+                renderAllLogs();
+            }
+            if (tab === 'news') {
+                resetNewsForm();
+                renderNewsAdmin();
+            }
+            if (tab === 'links') {
+                renderAdminLinkOptions();
+                renderAdminLinkList();
+            }
+            if (tab === 'worklists') renderAdminWorkLists();
+            if (tab === 'config') renderScheduleConfig();
+        };
+
+        window.handleNewsImage = function(input) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    // PERCEPATAN 4: Kompresi gambar berita
+                    newsImageBase64 = await compressImage(e.target.result);
+                    document.getElementById('news-image-placeholder').classList.add('hidden-element');
+                    const preview = document.getElementById('news-image-preview');
+                    preview.src = newsImageBase64;
+                    preview.classList.remove('hidden-element');
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+
+        window.renderNewsAdmin = function() {
+            const list = document.getElementById('admin-news-list');
+            list.innerHTML = "";
+            if (newsItems.length === 0) {
+                list.innerHTML = '<div class="text-center py-10 bg-white rounded-3xl border-2 border-dashed border-slate-100 text-slate-300 text-xs font-bold uppercase">Tidak ada data</div>';
+                return;
+            }
+            newsItems.forEach((item, idx) => {
+                list.insertAdjacentHTML('beforeend', '<div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-50 flex items-center justify-between hover:shadow-md transition-shadow"><div onclick="showNewsDetail(\'' + item.id + '\')" class="flex items-center gap-4 flex-grow cursor-pointer"><div class="w-12 h-12 rounded-xl overflow-hidden bg-slate-100 border border-slate-100 flex items-center justify-center">' + (item.image ? '<img src="' + item.image + '" class="w-full h-full object-cover">' : '<i class="fas ' + (item.type === 'news' ? 'fa-newspaper' : 'fa-info-circle') + ' text-slate-300"></i>') + '</div><div><h4 class="text-xs font-black text-slate-800 line-clamp-1">' + item.title + '</h4><p class="text-[9px] font-bold text-slate-400 uppercase">' + (item.type === 'news' ? 'Berita' : 'Pengumuman') + '</p></div></div><div class="flex gap-1 ml-4"><button onclick="editNewsItem(' + idx + ')" class="w-8 h-8 flex items-center justify-center bg-blue-50 text-blue-500 rounded-lg hover:bg-blue-600 hover:text-white transition-colors"><i class="fas fa-edit text-[10px]"></i></button><button onclick="deleteNewsItem(' + idx + ')" class="w-8 h-8 flex items-center justify-center bg-red-50 text-red-500 rounded-lg hover:bg-red-600 hover:text-white transition-colors"><i class="fas fa-trash text-[10px]"></i></button></div></div>');
+            });
+        };
+
+        window.resetNewsForm = function() {
+            document.getElementById('edit-news-id').value = "";
+            document.getElementById('news-title-input').value = "";
+            document.getElementById('news-type-input').value = "news";
+            document.getElementById('news-content-input').value = "";
+            document.getElementById('news-image-input').value = "";
+            document.getElementById('news-image-preview').classList.add('hidden-element');
+            document.getElementById('news-image-placeholder').classList.remove('hidden-element');
+            document.getElementById('news-form-title').textContent = "Tambah Pengumuman";
+            document.getElementById('btn-submit-news').textContent = "POSTING SEKARANG";
+            document.getElementById('btn-cancel-news').classList.add('hidden-element');
+            newsImageBase64 = null;
+        };
+
+        window.editNewsItem = function(idx) {
+            const item = newsItems[idx];
+            document.getElementById('edit-news-id').value = item.id;
+            document.getElementById('news-title-input').value = item.title;
+            document.getElementById('news-type-input').value = item.type;
+            document.getElementById('news-content-input').value = item.content;
+            document.getElementById('news-form-title').textContent = "Edit Pengumuman";
+            document.getElementById('btn-submit-news').textContent = "SIMPAN PERUBAHAN";
+            document.getElementById('btn-cancel-news').classList.remove('hidden-element');
+            if (item.image) {
+                newsImageBase64 = item.image;
+                document.getElementById('news-image-preview').src = item.image;
+                document.getElementById('news-image-preview').classList.remove('hidden-element');
+                document.getElementById('news-image-placeholder').classList.add('hidden-element');
+            } else {
+                newsImageBase64 = null;
+                document.getElementById('news-image-preview').classList.add('hidden-element');
+                document.getElementById('news-image-placeholder').classList.remove('hidden-element');
+            }
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        };
+
+        async function addNewsItem() {
+            const id = document.getElementById('edit-news-id').value,
+                title = document.getElementById('news-title-input').value,
+                type = document.getElementById('news-type-input').value,
+                content = document.getElementById('news-content-input').value;
+            if (!title || !content) {
+                alert("Judul dan isi wajib diisi!");
+                return;
+            }
+            const data = {
+                id: id || Date.now(),
+                title,
+                type,
+                content,
+                image: newsImageBase64,
+                date: new Date().toISOString()
+            };
+            
+            // PERCEPATAN 5: Optimistic Update (Langsung tampilkan hasil di UI sebelum server merespon)
+            const existingIndex = newsItems.findIndex(n => n.id == data.id);
+            if(existingIndex > -1) newsItems[existingIndex] = data;
+            else newsItems.unshift(data);
+
+            resetNewsForm();
+            renderNewsAdmin();
+            updateUI();
+            
+            // Kirim data diam-diam di latar belakang
+            await callCloud("saveNews", data);
+        }
+
+        window.deleteNewsItem = async function(idx) {
+            if (confirm("Hapus berita ini secara permanen dari server?")) {
+                const item = newsItems[idx];
+                newsItems.splice(idx, 1); // Optimistic Update hapus langsung di UI
+                renderNewsAdmin();
+                updateUI();
+                await callCloud("deleteNews", { id: item.id });
+            }
+        };
+
+        window.showNewsDetail = function(id) {
+            const item = newsItems.find(n => n.id == id);
+            if (!item) return;
+            const modal = document.getElementById('news-detail-modal'),
+                imgCont = document.getElementById('news-detail-image-container'),
+                title = document.getElementById('news-detail-title'),
+                typeSpan = document.getElementById('news-detail-type'),
+                dateSpan = document.getElementById('news-detail-date'),
+                content = document.getElementById('news-detail-content'),
+                closeBtnHtml = '<button onclick="closeNewsDetail()" class="absolute top-6 right-6 w-10 h-10 bg-black/20 backdrop-blur-md text-white rounded-full flex items-center justify-center z-10 hover:bg-black/40"><i class="fas fa-times"></i></button>';
+
+            if (item.image) {
+                imgCont.innerHTML = closeBtnHtml + '<img src="' + item.image + '" class="w-full h-full object-cover">';
+                imgCont.classList.remove('hidden-element');
+            } else {
+                imgCont.innerHTML = closeBtnHtml;
+                imgCont.classList.add('hidden-element');
+            }
+            typeSpan.textContent = item.type === 'news' ? 'BERITA' : 'PENGUMUMAN';
+            typeSpan.className = 'text-[9px] font-black px-3 py-1 rounded-full ' + (item.type === 'news' ? 'bg-emerald-50 text-emerald-600' : 'bg-blue-50 text-blue-600');
+            dateSpan.textContent = new Date(item.date).toLocaleDateString('id-ID', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+            title.textContent = item.title;
+            content.textContent = item.content;
+            modal.classList.remove('hidden-element');
+        };
+
+        window.closeNewsDetail = function() {
+            document.getElementById('news-detail-modal').classList.add('hidden-element');
+        };
+
+        function updateAdminUserDatalist() {
+            const datalist = document.getElementById('admin-user-datalist');
+            if (!datalist) return;
+            datalist.innerHTML = users.map(u => '<option value="' + u.name + '">').join('');
+        }
+
+         window.renderAllLogs = function() {
+            const container = document.getElementById('all-logs-container'),
+                nameQuery = document.getElementById('filter-all-name').value.toLowerCase(),
+                startVal = document.getElementById('filter-all-start').value,
+                endVal = document.getElementById('filter-all-end').value;
+            if (container) container.innerHTML = "";
+            let filtered = dutyHistory.filter(s => {
+                const matchesName = s.userName.toLowerCase().includes(nameQuery),
+                    sessionDate = new Date(s.checkIn.timestamp);
+                sessionDate.setHours(0, 0, 0, 0);
+                let matchesStart = true;
+                if (startVal) {
+                    const startLimit = new Date(startVal);
+                    startLimit.setHours(0, 0, 0, 0);
+                    matchesStart = sessionDate >= startLimit;
+                }
+                let matchesEnd = true;
+                if (endVal) {
+                    const endLimit = new Date(endVal);
+                    endLimit.setHours(0, 0, 0, 0);
+                    matchesEnd = sessionDate <= endLimit;
+                }
+                return matchesName && matchesStart && matchesEnd;
+            });
+            filtered.sort((a, b) => b.checkIn.timestamp - a.checkIn.timestamp);
+            if (filtered.length === 0) {
+                if (container) container.innerHTML = '<div class="text-center py-16 bg-white rounded-[2rem] border-2 border-dashed border-slate-100"><p class="text-slate-300 text-xs font-bold uppercase">Data tidak ditemukan</p></div>';
+                return;
+            }
+             filtered.forEach(s => {
+                const isC = s.checkOut !== null,
+                    dateObj = new Date(s.checkIn.timestamp),
+                    df = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+                
+                // PERBAIKAN: Proteksi format 1899 (Google Sheets Time Format)
+                const formatTime = (t) => {
+                    if (!t) return '';
+                    let str = String(t);
+                    if (str.includes('T')) str = str.split('T')[1].split('.')[0];
+                    return str.replace(/\./g, ':');
+                };
+
+                const checkInTime = formatTime(s.checkIn.time);
+                const checkOutTime = isC ? formatTime(s.checkOut.time) : 'AKTIF';
+
+                if (container) container.insertAdjacentHTML('beforeend', '<div onclick="showDetail(\'' + s.id + '\')" class="bg-white p-5 rounded-[2rem] shadow-sm border border-slate-50 flex items-center justify-between active:scale-[0.98] transition-all cursor-pointer animate-fade"><div class="flex items-center gap-4"><div class="relative"><img src="' + s.checkIn.photo + '" class="w-14 h-14 rounded-2xl object-cover border-2 border-white shadow-md">' + (isC ? '<div class="absolute -top-1 -right-1 w-6 h-6 bg-blue-500 rounded-lg flex items-center justify-center text-white border border-white"><i class="fas fa-check text-[8px]"></i></div>' : '') + '</div><div class="flex-grow"><h4 class="text-xs font-black text-slate-800">' + s.userName + '</h4><p class="text-[8px] font-bold text-slate-400 uppercase tracking-tight">' + (s.userDivision || "") + ' [' + df + ']' + '</p><div class="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-slate-50"><div><p class="text-[7px] font-black text-slate-400 uppercase tracking-widest">Check In Time</p><p class="text-[9px] font-bold text-blue-600">' + checkInTime + '</p></div><div><p class="text-[7px] font-black text-slate-400 uppercase tracking-widest">Check Out Time</p><p class="text-[9px] ' + (isC ? 'text-slate-700 font-bold' : 'text-blue-500 animate-pulse font-black') + '">' + checkOutTime + '</p></div></div></div></div><div class="w-8 h-8 bg-slate-50 rounded-full flex items-center justify-center text-slate-200"><i class="fas fa-chevron-right text-[10px]"></i></div></div>');
+            });
+        };
+
+        window.resetAdminFilters = function() {
+            document.getElementById('filter-all-name').value = "";
+            document.getElementById('filter-all-start').value = "";
+            document.getElementById('filter-all-end').value = "";
+            renderAllLogs();
+        };
+
+        function renderAdminWorkLists() {
+            const typeList = document.getElementById('admin-work-type-list'),
+                roleList = document.getElementById('admin-duty-role-list');
+            if (typeList) typeList.innerHTML = availableWorkTypes.map((t, i) => '<div class="flex justify-between items-center p-3 bg-slate-50 rounded-xl text-xs font-bold"><span>' + t + '</span><button onclick="deleteWorkType(' + i + ')" class="text-red-400 hover:text-red-600"><i class="fas fa-trash"></i></button></div>').join('');
+            if (roleList) roleList.innerHTML = availableDutyAs.map((r, i) => '<div class="flex justify-between items-center p-3 bg-slate-50 rounded-xl text-xs font-bold"><span>' + r + '</span><button onclick="deleteDutyRole(' + i + ')" class="text-red-400 hover:text-red-600"><i class="fas fa-trash"></i></button></div>').join('');
+        }
+
+        async function addWorkType() {
+            const val = document.getElementById('new-work-type').value;
+            if (val && !availableWorkTypes.includes(val)) {
+                availableWorkTypes.push(val);
+                document.getElementById('new-work-type').value = "";
+                await callCloud("saveWorkLists", {
+                    types: availableWorkTypes,
+                    roles: availableDutyAs
+                });
+                renderAdminWorkLists();
+            }
+        }
+
+        async function deleteWorkType(i) {
+            availableWorkTypes.splice(i, 1);
+            await callCloud("saveWorkLists", {
+                types: availableWorkTypes,
+                roles: availableDutyAs
+            });
+            renderAdminWorkLists();
+        }
+
+        async function addDutyRole() {
+            const val = document.getElementById('new-duty-role').value;
+            if (val && !availableDutyAs.includes(val)) {
+                availableDutyAs.push(val);
+                document.getElementById('new-duty-role').value = "";
+                await callCloud("saveWorkLists", {
+                    types: availableWorkTypes,
+                    roles: availableDutyAs
+                });
+                renderAdminWorkLists();
+            }
+        }
+
+        async function deleteDutyRole(i) {
+            availableDutyAs.splice(i, 1);
+            await callCloud("saveWorkLists", {
+                types: availableWorkTypes,
+                roles: availableDutyAs
+            });
+            renderAdminWorkLists();
+        }
+
+        function renderScheduleConfig() {
+            const cfgIn = document.getElementById('cfg-weekday-in');
+            if (cfgIn) cfgIn.value = scheduleConfig.weekday?.in || "09:00";
+            const cfgOut = document.getElementById('cfg-weekday-out');
+            if (cfgOut) cfgOut.value = scheduleConfig.weekday?.out || "17:00";
+            const cfgOt = document.getElementById('cfg-weekday-ot');
+            if (cfgOt) cfgOt.value = scheduleConfig.weekday?.ot || "17:15";
+            const cfgSIn = document.getElementById('cfg-sat-in');
+            if (cfgSIn) cfgSIn.value = scheduleConfig.saturday?.in || "09:00";
+            const cfgSOut = document.getElementById('cfg-sat-out');
+            if (cfgSOut) cfgSOut.value = scheduleConfig.saturday?.out || "14:30";
+            const cfgSOt = document.getElementById('cfg-sat-ot');
+            if (cfgSOt) cfgSOt.value = scheduleConfig.saturday?.ot || "14:30";
+        }
+
+        async function saveScheduleConfig() {
+            scheduleConfig.weekday = {
+                in: document.getElementById('cfg-weekday-in').value,
+                out: document.getElementById('cfg-weekday-out').value,
+                ot: document.getElementById('cfg-weekday-ot').value
+            };
+            scheduleConfig.saturday = {
+                in: document.getElementById('cfg-sat-in').value,
+                out: document.getElementById('cfg-sat-out').value,
+                ot: document.getElementById('cfg-sat-ot').value
+            };
+            await callCloud("saveConfig", scheduleConfig);
+            document.getElementById('success-modal').classList.remove('hidden-element');
+        }
+
+        window.openBulkImport = function() {
+            document.getElementById('bulk-input-text').value = "";
+            document.getElementById('bulk-error-msg').classList.add('hidden-element');
+            document.getElementById('bulk-import-modal').classList.remove('hidden-element');
+        };
+
+        window.closeBulkImport = function() {
+            document.getElementById('bulk-import-modal').classList.add('hidden-element');
+        };
+
+        async function processBulkImport() {
+            const text = document.getElementById('bulk-input-text').value,
+                errorBox = document.getElementById('bulk-error-msg');
+            if (!text.trim()) {
+                errorBox.textContent = "Data tidak boleh kosong!";
+                errorBox.classList.remove('hidden-element');
+                return;
+            }
+            const lines = text.split('\n').filter(l => l.trim() !== ''),
+                limit = Math.min(lines.length, 100);
+            let newUsers = [];
+            for (const line of lines.slice(0, limit)) {
+                const parts = line.split('|').map(p => p.trim());
+                if (parts.length >= 7) {
+                    const name = parts[0],
+                        rank = parts[1],
+                        position = parts[2],
+                        division = parts[3],
+                        email = parts[4],
+                        user = parts[5],
+                        pass = parts[6],
+                        dob = parts[7] || null;
+                    if (rank && !availableRanks.includes(rank)) availableRanks.push(rank);
+                    if (division && !availableDivisions.includes(division)) availableDivisions.push(division);
+                    newUsers.push({
+                        id: Date.now() + Math.random(),
+                        name,
+                        dob,
+                        rank,
+                        jabatan: position,
+                        divisi: division,
+                        email,
+                        username: user,
+                        password: pass,
+                        profilePic: null
+                    });
+                }
+            }
+            if (newUsers.length > 0) {
+                await callCloud("bulkSaveUsers", newUsers);
+                renderUserList();
+                closeBulkImport();
+                document.getElementById('success-msg').textContent = newUsers.length + ' data karyawan berhasil diimport!';
+                document.getElementById('success-modal').classList.remove('hidden-element');
+            } else {
+                errorBox.textContent = "Format data tidak valid. Pastikan menggunakan pemisah '|'";
+                errorBox.classList.remove('hidden-element');
+            }
+        }
+
+        function renderUserList() {
+            const container = document.getElementById('user-list-container');
+            const searchInput = document.getElementById('filter-user-name');
+            const searchQuery = searchInput ? searchInput.value.toLowerCase() : "";
+            
+            if (container) container.innerHTML = "";
+            if (users.length === 0) {
+                if (container) container.innerHTML = '<div class="text-center py-20 bg-white rounded-[2.5rem] border-2 border-dashed border-slate-100"><p class="text-slate-400 text-xs font-bold uppercase">Belum ada karyawan</p></div>';
+                return;
+            }
+            
+            let filteredUsers = users;
+            if (searchQuery) {
+                filteredUsers = users.filter(u => 
+                    (u.name && u.name.toLowerCase().includes(searchQuery)) || 
+                    (u.username && String(u.username).toLowerCase().includes(searchQuery))
+                );
+            }
+            
+            if (filteredUsers.length === 0) {
+                if (container) container.innerHTML = '<div class="text-center py-20 bg-white rounded-[2.5rem] border-2 border-dashed border-slate-100"><p class="text-slate-400 text-xs font-bold uppercase">Pencarian tidak ditemukan</p></div>';
+                return;
+            }
+
+            let groups = {};
+            filteredUsers.forEach(u => {
+                const div = u.divisi || "Tanpa Divisi";
+                if (!groups[div]) groups[div] = [];
+                groups[div].push(u);
+            });
+            
+            for (const div in groups) {
+                let html = '<div><div class="flex items-center gap-3 mb-4 px-2"><span class="h-px bg-slate-200 flex-grow"></span><span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">' + div + '</span><span class="h-px bg-slate-200 flex-grow"></span></div><div class="grid grid-cols-1 gap-3">';
+                groups[div].forEach(u => {
+                    const avatar = u.profilePic ? '<img src="' + u.profilePic + '" class="w-full h-full object-cover">' : '<i class="fas fa-user text-slate-300"></i>';
+                    html += '<div onclick="openUserForm(' + u.id + ')" class="bg-white p-5 rounded-3xl shadow-sm flex items-center justify-between hover:shadow-md transition-all cursor-pointer border border-slate-50"><div class="flex items-center gap-4"><div class="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center overflow-hidden border border-slate-100">' + avatar + '</div><div><h4 class="text-sm font-black text-slate-800">' + u.name + '</h4><p class="text-[10px] font-bold text-blue-600 uppercase">' + u.jabatan + '</p></div></div><i class="fas fa-chevron-right text-slate-200 text-xs"></i></div>';
+                });
+                html += '</div></div>';
+                if (container) container.insertAdjacentHTML('beforeend', html);
+            }
+            updateAdminUserDatalist();
+        }
+
+        window.openUserForm = function(userId = null) {
+            const modal = document.getElementById('user-form-modal'),
+                title = document.getElementById('user-form-title'),
+                deleteBtn = document.getElementById('btn-delete-user'),
+                rankSel = document.getElementById('reg-rank'),
+                divSel = document.getElementById('reg-division');
+
+            rankSel.innerHTML = availableRanks.map(r => '<option>' + r + '</option>').join('') + '<option value="manual">Tambah Manual...</option>';
+            divSel.innerHTML = availableDivisions.map(d => '<option>' + d + '</option>').join('') + '<option value="manual">Tambah Manual...</option>';
+
+            document.getElementById('edit-user-id').value = userId || "";
+            document.getElementById('reg-name').value = "";
+            document.getElementById('reg-dob').value = "";
+            document.getElementById('reg-rank').value = "Capt";
+            document.getElementById('reg-rank-manual').value = "";
+            document.getElementById('reg-rank-manual').classList.add('hidden-element');
+            document.getElementById('reg-position').value = "";
+            document.getElementById('reg-division').value = "Staff";
+            document.getElementById('reg-division-manual').value = "";
+            document.getElementById('reg-division-manual').classList.add('hidden-element');
+            document.getElementById('reg-email').value = "";
+            document.getElementById('reg-username').value = "";
+            document.getElementById('reg-password').value = "";
+            profilePicBase64 = null;
+            document.getElementById('profile-pic-preview').classList.add('hidden-element');
+            document.getElementById('profile-pic-placeholder').classList.remove('hidden-element');
+
+            if (userId) {
+                const u = users.find(x => x.id == userId);
+                if (u) {
+                    title.textContent = "Edit User";
+                    deleteBtn.classList.remove('hidden-element');
+                    document.getElementById('reg-name').value = u.name;
+                    const dobInput = document.getElementById('reg-dob');
+                    if (dobInput) {
+                        if (u.dob) {
+                            // FIXED: Gunakan waktu lokal agar tanggal tidak berkurang 1 hari
+                            const d = new Date(u.dob);
+                            const year = d.getFullYear();
+                            const month = String(d.getMonth() + 1).padStart(2, '0');
+                            const day = String(d.getDate()).padStart(2, '0');
+                            dobInput.value = `${year}-${month}-${day}`;
+                        } else {
+                            dobInput.value = "";
+                        }
+                    }
+                    document.getElementById('reg-rank').value = u.rank;
+                    document.getElementById('reg-position').value = u.jabatan;
+                    document.getElementById('reg-division').value = u.divisi;
+                    document.getElementById('reg-email').value = u.email;
+                    document.getElementById('reg-username').value = u.username;
+                    document.getElementById('reg-password').value = u.password;
+                    if (u.profilePic) {
+                        profilePicBase64 = u.profilePic;
+                        document.getElementById('profile-pic-preview').src = u.profilePic;
+                        document.getElementById('profile-pic-preview').classList.remove('hidden-element');
+                        document.getElementById('profile-pic-placeholder').classList.add('hidden-element');
+                    }
+                }
+            } else {
+                title.textContent = "Tambah User";
+                deleteBtn.classList.add('hidden-element');
+            }
+            modal.classList.remove('hidden-element');
+        };
+
+        window.closeUserForm = function() {
+            document.getElementById('user-form-modal').classList.add('hidden-element');
+        };
+
+        window.toggleManualRank = function() {
+            document.getElementById('reg-rank-manual').classList.toggle('hidden-element', document.getElementById('reg-rank').value !== 'manual');
+        };
+
+        window.toggleManualDiv = function() {
+            document.getElementById('reg-division-manual').classList.toggle('hidden-element', document.getElementById('reg-division').value !== 'manual');
+        };
+
+        async function saveUser() {
+            const id = document.getElementById('edit-user-id').value,
+                name = document.getElementById('reg-name').value,
+                dob = document.getElementById('reg-dob').value;
+            let rank = document.getElementById('reg-rank').value;
+            if (rank === 'manual') {
+                rank = document.getElementById('reg-rank-manual').value;
+                if (rank && !availableRanks.includes(rank)) availableRanks.push(rank);
+            }
+            const jabatan = document.getElementById('reg-position').value;
+            let divisi = document.getElementById('reg-division').value;
+            if (divisi === 'manual') {
+                divisi = document.getElementById('reg-division-manual').value;
+                if (divisi && !availableDivisions.includes(divisi)) availableDivisions.push(divisi);
+            }
+            const email = document.getElementById('reg-email').value,
+                user = document.getElementById('reg-username').value,
+                pass = document.getElementById('reg-password').value;
+            if (!name || !rank || !jabatan || !divisi || !user || !pass) {
+                alert("Wajib diisi!");
+                return;
+            }
+            const data = {
+                id: id || Date.now(),
+                name,
+                dob,
+                rank,
+                jabatan,
+                divisi,
+                email,
+                username: user,
+                password: pass,
+                profilePic: profilePicBase64
+            };
+            
+            // Optimistic update User
+            const existingIndex = users.findIndex(u => u.id == data.id);
+            if(existingIndex > -1) users[existingIndex] = data;
+            else users.push(data);
+
+            closeUserForm();
+            renderUserList();
+
+            await callCloud("saveUser", data);
+        }
+
+        window.handleDeleteUser = async function() {
+            const idInput = document.getElementById('edit-user-id').value;
+            if (!idInput) return;
+            if (confirm("Hapus karyawan ini secara permanen dari server?")) {
+                const idNum = parseFloat(idInput);
+                users = users.filter(u => u.id != idNum); // Optimistic Update hapus
+                closeUserForm();
+                renderUserList();
+                await callCloud("deleteUser", { id: idNum });
+            }
+        };
+
+        // USER FUNCTIONS
+        window.openForm = function(mode) {
+            currentMode = mode;
+            workPhotoBase64 = null;
+            document.getElementById('main-actions').classList.add('hidden-element');
+            // document.getElementById('secondary-actions').classList.add('hidden-element'); // Hide secondary buttons (if applicable)
+            document.getElementById('status-banner').classList.add('hidden-element');
+            document.getElementById('user-info-section').classList.add('hidden-element');
+            document.getElementById('birthday-section').classList.add('hidden-element');
+            document.getElementById('form-container').classList.remove('hidden-element');
+            document.getElementById('form-title').textContent = mode === 'check-in' ? 'Protokol Masuk' : 'Protokol Keluar';
+
+            const typeEl = document.getElementById('type-of-work'),
+                dutyEl = document.getElementById('duty-as');
+            if (typeEl) typeEl.innerHTML = '<option value="" disabled selected>Pilih Tipe...</option>' + availableWorkTypes.map(t => '<option value="' + t + '">' + t + '</option>').join('');
+            if (dutyEl) dutyEl.innerHTML = '<option value="" disabled selected>Pilih Peran...</option>' + availableDutyAs.map(r => '<option value="' + r + '">' + r + '</option>').join('');
+
+            const formattedName = (currentUser.rank ? (['Capt', 'FO'].includes(currentUser.rank) ? currentUser.rank + '. ' : currentUser.rank + ' ') : '') + currentUser.name;
+            document.getElementById('form-user-name').textContent = formattedName;
+            document.getElementById('form-user-position').textContent = currentUser.jabatan;
+            document.getElementById('form-user-division').textContent = currentUser.divisi;
+
+            document.getElementById('checkout-fields').classList.toggle('hidden-element', mode === 'check-in');
+            if (mode === 'check-out') {
+                const active = dutyHistory.find(s => s.checkOut === null && s.userId == currentUser.id);
+                if (active) {
+                    if (typeEl) typeEl.value = active.workType;
+                    if (dutyEl) dutyEl.value = active.dutyAs;
+                }
+            }
+
+            const now = new Date(),
+                day = now.getDay(),
+                h = now.getHours(),
+                m = now.getMinutes(),
+                currentTimeVal = h * 100 + m;
+            const schedule = scheduleConfig || {},
+                weekdayInStr = schedule.weekday?.in || "09:00",
+                satInStr = schedule.saturday?.in || "09:00",
+                weekdayInVal = parseInt(weekdayInStr.replace(':', '')),
+                satInVal = parseInt(satInStr.replace(':', ''));
+
+            document.getElementById('late-reason-container').classList.add('hidden-element');
+            document.getElementById('checkout-status-reason-container').classList.add('hidden-element');
+            document.getElementById('attendance-notice').classList.add('hidden-element');
+
+            const notice = document.getElementById('attendance-notice'),
+                noticeText = document.getElementById('attendance-notice-text');
+            if (mode === 'check-in') {
+                let isLate = false;
+                if (day !== 0) {
+                    const targetIn = (day === 6) ? satInVal : weekdayInVal;
+                    if (currentTimeVal > targetIn) isLate = true;
+                }
+                if (isLate) {
+                    notice.className = "mb-6 p-4 rounded-2xl text-xs font-bold flex items-start gap-3 border bg-red-50 text-red-600 border-red-100";
+                    noticeText.textContent = "Terlambat. Isi alasan!";
+                    notice.classList.remove('hidden-element');
+                    document.getElementById('late-reason-container').classList.remove('hidden-element');
+                } else if (day !== 0) {
+                    notice.className = "mb-6 p-4 rounded-2xl text-xs font-bold flex items-start gap-3 border bg-emerald-50 text-emerald-600 border-emerald-100";
+                    noticeText.textContent = "Tepat waktu. Selamat bertugas!";
+                    notice.classList.remove('hidden-element');
+                }
+            } else {
+                document.getElementById('remarks').value = "";
+                if (day !== 0) {
+                    const reasonCont = document.getElementById('checkout-status-reason-container'),
+                        reasonLabel = document.getElementById('checkout-reason-label'),
+                        targetOutStr = (day === 6) ? (schedule.saturday?.out || "14:30") : (schedule.weekday?.out || "17:00"),
+                        targetOtStr = (day === 6) ? (schedule.saturday?.ot || "14:30") : (schedule.weekday?.ot || "17:15"),
+                        targetOut = parseInt(targetOutStr.replace(':', '')),
+                        targetOt = parseInt(targetOtStr.replace(':', ''));
+
+                    if (currentTimeVal > targetOt) {
+                        notice.className = "mb-6 p-4 rounded-2xl text-xs font-bold flex items-start gap-3 border bg-blue-50 text-blue-600 border-blue-100";
+                        noticeText.textContent = "Lembur terdeteksi.";
+                        notice.classList.remove('hidden-element');
+                        reasonCont.classList.remove('hidden-element');
+                        reasonLabel.textContent = "Alasan Lembur?";
+                    } else if (currentTimeVal < targetOut) {
+                        notice.className = "mb-6 p-4 rounded-2xl text-xs font-bold flex items-start gap-3 border bg-orange-50 text-orange-600 border-orange-100";
+                        noticeText.textContent = "Pulang Awal.";
+                        notice.classList.remove('hidden-element');
+                        reasonCont.classList.remove('hidden-element');
+                        reasonLabel.textContent = "Alasan Pulang Awal?";
+                    }
+                }
+            }
+            setTimeout(() => {
+                if (mainMap) mainMap.invalidateSize()
+            }, 400);
+            initCamera();
+            trackLocation();
+            resetCamera();
+        };
+
+        window.closeForm = function() {
+            document.getElementById('main-actions').classList.remove('hidden-element');
+            if (isWorking) document.getElementById('status-banner').classList.remove('hidden-element');
+            document.getElementById('form-container').classList.add('hidden-element');
+            document.getElementById('form-error-msg').classList.add('hidden-element');
+            document.getElementById('user-info-section').classList.remove('hidden-element');
+            checkBirthdays();
+            if (videoStream) {
+                videoStream.getTracks().forEach(t => t.stop());
+                videoStream = null;
+            }
+            if (watchId) navigator.geolocation.clearWatch(watchId);
+        };
+
+        // WEB VIEWER HANDLERS
+        window.openWebView = function(url, title) {
+            const container = document.getElementById('webview-container');
+            const frame = document.getElementById('external-frame');
+            const titleEl = document.getElementById('webview-title');
+            
+            document.getElementById('app-content').classList.add('hidden-element');
+            titleEl.textContent = title;
+            frame.src = url;
+            container.classList.remove('hidden-element');
+        };
+
+        window.closeWebView = function() {
+            const container = document.getElementById('webview-container');
+            const frame = document.getElementById('external-frame');
+            
+            container.classList.add('hidden-element');
+            frame.src = 'about:blank';
+            document.getElementById('app-content').classList.remove('hidden-element');
+        };
+
+        function showFormError(msg) {
+            const container = document.getElementById('form-error-msg'),
+                errorText = document.getElementById('error-text');
+            if (errorText) errorText.textContent = msg;
+            if (container) container.classList.remove('hidden-element');
+            if (container) container.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+        }
+
+        async function submitAttendance() {
+            if (!capturedPhoto) {
+                showFormError("Ambil foto selfie!");
+                return;
+            }
+            const wt = document.getElementById('type-of-work').value,
+                da = document.getElementById('duty-as').value;
+            if (!wt || !da) {
+                showFormError("Tipe Pekerjaan dan Peran Tugas wajib diisi!");
+                return;
+            }
+            let officeReason = "";
+            if (isOutsideOffice) {
+                officeReason = document.getElementById('outside-office-reason').value.trim();
+                if (!officeReason) {
+                    showFormError("Isi alasan berada di luar radius kantor!");
+                    return;
+                }
+            }
+            // Memastikan waktu yang diambil dari jam dashboard menggunakan format titik dua
+            const timeStr = document.getElementById('current-time').textContent.replace(/\./g, ':');
+            const now = Date.now(),
+                dateObj = new Date(),
+                day = dateObj.getDay(),
+                h = dateObj.getHours(),
+                m = dateObj.getMinutes(),
+                timeVal = h * 100 + m,
+                formattedName = (currentUser.rank ? (['Capt', 'FO'].includes(currentUser.rank) ? currentUser.rank + '. ' : currentUser.rank + ' ') : '') + currentUser.name;
+
+            let currentSession;
+            if (currentMode === 'check-in') {
+                let status = "Hadir Tepat Waktu",
+                    reason = "";
+                const schedule = scheduleConfig || {},
+                    targetInStr = (day === 6) ? (schedule.saturday?.in || "09:00") : (schedule.weekday?.in || "09:00"),
+                    targetIn = parseInt(targetInStr.replace(':', ''));
+                if (day !== 0 && timeVal > targetIn) {
+                    status = "Terlambat";
+                    reason = document.getElementById('late-reason').value;
+                    if (!reason.trim()) {
+                        showFormError("Isi alasan!");
+                        return;
+                    }
+                }
+                currentSession = {
+                    id: 'F-' + now.toString().slice(-6),
+                    userId: currentUser.id,
+                    userName: formattedName,
+                    userPosition: currentUser.jabatan,
+                    userDivision: currentUser.divisi,
+                    userProfilePic: currentUser.profilePic,
+                    workType: wt,
+                    dutyAs: da,
+                    statusIn: status,
+                    lateReason: reason,
+                    outsideOfficeReason: officeReason,
+                    checkIn: {
+                        time: timeStr,
+                        lat: currentPos.lat,
+                        lng: currentPos.lng,
+                        photo: capturedPhoto,
+                        timestamp: now,
+                        isWithinRadius: !isOutsideOffice // PASTIKAN NILAI INI TERKIRIM
+                    },
+                    checkOut: null
+                };
+                dutyHistory.push(currentSession); // PERCEPATAN: Tambahkan langsung ke UI!
+                document.getElementById('success-msg').textContent = "Anda Berhasil Melakukan Check in - Selamat Bekerja😀";
+                speakNotification("Berhasil, anda telah check in.");
+            } else {
+                const remarksValue = document.getElementById('remarks').value.trim();
+                if (!remarksValue) {
+                    showFormError("Kolom Laporan Pekerjaan (Remarks) wajib diisi!");
+                    return;
+                }
+                if (!workPhotoBase64) {
+                    showFormError("Tambahan foto dokumentasi wajib diunggah!");
+                    return;
+                }
+                 let outsideReasonOut = "";
+                if (isOutsideOffice) {
+                    outsideReasonOut = document.getElementById('outside-office-reason').value.trim();
+                    if (!outsideReasonOut) {
+                        showFormError("Isi alasan berada di luar radius kantor!");
+                        return;
+                    }
+                }
+                const active = dutyHistory.find(s => s.checkOut === null && s.userId == currentUser.id);
+                if (active) {
+                    active.workType = wt;
+                    active.dutyAs = da;
+                    let sO = "Pulang Tepat Waktu",
+                        rO = "";
+                    if (day !== 0) {
+                        const schedule = scheduleConfig || {},
+                            targetOutStr = (day === 6) ? (schedule.saturday?.out || "14:30") : (schedule.weekday?.out || "17:00"),
+                            targetOtStr = (day === 6) ? (schedule.saturday?.ot || "14:30") : (schedule.weekday?.ot || "17:15"),
+                            targetOut = parseInt(targetOutStr.replace(':', '')),
+                            targetOt = parseInt(targetOtStr.replace(':', ''));
+                        if (timeVal > targetOt) {
+                            sO = "Lembur";
+                            rO = document.getElementById('checkout-status-reason').value;
+                        } else if (timeVal < targetOut) {
+                            sO = "Pulang Sebelum Waktunya";
+                            rO = document.getElementById('checkout-status-reason').value;
+                        }
+                        if ((sO === "Lembur" || sO === "Pulang Sebelum Waktunya") && !rO.trim()) {
+                            showFormError("Isi alasan!");
+                            return;
+                        }
+                    } else {
+                        sO = "Tugas Hari Minggu"
+                    }
+                   active.checkOut = {
+                        time: timeStr,
+                        lat: currentPos.lat,
+                        lng: currentPos.lng,
+                        photo: capturedPhoto,
+                        remarks: remarksValue,
+                        workPhoto: workPhotoBase64,
+                        timestamp: now,
+                        statusOut: sO,
+                        statusReason: rO,
+                        outsideReason: outsideReasonOut, // SIMPAN KE PROPERTI TERPISAH
+                        overtimeLabel: (sO === "Lembur" ? calculateOvertimeDuration(now) : null)
+                    };
+                    currentSession = active;
+                }
+                document.getElementById('success-msg').textContent = "Anda Berhasil Check Out Selamat Istirahat & Hati-hati di Jalan😊👋🏼";
+                speakNotification("Berhasil, anda check out. Hati-hati di jalan ya.");
+            }
+            
+            // PERCEPATAN: Tampilkan modal sukses INSTAN tanpa menunggu server
+            updateUI();
+            document.getElementById('success-modal').classList.remove('hidden-element');
+            closeForm();
+
+            // Background Upload
+            await callCloud("saveLog", currentSession);
+        }
+
+        function calculateOvertimeDuration(now) {
+            const d = new Date(now),
+                day = d.getDay();
+            if (day === 0) return null;
+            const s = scheduleConfig || {},
+                limit = (day === 6) ? (s.saturday?.ot || "14:30") : (s.weekday?.ot || "17:15"),
+                [oh, om] = limit.split(':').map(Number);
+            const ld = new Date(now);
+            ld.setHours(oh, om, 0, 0);
+            if (now > ld.getTime()) {
+                const diff = now - ld.getTime(),
+                    tm = Math.floor(diff / 60000),
+                    h = Math.floor(tm / 60),
+                    m = tm % 60;
+                return String(h).padStart(2, '0') + ":" + String(m).padStart(2, '0') + " Jam";
+            }
+            return null;
+        }
+
+        function formatDuration(s, e) {
+            const d = e - s;
+            if (isNaN(d)) return "0j 0m 0d";
+            const h = Math.floor(d / 3600000),
+                m = Math.floor((d % 3600000) / 60000),
+                sec = Math.floor((d % 60000) / 1000);
+            return h + "j " + m + "m " + sec + "d";
+        }
+
+        function getWeekNumber(d) {
+            const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+            t.setUTCDate(t.getUTCDate() + 4 - (t.getUTCDay() || 7));
+            const s = new Date(Date.UTC(t.getUTCFullYear(), 0, 1));
+            return Math.ceil((((t - s) / 86400000) + 1) / 7);
+        }
+
+        window.setHistoryFilter = function(f) {
+            historyFilter = f;
+            ['daily', 'weekly', 'monthly', 'yearly'].forEach(t => {
+                const el = document.getElementById("tab-" + t);
+                if (el) el.classList.toggle('active', t === f);
+            });
+            updateUI();
+        };
+
+        function renderNewsUser() {
+            const slider = document.getElementById('user-news-slider'),
+                announcementList = document.getElementById('user-announcement-list');
+            if (!slider || !announcementList) return;
+            slider.innerHTML = "";
+            announcementList.innerHTML = "";
+            const newsOnly = newsItems.filter(i => i.type === 'news'),
+                infoOnly = newsItems.filter(i => i.type === 'info');
+
+            if (newsOnly.length === 0) {
+                slider.innerHTML = '<div class="bg-white p-4 rounded-2xl border border-slate-100 w-full text-center text-slate-300 text-[10px] font-bold">Tidak ada berita</div>';
+            } else {
+                newsOnly.forEach(item => {
+                    slider.insertAdjacentHTML('beforeend', '<div onclick="showNewsDetail(\'' + item.id + '\')" class="news-card bg-white p-0 rounded-[2rem] shadow-sm border border-slate-50 overflow-hidden"><div class="w-full h-24 bg-slate-100 flex items-center justify-center">' + (item.image ? '<img src="' + item.image + '" class="w-full h-full object-cover">' : '<i class="fas fa-newspaper text-slate-300 text-2xl"></i>') + '</div><div class="p-4"><span class="text-[8px] font-black text-emerald-500 bg-emerald-50 px-2 py-1 rounded-lg uppercase">Update</span><h4 class="text-xs font-black text-slate-800 mt-2 mb-1 line-clamp-1">' + item.title + '</h4><p class="text-[10px] text-slate-500 line-clamp-1 justify-text">' + item.content + '</p></div></div>');
+                });
+            }
+            if (infoOnly.length === 0) {
+                announcementList.innerHTML = '<p class="text-[10px] opacity-70 font-bold italic text-center">Belum ada pengumuman hari ini</p>';
+            } else {
+                infoOnly.forEach(item => {
+                    announcementList.insertAdjacentHTML('beforeend', '<div onclick="showNewsDetail(\'' + item.id + '\')" class="bg-white/10 p-4 rounded-2xl border border-white/10 cursor-pointer hover:bg-white/20 transition-colors"><div class="flex gap-3">' + (item.image ? '<img src="' + item.image + '" class="w-10 h-10 rounded-lg object-cover flex-shrink-0">' : '') + '<div><h4 class="text-[11px] font-black leading-tight">' + item.title + '</h4><p class="text-[10px] opacity-80 mt-1 line-clamp-2 justify-text">' + item.content + '</p></div></div></div>');
+                });
+            }
+        }
+
+        function updateUI() {
+            const inBtn = document.getElementById('btn-open-checkin'),
+                outBtn = document.getElementById('btn-open-checkout'),
+                badge = document.getElementById('working-badge'),
+                banner = document.getElementById('status-banner');
+            if (!inBtn) return;
+            const userActiveSession = dutyHistory.find(s => s.userId == (currentUser?.id || "") && s.checkOut === null);
+            isWorking = !!userActiveSession;
+            if (isWorking) {
+                inBtn.classList.add('btn-disabled');
+                outBtn.classList.remove('btn-disabled');
+                if (badge) badge.classList.remove('hidden-element');
+                if (banner) banner.classList.remove('hidden-element');
+                activeStartTime = new Date(userActiveSession.checkIn.timestamp);
+                startTimer();
+            } else {
+                inBtn.classList.remove('btn-disabled');
+                outBtn.classList.add('btn-disabled');
+                if (badge) badge.classList.add('hidden-element');
+                if (banner) banner.classList.add('hidden-element');
+                if (timerInterval) clearInterval(timerInterval);
+                activeStartTime = null;
+            }
+            renderNewsUser();
+            const list = document.getElementById('attendance-list');
+            if (list) list.innerHTML = "";
+            let userHistory = dutyHistory;
+            if (currentUser && currentUser.role === 'user') {
+                userHistory = dutyHistory.filter(s => s.userId == currentUser.id);
+            }
+            if (userHistory.length === 0) {
+                if (list) list.innerHTML = '<div class="text-center py-16 bg-white rounded-[2.5rem] border-2 border-dashed border-slate-100"><p class="text-slate-300 text-sm font-medium">Belum ada aktivitas</p></div>';
+            } else {
+                userHistory.sort((a, b) => b.checkIn.timestamp - a.checkIn.timestamp);
+                let grouped = {};
+                userHistory.forEach(s => {
+                    const date = new Date(s.checkIn.timestamp);
+                    let key = "";
+                    if (historyFilter === 'daily') {
+                        if (date.toDateString() === new Date().toDateString()) key = "Hari Ini";
+                        else return;
+                    } else if (historyFilter === 'weekly') key = "Minggu Ke-" + getWeekNumber(date) + " (" + date.getFullYear() + ")";
+                    else if (historyFilter === 'monthly') key = date.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+                    else if (historyFilter === 'yearly') key = "Tahun " + date.getFullYear();
+                    if (!grouped[key]) grouped[key] = [];
+                    grouped[key].push(s);
+                });
+               Object.keys(grouped).forEach(key => {
+                if (list) list.insertAdjacentHTML('beforeend', '<div class="flex items-center gap-3 py-2 px-2"><span class="h-px bg-slate-100 flex-grow"></span><span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">' + key + '</span><span class="h-px bg-slate-100 flex-grow"></span></div>');
+                grouped[key].forEach(s => {
+                    const isC = s.checkOut !== null, 
+                          dateObj = new Date(s.checkIn.timestamp),
+                          df = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+
+                    // PERBAIKAN: Proteksi format 1899 (Google Sheets Time Format)
+                    const formatTime = (t) => {
+                        if (!t) return '';
+                        let str = String(t);
+                        if (str.includes('T')) str = str.split('T')[1].split('.')[0];
+                        return str.replace(/\./g, ':');
+                    };
+
+                    const cInTime = formatTime(s.checkIn.time);
+                    const cOutTime = isC ? formatTime(s.checkOut.time) : 'AKTIF';
+
+                    if (list) list.insertAdjacentHTML('beforeend', '<div onclick="showDetail(\'' + s.id + '\')" class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-50 flex items-center justify-between active:scale-[0.98] transition-all cursor-pointer animate-fade"><div class="flex items-center gap-5"><div class="relative"><img src="' + s.checkIn.photo + '" class="w-16 h-16 rounded-2xl object-cover border-4 border-white shadow-lg">' + (isC ? '<div class="absolute -bottom-1 -right-1 w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center text-white border-2 border-white shadow-md"><i class="fas fa-check text-[10px]"></i></div>' : '') + '</div><div class="flex-grow"><h4 class="text-sm font-black text-slate-800">' + s.userName + '</h4><p class="text-[10px] font-black text-slate-400 mt-0.5">' + s.userPosition + " - " + s.userDivision + " [" + df + "]" + '</p><div class="grid grid-cols-2 gap-4 mt-3 pt-3 border-t border-slate-50"><div><p class="text-[7px] font-black text-slate-400 uppercase tracking-widest">Check In Time</p><p class="text-[11px] font-bold text-blue-600">' + cInTime + '</p></div><div><p class="text-[7px] font-black text-slate-400 uppercase tracking-widest">Check Out Time</p><p class="text-[11px] ' + (isC ? 'text-slate-700 font-bold' : 'text-blue-500 font-black animate-pulse') + '">' + cOutTime + '</p></div></div></div></div><div class="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-slate-300"><i class="fas fa-chevron-right text-xs"></i></div></div>');
+                });
+            });
+        }
+
+            // --- LOGIKA PERSONAL DATA (PENTING) ---
+            const btnPersonal = document.getElementById('btn-open-personal');
+            const labelPersonal = document.getElementById('label-personal-data');
+            const updatedUser = users.find(u => u.id == (currentUser ? currentUser.id : null));
+            if (updatedUser && updatedUser.cvLink) {
+                btnPersonal.classList.remove('hidden-element');
+                labelPersonal.textContent = updatedUser.cvMenuName || "Personal Data";
+                currentUser.cvLink = updatedUser.cvLink;
+                currentUser.cvMenuName = updatedUser.cvMenuName;
+            } else {
+                btnPersonal.classList.add('hidden-element');
+            }
+        }
+
+        window.openMyProfile = function() {
+            if (!currentUser || currentUser.role === 'admin') return;
+            const modal = document.getElementById('my-profile-modal'),
+                formattedName = (currentUser.rank ? (['Capt', 'FO'].includes(currentUser.rank) ? currentUser.rank + '. ' : currentUser.rank + ' ') : '') + currentUser.name,
+                fullEl = document.getElementById('my-profile-fullname'),
+                subEl = document.getElementById('my-profile-sub'),
+                rnkEl = document.getElementById('my-profile-rank'),
+                posEl = document.getElementById('my-profile-position'),
+                divEl = document.getElementById('my-profile-division'),
+                emlEl = document.getElementById('my-profile-email'),
+                usrEl = document.getElementById('my-profile-username'),
+                pasEl = document.getElementById('my-profile-password'),
+                dobEl = document.getElementById('my-profile-dob');
+
+            if (fullEl) fullEl.textContent = formattedName;
+            if (subEl) subEl.textContent = currentUser.divisi;
+            if (rnkEl) rnkEl.textContent = currentUser.rank;
+            if (posEl) posEl.textContent = currentUser.jabatan;
+            if (divEl) divEl.textContent = currentUser.divisi;
+            if (emlEl) emlEl.textContent = currentUser.email || '-';
+            if (usrEl) usrEl.textContent = currentUser.username;
+            if (pasEl) pasEl.value = currentUser.password;
+            if (dobEl) dobEl.textContent = currentUser.dob ? new Date(currentUser.dob).toLocaleDateString('id-ID', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            }) : '-';
+
+            const picCont = document.getElementById('my-profile-pic');
+            if (currentUser.profilePic) picCont.innerHTML = '<img src="' + currentUser.profilePic + '" class="w-full h-full object-cover">';
+            else picCont.innerHTML = '<i class="fas fa-user text-slate-200 text-3xl"></i>';
+            modal.classList.remove('hidden-element');
+        };
+
+        window.closeMyProfile = function() {
+            document.getElementById('my-profile-modal').classList.add('hidden-element');
+        };
+
+        async function saveMyPassword() {
+            const newPass = document.getElementById('my-profile-password').value;
+            if (!newPass.trim()) return;
+            const idx = users.findIndex(u => u.id == currentUser.id);
+            if (idx !== -1) {
+                // Perbarui password di memori lokal
+                users[idx].password = newPass;
+                currentUser.password = newPass;
+                
+                // Simpan langsung array user asli ke Cloud
+                await callCloud("saveUser", users[idx]);
+                
+                // Beri pesan sukses dan kosongkan kolom
+                document.getElementById('my-profile-password').value = "";
+                document.getElementById('success-msg').textContent = "Password berhasil diubah. Silakan gunakan password baru ini untuk login berikutnya.";
+                document.getElementById('success-modal').classList.remove('hidden-element');
+                closeMyProfile();
+            }
+        }
+
+        window.handleProfilePhoto = function(input) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    // Kompresi ketat untuk foto profil agar sangat ringan
+                    profilePicBase64 = await compressImage(e.target.result, 400, 400, 0.7);
+                    document.getElementById('profile-pic-placeholder').classList.add('hidden-element');
+                    const preview = document.getElementById('profile-pic-preview');
+                    preview.src = profilePicBase64;
+                    preview.classList.remove('hidden-element');
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+
+        window.handleWorkPhoto = function(input) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    // Kompresi foto laporan / remarks
+                    workPhotoBase64 = await compressImage(e.target.result, 800, 800, 0.6);
+                    document.getElementById('work-photo-placeholder').classList.add('hidden');
+                    const preview = document.getElementById('work-photo-preview');
+                    preview.src = workPhotoBase64;
+                    preview.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+
+        window.showDetail = function(id) {
+            const s = dutyHistory.find(x => x.id == id);
+            if (!s) return;
+
+            // Pastikan timestamp dikonversi ke angka sebelum dibuat objek Date
+            const tsIn = Number(s.checkIn.timestamp);
+            const dateIn = isNaN(tsIn) ? new Date() : new Date(tsIn);
+            const dsIn = dateIn.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+            
+            let dsOut = "-";
+            if (s.checkOut && s.checkOut.timestamp) {
+                const tsOut = Number(s.checkOut.timestamp);
+                const dateOut = isNaN(tsOut) ? new Date() : new Date(tsOut);
+                dsOut = dateOut.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+            }
+
+            // Ambil data user untuk foto profil
+            const userData = users.find(u => u.id == s.userId);
+            const profilePic = userData && userData.profilePic ? userData.profilePic : 'https://lh3.googleusercontent.com/d/14XvFbNETCuybdeUeH6BPrPaC33uBijMc';
+            
+            // Format Waktu Menggunakan Fungsi Global formatTime
+            const checkInTime = formatTime(s.checkIn.time);
+            const checkOutTime = s.checkOut ? formatTime(s.checkOut.time) : 'AKTIF';
+
+            // LOGIKA PENGHITUNGAN TOTAL WAKTU KERJA
+            let totalWorkDuration = "0j 0m 0s";
+            if (s.checkOut && s.checkOut.timestamp) {
+                const diff = Number(s.checkOut.timestamp) - Number(s.checkIn.timestamp);
+                const h = Math.floor(diff / 3600000);
+                const m = Math.floor((diff % 3600000) / 60000);
+                const sec = Math.floor((diff % 60000) / 1000);
+                totalWorkDuration = h + "j " + m + "m " + sec + "s";
+            } else {
+                totalWorkDuration = "Sedang Berlangsung";
+            }
+
+            const modal = document.getElementById('detail-modal'),
+                  content = document.getElementById('detail-content');
+
+            content.innerHTML = `
+                ${currentUser.role === 'admin' ? `
+                <div class="flex gap-2 mb-6">
+                    <button onclick="editLog('${s.id}')" class="flex-grow py-4 bg-blue-600 text-white rounded-2xl text-[10px] font-black shadow-lg uppercase tracking-widest">Edit Data</button>
+                    <button onclick="deleteLog('${s.id}')" class="px-6 py-4 bg-red-50 text-red-500 rounded-2xl text-[10px] font-black border border-red-100 uppercase">Hapus</button>
+                </div>` : ''}
+
+                <div class="bg-slate-900 p-5 rounded-[2.5rem] mb-6 flex items-center gap-4 shadow-xl border border-slate-800">
+                    <img src="${profilePic}" class="w-14 h-14 rounded-2xl object-cover border-2 border-slate-700">
+                    <div>
+                        <h3 class="text-white font-black text-sm uppercase tracking-tight">${s.userName}</h3>
+                        <p class="text-blue-400 text-[9px] font-bold uppercase tracking-widest">${s.userPosition} • ${s.userDivision}</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 gap-4">
+                    <!-- CHECK IN CARD -->
+                    <div class="bg-white p-5 rounded-[2.5rem] border border-slate-100 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="px-4 py-1.5 bg-blue-50 text-blue-600 rounded-full text-[8px] font-black uppercase tracking-widest italic">Check In Evidence</span>
+                            <span class="text-[9px] font-bold text-slate-400">${dsIn}</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3 mb-4">
+                            <img src="${s.checkIn.photo}" class="w-full aspect-square object-cover rounded-2xl border-2 border-slate-50">
+                            <div id="map-in-${s.id}" onclick="openFullMap('${s.id}')" class="w-full aspect-square rounded-2xl border-2 border-slate-50 bg-slate-50 overflow-hidden cursor-pointer active:scale-95 transition-all"></div>
+                        </div>
+                        <div class="flex justify-between items-end">
+                            <div>
+                                <p class="text-[7px] font-black text-slate-300 uppercase tracking-widest">Time Registered</p>
+                                <p class="text-xl font-black text-slate-800 leading-none">${checkInTime}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[7px] font-black text-slate-300 uppercase tracking-widest">Status Radius</p>
+                                <p class="text-[9px] font-black ${s.checkIn.isWithinRadius ? 'text-green-500' : 'text-red-500'} uppercase">${s.checkIn.isWithinRadius ? 'Inside Area' : 'Outside Area'}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CHECK OUT CARD -->
+                    ${s.checkOut ? `
+                    <div class="bg-white p-5 rounded-[2.5rem] border border-slate-100 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="px-4 py-1.5 bg-orange-50 text-orange-600 rounded-full text-[8px] font-black uppercase tracking-widest italic">Check Out Evidence</span>
+                            <span class="text-[9px] font-bold text-slate-400">${dsOut}</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3 mb-4">
+                            <img src="${s.checkOut.photo}" class="w-full aspect-square object-cover rounded-2xl border-2 border-slate-50">
+                            <div id="map-out-${s.id}" onclick="openFullMap('${s.id}')" class="w-full aspect-square rounded-2xl border-2 border-slate-50 bg-slate-50 overflow-hidden cursor-pointer active:scale-95 transition-all"></div>
+                        </div>
+                        <div class="flex justify-between items-end">
+                            <div>
+                                <p class="text-[7px] font-black text-slate-300 uppercase tracking-widest">Time Registered</p>
+                                <p class="text-xl font-black text-slate-800 leading-none">${checkOutTime}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[7px] font-black text-slate-300 uppercase tracking-widest">Status Radius</p>
+                                <p class="text-[9px] font-black ${s.checkOut.isWithinRadius ? 'text-green-500' : 'text-red-500'} uppercase">${s.checkOut.isWithinRadius ? 'Inside Area' : 'Outside Area'}</p>
+                            </div>
+                        </div>
+                    </div>` : `
+                    <div class="p-8 border-2 border-dashed border-slate-100 rounded-[2.5rem] text-center">
+                        <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Personnel Still On Duty</p>
+                    </div>`}
+                </div>
+
+                <div class="mt-6 bg-slate-50 p-5 rounded-[2rem] border border-slate-100">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Rincian & Durasi Tugas</p>
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-3 gap-3">
+                            <div class="bg-white p-3 rounded-2xl border border-slate-100">
+                                <p class="text-[7px] font-black text-slate-400 uppercase">Tipe Kerja</p>
+                                <p class="text-[10px] font-bold text-slate-700 truncate">${s.workType || "-"}</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-2xl border border-slate-100">
+                                <p class="text-[7px] font-black text-slate-400 uppercase">Tugas Sebagai</p>
+                                <p class="text-[10px] font-bold text-slate-700 truncate">${s.dutyAs || "-"}</p>
+                            </div>
+                            <div class="bg-blue-600 p-3 rounded-2xl shadow-lg shadow-blue-100">
+                                <p class="text-[7px] font-black text-white/70 uppercase">Total Durasi</p>
+                                <p class="text-[10px] font-black text-white">${totalWorkDuration}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            modal.classList.remove('hidden-element');
+
+            // Inisialisasi Peta satelit
+            setTimeout(() => {
+                if (L.DomUtil.get(`map-in-${s.id}`)) {
+                    const mapIn = L.map(`map-in-${s.id}`, { zoomControl: false, attributionControl: false }).setView([s.checkIn.lat, s.checkIn.lng], 16);
+                    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}').addTo(mapIn);
+                    L.marker([s.checkIn.lat, s.checkIn.lng]).addTo(mapIn);
+                }
+
+                if (s.checkOut && L.DomUtil.get(`map-out-${s.id}`)) {
+                    const mapOut = L.map(`map-out-${s.id}`, { zoomControl: false, attributionControl: false }).setView([s.checkOut.lat, s.checkOut.lng], 16);
+                    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}').addTo(mapOut);
+                    L.marker([s.checkOut.lat, s.checkOut.lng]).addTo(mapOut);
+                }
+            }, 500);
+        };
+
+        window.openExplorer = function(id) {
+            const s = dutyHistory.find(x => x.id == id);
+            if (!s) return;
+            document.getElementById('explorer-modal').classList.remove('hidden-element');
+            if (!explorerMap) {
+                explorerMap = L.map('full-explorer-map').setView([s.checkIn.lat, s.checkIn.lng], 15);
+                getSatelliteLayer().addTo(explorerMap);
+            }
+            explorerMarkers.forEach(m => explorerMap.removeLayer(m));
+            explorerMarkers = [];
+            const ci = L.marker([s.checkIn.lat, s.checkIn.lng]).addTo(explorerMap).bindPopup("In: " + s.checkIn.time).openPopup();
+            explorerMarkers.push(ci);
+            if (s.checkOut) {
+                const co = L.marker([s.checkOut.lat || s.checkIn.lat, s.checkOut.lng || s.checkIn.lng]).addTo(explorerMap).bindPopup("Out: " + s.checkOut.time);
+                explorerMarkers.push(co);
+                const p = L.polyline([
+                    [s.checkIn.lat, s.checkIn.lng],
+                    [s.checkOut.lat || s.checkIn.lat, s.checkOut.lng || s.checkIn.lng]
+                ], {
+                    color: 'white',
+                    weight: 4,
+                    dashArray: '10, 10'
+                }).addTo(explorerMap);
+                explorerMarkers.push(p);
+                explorerMap.fitBounds(p.getBounds(), {
+                    padding: [80, 80]
+                });
+            } else {
+                explorerMap.setView([s.checkIn.lat, s.checkIn.lng], 17);
+            }
+            setTimeout(() => explorerMap.invalidateSize(), 200);
+        };
+
+        window.closeExplorer = function() {
+            document.getElementById('explorer-modal').classList.add('hidden-element');
+        };
+
+        window.closeDetail = function() {
+            document.getElementById('detail-modal').classList.add('hidden-element');
+        };
+
+        window.closeSuccessModal = function() {
+            document.getElementById('success-modal').classList.add('hidden-element');
+        };
+
+        window.deleteLog = async function(id) {
+            if (confirm("Hapus data absen ini secara permanen dari server?")) {
+                dutyHistory = dutyHistory.filter(h => h.id != id); // Optimistic hapus
+                closeDetail();
+                if (adminTab === 'all-logs') renderAllLogs();
+                updateUI();
+                await callCloud("deleteLog", {
+                    id
+                });
+            }
+        };
+
+        window.editLog = function(id) {
+            const s = dutyHistory.find(x => x.id == id);
+            if (!s) return;
+            document.getElementById('edit-log-id').value = id;
+            
+            // Render Select Options
+            const workTypeEl = document.getElementById('edit-log-work-type');
+            const dutyAsEl = document.getElementById('edit-log-duty-as');
+            workTypeEl.innerHTML = availableWorkTypes.map(t => `<option value="${t}">${t}</option>`).join('');
+            dutyAsEl.innerHTML = availableDutyAs.map(r => `<option value="${r}">${r}</option>`).join('');
+            
+            workTypeEl.value = s.workType || "";
+            dutyAsEl.value = s.dutyAs || "";
+            
+            // Format Datetime untuk input type="datetime-local" (YYYY-MM-DDThh:mm:ss)
+            const formatForDatetimeLocal = (timestamp) => {
+                if (!timestamp) return "";
+                const d = new Date(timestamp);
+                const tzOffset = d.getTimezoneOffset() * 60000;
+                return new Date(d.getTime() - tzOffset).toISOString().slice(0, 19);
+            };
+
+            document.getElementById('edit-log-in-time').value = formatForDatetimeLocal(s.checkIn.timestamp);
+            document.getElementById('edit-log-in-lat').value = s.checkIn.lat;
+            document.getElementById('edit-log-in-lng').value = s.checkIn.lng;
+            document.getElementById('edit-log-status-in').value = s.statusIn || "";
+            document.getElementById('edit-log-in-reasons').value = (s.lateReason || "") + (s.outsideOfficeReason ? " | " + s.outsideOfficeReason : "");
+
+            const coSec = document.getElementById('edit-log-checkout-section');
+            if (s.checkOut) {
+                coSec.classList.remove('hidden-element');
+                document.getElementById('edit-log-out-time').value = formatForDatetimeLocal(s.checkOut.timestamp);
+                document.getElementById('edit-log-out-lat').value = s.checkOut.lat || "";
+                document.getElementById('edit-log-out-lng').value = s.checkOut.lng || "";
+                document.getElementById('edit-log-status-out').value = s.checkOut.statusOut || "";
+                document.getElementById('edit-log-remarks').value = (s.checkOut.statusReason ? s.checkOut.statusReason + " | " : "") + (s.checkOut.remarks || "");
+            } else {
+                coSec.classList.add('hidden-element');
+            }
+            document.getElementById('log-edit-modal').classList.remove('hidden-element');
+        };
+
+        window.closeLogEdit = function() {
+            document.getElementById('log-edit-modal').classList.add('hidden-element');
+        };
+
+        window.saveLogEdit = async function() {
+            const id = document.getElementById('edit-log-id').value,
+                s = dutyHistory.find(x => x.id == id);
+            if (!s) return;
+            s.workType = document.getElementById('edit-log-work-type').value;
+            s.dutyAs = document.getElementById('edit-log-duty-as').value;
+            
+            const inTimeVal = document.getElementById('edit-log-in-time').value;
+            if (inTimeVal) {
+                const inDate = new Date(inTimeVal);
+                s.checkIn.timestamp = inDate.getTime();
+                s.checkIn.time = inDate.toLocaleTimeString('id-ID', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }).replace(/\./g, ':');
+            }
+
+            s.checkIn.lat = parseFloat(document.getElementById('edit-log-in-lat').value);
+            s.checkIn.lng = parseFloat(document.getElementById('edit-log-in-lng').value);
+            s.statusIn = document.getElementById('edit-log-status-in').value;
+            const inR = document.getElementById('edit-log-in-reasons').value.split('|');
+            s.lateReason = inR[0] ? inR[0].trim() : "";
+            s.outsideOfficeReason = inR[1] ? inR[1].trim() : "";
+            if (s.checkOut) {
+                const outTimeVal = document.getElementById('edit-log-out-time').value;
+                if (outTimeVal) {
+                    const outDate = new Date(outTimeVal);
+                    s.checkOut.timestamp = outDate.getTime();
+                    s.checkOut.time = outDate.toLocaleTimeString('id-ID', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }).replace(/\./g, ':');
+                }
+
+                s.checkOut.lat = parseFloat(document.getElementById('edit-log-out-lat').value);
+                s.checkOut.lng = parseFloat(document.getElementById('edit-log-out-lng').value);
+                s.checkOut.statusOut = document.getElementById('edit-log-status-out').value;
+                const outR = document.getElementById('edit-log-remarks').value.split('|');
+                s.checkOut.statusReason = outR[1] ? outR[0].trim() : "";
+                s.checkOut.remarks = outR[1] ? outR[1].trim() : outR[0].trim();
+                
+                s.checkOut.overtimeLabel = calculateOvertimeDuration(s.checkOut.timestamp);
+            }
+            await callCloud("saveLog", s);
+            closeLogEdit();
+            showDetail(id);
+            if (adminTab === 'all-logs') renderAllLogs();
+        };
+
+        window.printFilteredLogs = function() {
+            const nameQuery = document.getElementById('filter-all-name').value.toLowerCase(),
+                startVal = document.getElementById('filter-all-start').value,
+                endVal = document.getElementById('filter-all-end').value;
+
+            let filtered = dutyHistory.filter(s => {
+                const matchesName = s.userName.toLowerCase().includes(nameQuery),
+                    sessionDate = new Date(s.checkIn.timestamp);
+                sessionDate.setHours(0, 0, 0, 0);
+                let matchesStart = true;
+                if (startVal) {
+                    const startLimit = new Date(startVal);
+                    startLimit.setHours(0, 0, 0, 0);
+                    matchesStart = sessionDate >= startLimit;
+                }
+                let matchesEnd = true;
+                if (endVal) {
+                    const endLimit = new Date(endVal);
+                    endLimit.setHours(0, 0, 0, 0);
+                    matchesEnd = sessionDate <= endLimit;
+                }
+                return matchesName && matchesStart && matchesEnd;
+            });
+            
+            // PERUBAHAN: Diubah dari b - a menjadi a - b agar urut dari tanggal terkecil/awal
+            filtered.sort((a, b) => a.checkIn.timestamp - b.checkIn.timestamp);
+            
+            if (filtered.length === 0) {
+                alert("Tidak ada data untuk dicetak");
+                return;
+            }
+
+            const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+            const formatLongIndo = (s) => {
+                if (!s) return "Semua";
+                const d = new Date(s);
+                return String(d.getDate()).padStart(2, '0') + " " + months[d.getMonth()] + " " + d.getFullYear();
+            };
+
+            const now = new Date(),
+                printWin = window.open('', '_blank');
+            
+            // PERUBAHAN HEADER TABEL: Susunan Kolom Diubah
+            let html = '<html><head><title>Laporan Kehadiran E-Crew</title><style>body{font-family:sans-serif;padding:30px;color:#333}table{width:100%;border-collapse:collapse;margin-top:20px}th,td{border:1px solid #ccc;padding:8px;font-size:10px;vertical-align:top}th{background-color:#f8f9fa;text-align:center;font-size:10px}td{text-align:center}.header{text-align:center;border-bottom:2px solid #333;padding-bottom:10px;margin-bottom:30px}.header h1{font-size:14px;margin:10px 0}.header p{font-size:12px;margin:5px 0}.footer{margin-top:60px;float:right;text-align:center;width:250px;font-size:11px}.footer p{margin:5px 0}.remarks-cell{white-space:pre-wrap;word-wrap:break-word;max-width:250px;text-align:left}.logo-container{text-align:center;margin-bottom:10px}.logo-container img{height:70px;width:auto}.signature-img{height:80px;width:auto;margin:10px auto;display:block;}</style></head><body><div class="logo-container"><img src="https://lh3.googleusercontent.com/d/1WNcGjsZ9_Fp54xzOl01EYRqM6-wY5Zh7" alt="Logo"></div><div class="header"><h1>LAPORAN KEHADIRAN KARYAWAN</h1><p>Sistem E-Crew Attendant List</p><p>Periode: ' + formatLongIndo(startVal) + ' s/d ' + formatLongIndo(endVal) + '</p></div><table><thead><tr><th>No</th><th>Nama Karyawan</th><th>Divisi</th><th>Jabatan</th><th>Tanggal Check In</th><th>Check In</th><th>Tanggal Check Out</th><th>Check Out</th><th>Total Waktu Tugas</th><th>Type of Work/Duty Function</th><th>Detail Pekerjaan</th></tr></thead><tbody>';
+
+            filtered.forEach((s, i) => {
+                // FORMAT TANGGAL CHECK IN
+                const dIn = new Date(s.checkIn.timestamp),
+                    dsIn = String(dIn.getDate()).padStart(2, '0') + '/' + String(dIn.getMonth() + 1).padStart(2, '0') + '/' + dIn.getFullYear(),
+                    dur = s.checkOut ? formatDuration(s.checkIn.timestamp, s.checkOut.timestamp) : '-';
+                
+                // FORMAT TANGGAL CHECK OUT (Jika data Check Out belum ada, maka set strip "-")
+                let dsOut = '-';
+                if (s.checkOut && s.checkOut.timestamp) {
+                    const dOut = new Date(s.checkOut.timestamp);
+                    dsOut = String(dOut.getDate()).padStart(2, '0') + '/' + String(dOut.getMonth() + 1).padStart(2, '0') + '/' + dOut.getFullYear();
+                }
+
+                // MERAKIT BARIS TABEL (Susunan Kolom Diubah)
+                html += '<tr><td>' + (i + 1) + '</td><td style="text-align:left">' + s.userName + '</td><td>' + (s.userDivision || '-') + '</td><td>' + (s.userPosition || '-') + '</td><td>' + dsIn + '</td><td>' + s.checkIn.time + '</td><td>' + dsOut + '</td><td>' + (s.checkOut ? s.checkOut.time : '-') + '</td><td>' + dur + '</td><td>' + s.workType + ' / ' + s.dutyAs + '</td><td class="remarks-cell">' + (s.checkOut ? s.checkOut.remarks : '-') + '</td></tr>';
+            });
+            html += '</tbody></table><div class="footer"><p>Dicetak pada: ' + now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear() + ', pukul ' + now.toLocaleTimeString('id-ID').replace(/\./g, ':') + '</p><p>Penanggung Jawab,</p><img src="https://lh3.googleusercontent.com/d/1yhAmuOoGe6GT4UaJEixJi4cadHbUfXTL" class="signature-img"><p><u><b>Media Marbun</b></u></p><p>HRD Manager</p></div></body></html>';
+            printWin.document.write(html);
+            printWin.document.close();
+            setTimeout(() => {
+                printWin.print()
+            }, 500);
+        };
+
+        // PERSONAL LINK FUNCTIONS
+        function renderAdminLinkOptions() {
+            const select = document.getElementById('link-user-select');
+            if (select) {
+                select.innerHTML = '<option value="">-- Pilih User --</option>' + 
+                    users.map(u => `<option value="${u.id}">${u.name} (${u.rank || ''})</option>`).join('');
+            }
+        }
+
+        async function savePersonalLink() {
+            const userId = document.getElementById('link-user-select').value;
+            const menuName = document.getElementById('link-menu-name').value || "Personal Data";
+            const url = document.getElementById('link-url-input').value;
+
+            if (!userId || !url) {
+                alert("Pilih user dan masukkan link URL!");
+                return;
+            }
+
+            const userIndex = users.findIndex(u => u.id == userId);
+            if (userIndex !== -1) {
+                // Tambahkan data ke array lokal
+                users[userIndex].cvLink = url;
+                users[userIndex].cvMenuName = menuName;
+                
+                // Kirim ke Google Sheet
+                const res = await callCloud("saveUser", users[userIndex]);
+                
+                if (res.status === "success") {
+                    document.getElementById('link-url-input').value = "";
+                    document.getElementById('success-msg').textContent = "Link berhasil disimpan ke server.";
+                    document.getElementById('success-modal').classList.remove('hidden-element');
+                    renderAdminLinkList();
+                } else {
+                    alert("Gagal menyimpan ke server. Cek koneksi.");
+                }
+            }
+        }
+
+        function renderAdminLinkList() {
+            const container = document.getElementById('admin-link-list');
+            if (!container) return;
+            
+            const usersWithLinks = users.filter(u => u.cvLink);
+            container.innerHTML = "";
+
+            if (usersWithLinks.length === 0) {
+                container.innerHTML = '<div class="text-center py-10 bg-white rounded-3xl border-2 border-dashed border-slate-100 text-slate-300 text-[10px] font-bold uppercase">Belum ada link yang diatur</div>';
+                return;
+            }
+
+            usersWithLinks.forEach(u => {
+                container.insertAdjacentHTML('beforeend', `
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-50 flex items-center justify-between">
+                        <div class="flex-grow">
+                            <h4 class="text-xs font-black text-slate-800">${u.name}</h4>
+                            <p class="text-[9px] font-bold text-blue-600 uppercase">${u.cvMenuName || 'Personal Data'}</p>
+                            <p class="text-[8px] text-slate-400 truncate max-w-[200px]">${u.cvLink}</p>
+                        </div>
+                        <button onclick="removePersonalLink('${u.id}')" class="w-8 h-8 flex items-center justify-center bg-red-50 text-red-500 rounded-lg">
+                            <i class="fas fa-trash text-[10px]"></i>
+                        </button>
+                    </div>
+                `);
+            });
+        }
+
+        async function removePersonalLink(id) {
+            if (confirm("Hapus link personal untuk user ini?")) {
+                const userIndex = users.findIndex(u => u.id == id);
+                if (userIndex !== -1) {
+                    delete users[userIndex].cvLink;
+                    delete users[userIndex].cvMenuName;
+                    await callCloud("saveUser", users[userIndex]);
+                    renderAdminLinkList();
+                }
+            }
+        }
+
+        function handlePersonalDataClick() {
+            if (currentUser && currentUser.cvLink) {
+                openWebView(currentUser.cvLink, currentUser.cvMenuName || 'PERSONAL DATA');
+            }
+        }
+
+        // INITIALIZATION
+        function initPWA() {
+            const iconUrl = "https://lh3.googleusercontent.com/d/14XvFbNETCuybdeUeH6BPrPaC33uBijMc";
+            const manifestData = {
+                "name": "E Crew Attendant List", 
+                "short_name": "E-Crew", 
+                "start_url": "./", 
+                "display": "standalone",
+                "background_color": "#0f172a", 
+                "theme_color": "#0f172a",
+                "icons": [ 
+                    { "src": iconUrl, "sizes": "192x192", "type": "image/png", "purpose": "any" },
+                    { "src": iconUrl, "sizes": "512x512", "type": "image/png", "purpose": "any" },
+                    { "src": iconUrl, "sizes": "192x192", "type": "image/png", "purpose": "maskable" }
+                ]
+            };
+            const manifestBlob = new Blob([JSON.stringify(manifestData)], {type: 'application/json'});
+            const manifestLink = document.getElementById('pwa-manifest');
+            if (manifestLink) manifestLink.href = URL.createObjectURL(manifestBlob);
+
+            if ('serviceWorker' in navigator) {
+                const swCode = `
+                    self.addEventListener('install', (e) => { self.skipWaiting(); }); 
+                    self.addEventListener('activate', (e) => { e.waitUntil(clients.claim()); }); 
+                    self.addEventListener('fetch', (e) => { 
+                        // Bypass cache completely for navigation to ensure latest version
+                        if (e.request.mode === 'navigate') {
+                            e.respondWith(
+                                fetch(e.request).catch(() => caches.match(e.request))
+                            );
+                        }
+                    });
+                `;
+                const swBlob = new Blob([swCode], {type: 'application/javascript'});
+                navigator.serviceWorker.register(URL.createObjectURL(swBlob)).then(registration => {
+                    // Paksa update SW setiap kali aplikasi dibuka
+                    registration.update();
+                }).catch(console.warn);
+            }
+        }
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const btn = document.getElementById('pwa-install-btn');
+            if (btn) {
+                btn.classList.remove('hidden-element');
+                btn.onclick = async () => {
+                    if (deferredPrompt) {
+                        deferredPrompt.prompt();
+                        const {
+                            outcome
+                        } = await deferredPrompt.userChoice;
+                        deferredPrompt = null;
+                        btn.classList.add('hidden-element');
+                    }
+                };
+            }
+        });
+
+        window.onload = () => {
+            initPWA();
+            updateClock();
+            syncWithCloud();
+        };
+    </script>
+</body>
+
+</html>
