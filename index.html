@@ -603,6 +603,22 @@
                     </div>
 
                     <!-- Camera Section -->
+                    <div class="mb-8">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase mb-3 block tracking-widest">Otentikasi Visual</label>
+                        <div class="relative w-full aspect-square bg-slate-900 rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white">
+                            <video id="camera-preview" class="w-full h-full object-cover"></video>
+                            <img id="photo-result" class="hidden-element w-full h-full object-cover">
+                            <canvas id="photo-canvas" class="hidden"></canvas>
+                        </div>
+                        <div class="flex gap-3 mt-4">
+                            <button id="btn-capture" onclick="takeSnapshot()" class="flex-grow py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg active:scale-95 transition-all">
+                                <i class="fas fa-camera mr-2"></i> Ambil Foto
+                            </button>
+                            <button id="btn-retake" onclick="resetCamera()" class="hidden-element flex-grow py-4 bg-slate-100 text-slate-400 rounded-2xl font-black text-[10px] uppercase tracking-widest active:scale-95 transition-all">
+                                <i class="fas fa-redo mr-2"></i> Foto Ulang
+                            </button>
+                        </div>
+                    </div>
                     <!-- Form Fields -->
                     <div id="form-fields" class="space-y-5">
                         <div class="grid grid-cols-2 gap-3">
@@ -1119,25 +1135,36 @@
         // UTILITIES
         // FUNGSI GLOBAL UNTUK FORMAT WAKTU (Mencegah Error 1899 & UTC)
         function formatTime(t) {
-    if (!t) return "";
-    let str = String(t);
-    
-    // Jika mengandung 'T' (ISO format 1899-12-30T13:48:16)
-    if (str.includes('T')) {
-        str = str.split('T')[1].split('.')[0];
-    }
-    
-    // Jika mengandung '+' atau spasi (Format +0707 Western Indonesia...)
-    // Kita ambil 8 karakter pertama (HH:mm:ss)
-    if (str.includes('+') || str.includes(' ')) {
-        const parts = str.split(' ');
-        // Cari bagian yang mengandung titik dua (jam)
-        const timePart = parts.find(p => p.includes(':') || p.includes('.'));
-        if (timePart) str = timePart;
-    }
+            if (!t) return "";
+            let str = String(t);
+            
+            // Jika mengandung 'T' (ISO format 1899-12-30T13:48:16)
+            if (str.includes('T')) {
+                str = str.split('T')[1].split('.')[0];
+            }
+            
+            // Jika mengandung '+' atau spasi (Format +0707 Western Indonesia...)
+            // Kita ambil 8 karakter pertama (HH:mm:ss)
+            if (str.includes('+') || str.includes(' ')) {
+                const parts = str.split(' ');
+                // Cari bagian yang mengandung titik dua (jam)
+                const timePart = parts.find(p => p.includes(':') || p.includes('.'));
+                if (timePart) str = timePart;
+            }
 
-    return str.replace(/\./g, ':').substring(0, 8); // Ambil HH:mm:ss saja
-}
+            return str.replace(/\./g, ':').substring(0, 8); // Ambil HH:mm:ss saja
+        }
+
+        // --- NEW: FUNGSI NOTIFIKASI SUARA (Text-to-Speech) ---
+        window.speakNotification = function(text) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'id-ID'; // Set Bahasa Indonesia
+                utterance.rate = 1.0;
+                utterance.pitch = 1.0;
+                window.speechSynthesis.speak(utterance);
+            }
+        };
 
         // PERCEPATAN 2: FUNGSI KOMPRESI GAMBAR OTOMATIS
         // Mengecilkan ukuran gambar dari MB menjadi KB sebelum dikirim ke server
@@ -1338,11 +1365,17 @@
 
         window.resetCamera = function() {
             capturedPhoto = null;
-            document.getElementById('camera-preview').classList.remove('hidden-element');
-            document.getElementById('photo-result').classList.add('hidden-element');
-            document.getElementById('btn-capture').classList.remove('hidden-element');
-            document.getElementById('btn-retake').classList.add('hidden-element');
-            document.getElementById('btn-submit').classList.add('btn-disabled');
+            const preview = document.getElementById('camera-preview');
+            const result = document.getElementById('photo-result');
+            const btnCap = document.getElementById('btn-capture');
+            const btnRet = document.getElementById('btn-retake');
+            const btnSub = document.getElementById('btn-submit');
+
+            if (preview) preview.classList.remove('hidden-element');
+            if (result) result.classList.add('hidden-element');
+            if (btnCap) btnCap.classList.remove('hidden-element');
+            if (btnRet) btnRet.classList.add('hidden-element');
+            if (btnSub) btnSub.classList.add('btn-disabled');
         };
 
         // AUTH & VIEWS
@@ -1753,14 +1786,6 @@
                     dateObj = new Date(s.checkIn.timestamp),
                     df = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
                 
-                // PERBAIKAN: Proteksi format 1899 (Google Sheets Time Format)
-                const formatTime = (t) => {
-                    if (!t) return '';
-                    let str = String(t);
-                    if (str.includes('T')) str = str.split('T')[1].split('.')[0];
-                    return str.replace(/\./g, ':');
-                };
-
                 const checkInTime = formatTime(s.checkIn.time);
                 const checkOutTime = isC ? formatTime(s.checkOut.time) : 'AKTIF';
 
@@ -2100,7 +2125,6 @@
             currentMode = mode;
             workPhotoBase64 = null;
             document.getElementById('main-actions').classList.add('hidden-element');
-            // document.getElementById('secondary-actions').classList.add('hidden-element'); // Hide secondary buttons (if applicable)
             document.getElementById('status-banner').classList.add('hidden-element');
             document.getElementById('user-info-section').classList.add('hidden-element');
             document.getElementById('birthday-section').classList.add('hidden-element');
@@ -2300,7 +2324,7 @@
                         lng: currentPos.lng,
                         photo: capturedPhoto,
                         timestamp: now,
-                        isWithinRadius: !isOutsideOffice // PASTIKAN NILAI INI TERKIRIM
+                        isWithinRadius: !isOutsideOffice
                     },
                     checkOut: null
                 };
@@ -2361,7 +2385,8 @@
                         timestamp: now,
                         statusOut: sO,
                         statusReason: rO,
-                        outsideReason: outsideReasonOut, // SIMPAN KE PROPERTI TERPISAH
+                        outsideReason: outsideReasonOut, 
+                        isWithinRadius: !isOutsideOffice,
                         overtimeLabel: (sO === "Lembur" ? calculateOvertimeDuration(now) : null)
                     };
                     currentSession = active;
@@ -2501,14 +2526,6 @@
                     const isC = s.checkOut !== null, 
                           dateObj = new Date(s.checkIn.timestamp),
                           df = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-
-                    // PERBAIKAN: Proteksi format 1899 (Google Sheets Time Format)
-                    const formatTime = (t) => {
-                        if (!t) return '';
-                        let str = String(t);
-                        if (str.includes('T')) str = str.split('T')[1].split('.')[0];
-                        return str.replace(/\./g, ':');
-                    };
 
                     const cInTime = formatTime(s.checkIn.time);
                     const cOutTime = isC ? formatTime(s.checkOut.time) : 'AKTIF';
@@ -3090,7 +3107,6 @@
                     self.addEventListener('install', (e) => { self.skipWaiting(); }); 
                     self.addEventListener('activate', (e) => { e.waitUntil(clients.claim()); }); 
                     self.addEventListener('fetch', (e) => { 
-                        // Bypass cache completely for navigation to ensure latest version
                         if (e.request.mode === 'navigate') {
                             e.respondWith(
                                 fetch(e.request).catch(() => caches.match(e.request))
@@ -3100,7 +3116,6 @@
                 `;
                 const swBlob = new Blob([swCode], {type: 'application/javascript'});
                 navigator.serviceWorker.register(URL.createObjectURL(swBlob)).then(registration => {
-                    // Paksa update SW setiap kali aplikasi dibuka
                     registration.update();
                 }).catch(console.warn);
             }
