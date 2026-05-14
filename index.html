@@ -2284,7 +2284,7 @@
                 }
                 // VALIDASI KERAS: Cek jika hanya berisi tanda hubung
                 if (officeReason === "-" || officeReason === "--") {
-                    showFormError("⚠️ TINDAKAN DITOLAK! Harap masukkan alasan yang valid dan jelas, dilarang hanya menggunakan tanda hubung.");
+                    showFormError("⚠️ TINDAKAN DITOLAK! Harap masukkan alasan diluar radius office yang valid dan jelas, dilarang hanya menggunakan tanda hubung.");
                     return;
                 }
             }
@@ -2362,7 +2362,7 @@
                     }
                     // VALIDASI KERAS: Cek jika hanya berisi tanda hubung (Check Out)
                     if (outsideReasonOut === "-" || outsideReasonOut === "--") {
-                        showFormError("⚠️ TINDAKAN DITOLAK! Harap masukkan alasan yang valid dan jelas, dilarang hanya menggunakan tanda hubung.");
+                        showFormError("⚠️ TINDAKAN DITOLAK! Harap masukkan alasan diluar radius office yang valid dan jelas, dilarang hanya menggunakan tanda hubung.");
                         return;
                     }
                 }
@@ -2801,6 +2801,22 @@
                                 <p class="text-[9px] font-black ${s.checkOut.isWithinRadius ? 'text-green-500' : 'text-red-500'} uppercase">${s.checkOut.isWithinRadius ? 'Inside Area' : 'Outside Area'}</p>
                             </div>
                         </div>
+
+                         <!-- REVISI: DOKUMENTASI KEGIATAN (FOTO KERJA & REMARKS) -->
+                    ${s.checkOut && s.checkOut.workPhoto ? `
+                    <div class="bg-white p-5 rounded-[2.5rem] border border-slate-100 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="px-4 py-1.5 bg-emerald-50 text-emerald-600 rounded-full text-[8px] font-black uppercase tracking-widest italic">Dokumentasi Kegiatan</span>
+                        </div>
+                        <div class="w-full aspect-video rounded-2xl overflow-hidden border-2 border-slate-50 shadow-sm mb-4">
+                            <img src="${s.checkOut.workPhoto}" class="w-full h-full object-cover">
+                        </div>
+                        <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                            <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Laporan Pekerjaan (Remarks)</p>
+                            <p class="text-[10px] font-medium text-slate-700 leading-relaxed whitespace-pre-wrap">${s.checkOut.remarks || "-"}</p>
+                        </div>
+                    </div>` : ''}
+
                     </div>` : `
                     <div class="p-8 border-2 border-dashed border-slate-100 rounded-[2.5rem] text-center">
                         <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Personnel Still On Duty</p>
