@@ -2648,6 +2648,15 @@
         window.handleWorkPhoto = function(input) {
             const file = input.files[0];
             if (file) {
+
+                // VALIDASI KERAS: Batasi ukuran file (contoh: maks 5MB)
+                const fileSizeMB = file.size / (1024 * 1024);
+                if (fileSizeMB > 5) {
+                    showFormError("⚠️ UKURAN FILE TERLALU BESAR! Foto dokumentasi maksimal 5MB. Harap gunakan foto dengan resolusi lebih rendah atau kompres terlebih dahulu.");
+                    input.value = ""; // Reset input
+                    return;
+                }
+
                 const reader = new FileReader();
                 reader.onload = async (e) => {
                     // Kompresi foto laporan / remarks
