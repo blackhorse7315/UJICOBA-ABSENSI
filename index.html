@@ -2702,6 +2702,13 @@
                             <span class="px-4 py-1.5 bg-blue-50 text-blue-600 rounded-full text-[8px] font-black uppercase tracking-widest italic">Check In Evidence</span>
                             <span class="text-[9px] font-bold text-slate-400">${dsIn}</span>
                         </div>
+                        
+                        <!-- ADDED: Indikator Status Waktu Check In -->
+                        <div class="mb-4 p-3 ${s.statusIn === 'Terlambat' ? 'bg-red-50 border-red-100 text-red-600' : 'bg-emerald-50 border-emerald-100 text-emerald-600'} border rounded-2xl flex items-center justify-between">
+                            <p class="text-[9px] font-black uppercase tracking-widest">Status Kedatangan</p>
+                            <p class="text-[10px] font-black italic">${s.statusIn || 'Hadir Tepat Waktu'}</p>
+                        </div>
+
                         <div class="grid grid-cols-2 gap-3 mb-4">
                             <img src="${s.checkIn.photo}" class="w-full aspect-square object-cover rounded-2xl border-2 border-slate-50">
                             <div id="map-in-${s.id}" onclick="openExplorer('${s.id}')" class="w-full aspect-square rounded-2xl border-2 border-slate-50 bg-slate-50 overflow-hidden cursor-pointer active:scale-95 transition-all"></div>
