@@ -2709,6 +2709,20 @@
                             <p class="text-[10px] font-black italic">${s.statusIn || 'Hadir Tepat Waktu'}</p>
                         </div>
 
+                        <!-- REVISI: Munculkan Alasan Terlambat jika status Terlambat -->
+                        ${s.statusIn === 'Terlambat' ? `
+                        <div class="mb-4 p-4 bg-slate-50 border border-slate-100 rounded-2xl">
+                            <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Alasan Terlambat</p>
+                            <p class="text-[10px] font-bold text-red-600 italic justify-text">${s.lateReason || "-"}</p>
+                        </div>` : ''}
+                        
+                        <!-- Tambahan: Munculkan Alasan Luar Area jika Outside Area -->
+                        ${!s.checkIn.isWithinRadius ? `
+                        <div class="mb-4 p-4 bg-orange-50 border border-orange-100 rounded-2xl">
+                            <p class="text-[8px] font-black text-orange-400 uppercase tracking-widest mb-1">Alasan Luar Area (Check In)</p>
+                            <p class="text-[10px] font-bold text-orange-700 italic justify-text">${s.outsideOfficeReason || "-"}</p>
+                        </div>` : ''}
+
                         <div class="grid grid-cols-2 gap-3 mb-4">
                             <img src="${s.checkIn.photo}" class="w-full aspect-square object-cover rounded-2xl border-2 border-slate-50">
                             <div id="map-in-${s.id}" onclick="openExplorer('${s.id}')" class="w-full aspect-square rounded-2xl border-2 border-slate-50 bg-slate-50 overflow-hidden cursor-pointer active:scale-95 transition-all"></div>
@@ -2732,6 +2746,27 @@
                             <span class="px-4 py-1.5 bg-orange-50 text-orange-600 rounded-full text-[8px] font-black uppercase tracking-widest italic">Check Out Evidence</span>
                             <span class="text-[9px] font-bold text-slate-400">${dsOut}</span>
                         </div>
+
+                        <!-- Status Kepulangan -->
+                        <div class="mb-4 p-3 ${s.checkOut.statusOut === 'Pulang Tepat Waktu' ? 'bg-emerald-50 border-emerald-100 text-emerald-600' : s.checkOut.statusOut === 'Lembur' ? 'bg-blue-50 border-blue-100 text-blue-600' : 'bg-orange-50 border-orange-100 text-orange-600'} border rounded-2xl flex items-center justify-between">
+                            <p class="text-[9px] font-black uppercase tracking-widest">Status Kepulangan</p>
+                            <p class="text-[10px] font-black italic">${s.checkOut.statusOut || '-'}</p>
+                        </div>
+
+                        <!-- Alasan Lembur / Pulang Awal -->
+                        ${s.checkOut.statusReason ? `
+                        <div class="mb-4 p-4 bg-slate-50 border border-slate-100 rounded-2xl">
+                            <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Keterangan Status</p>
+                            <p class="text-[10px] font-bold text-slate-700 italic justify-text">${s.checkOut.statusReason}</p>
+                        </div>` : ''}
+
+                        <!-- Alasan Luar Area (Check Out) -->
+                        ${!s.checkOut.isWithinRadius ? `
+                        <div class="mb-4 p-4 bg-orange-50 border border-orange-100 rounded-2xl">
+                            <p class="text-[8px] font-black text-orange-400 uppercase tracking-widest mb-1">Alasan Luar Area (Check Out)</p>
+                            <p class="text-[10px] font-bold text-orange-700 italic justify-text">${s.checkOut.outsideReason || "-"}</p>
+                        </div>` : ''}
+
                         <div class="grid grid-cols-2 gap-3 mb-4">
                             <img src="${s.checkOut.photo}" class="w-full aspect-square object-cover rounded-2xl border-2 border-slate-50">
                             <div id="map-out-${s.id}" onclick="openExplorer('${s.id}')" class="w-full aspect-square rounded-2xl border-2 border-slate-50 bg-slate-50 overflow-hidden cursor-pointer active:scale-95 transition-all"></div>
