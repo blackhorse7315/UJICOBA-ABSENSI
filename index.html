@@ -2307,9 +2307,14 @@
                     targetIn = parseInt(targetInStr.replace(':', ''));
                 if (day !== 0 && timeVal > targetIn) {
                     status = "Terlambat";
-                    reason = document.getElementById('late-reason').value;
-                    if (!reason.trim()) {
+                    reason = document.getElementById('late-reason').value.trim();
+                    if (!reason) {
                         showFormError("Isi alasan!");
+                        return;
+                    }
+                    // VALIDASI KERAS: Alasan Terlambat
+                    if (reason === "-" || reason === "--") {
+                        showFormError("⚠️ TINDAKAN DITOLAK! Harap masukkan alasan terlambat yang valid, dilarang hanya menggunakan tanda hubung.");
                         return;
                     }
                 }
@@ -2383,6 +2388,11 @@
                         if ((sO === "Lembur" || sO === "Pulang Sebelum Waktunya") && !rO.trim()) {
                             showFormError("Isi alasan!");
                             return;
+                        }
+                        // VALIDASI KERAS: Alasan Lembur / Pulang Awal
+                            if (rO === "-" || rO === "--") {
+                                showFormError("⚠️ TINDAKAN DITOLAK! Harap masukkan alasan yang valid, dilarang hanya menggunakan tanda hubung.");
+                                return;
                         }
                     } else {
                         sO = "Tugas Hari Minggu"
