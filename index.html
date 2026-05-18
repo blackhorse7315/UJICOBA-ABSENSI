@@ -1321,117 +1321,92 @@
         // MEDIA HANDLERS
         async function initCamera() {
             try {
-                if (videoStream) videoStream.getTracks().forEach(t => t.stop());
-                const constraints = {
-                    video: {
-                        facingMode: "user",
-                        width: {
-                            ideal: 640
-                        },
-                        height: {
-                            ideal: 640
-                        }
-                    }
-                };
-                videoStream = await navigator.mediaDevices.getUserMedia(constraints);
-                const video = document.getElementById('camera-preview');
-                if (video) {
-                    video.srcObject = videoStream;
-                    video.onloadedmetadata = () => video.play();
-                }
-            } catch (err) {
-                showFormError("Gagal mengakses kamera. Mohon izinkan akses kamera.");
-            }
+        if (videoStream) {
+            videoStream.getTracks().forEach(t => t.stop());
         }
-        window.startCamera = async function() {
-            const video = document.getElementById('camera-preview');
-            const photoResult = document.getElementById('photo-result');
-            
-            // Pastikan status tampilan awal bersih
+        
+        // Batasi resolusi ideal ke 480p agar rendering Canvas sangat ringan di semua perangkat
+        const constraints = {
+            video: {
+                facingMode: "user",
+                width: { ideal: 640 },
+                height: { ideal: 480 }
+            },
+            audio: false
+        };
+                videoStream = await navigator.mediaDevices.getUserMedia(constraints);
+        const video = document.getElementById('camera-preview');
+        const resultImg = document.getElementById('photo-result');
+        
+        if (video) {
+            // Bersihkan status visual element
             video.classList.remove('hidden-element');
-            photoResult.classList.add('hidden-element');
+            if (resultImg) resultImg.classList.add('hidden-element');
             
-            if (window.cameraStream) {
-                window.cameraStream.getTracks().forEach(track => track.stop());
-            }
-
-            try {
-                // Batasi ke resolusi ideal 480p agar rendering canvas sangat ringan di iPhone & Android
-                const stream = await navigator.mediaDevices.getUserMedia({
-                    video: { 
-                        facingMode: "user",
-                        width: { ideal: 640 },
-                        height: { ideal: 480 }
-                    },
-                    audio: false
-                });
-                window.cameraStream = stream;
-                video.srcObject = stream;
-                
-                // Pemicu putar paksa untuk iOS Safari
-                await video.play();
-            } catch (err) {
-                console.error("Gagal akses kamera:", err);
-                showFormError("Gagal membuka kamera. Pastikan izin kamera telah diberikan.");
-            }
-        };
-
-        // REVISI: Ambil Foto Tanpa Menyembunyikan Elemen Video (Mencegah Media Suspension iOS)
+            video.srcObject = videoStream;
+            // Jalankan paksa putar video (Penting untuk iOS Safari)
+            await video.play();
+        }
+    } catch (err) {
+        console.error("Gagal akses kamera:", err);
+        showFormError("Gagal mengakses kamera. Mohon izinkan akses kamera perangkat Anda.");
+    }
+}
+        
         window.takeSnapshot = function() {
-            const video = document.getElementById('camera-preview');
-            const canvas = document.getElementById('camera-canvas');
-            const photoResult = document.getElementById('photo-result');
-            const btnCapture = document.getElementById('btn-capture');
-            const btnRetake = document.getElementById('btn-retake');
-
-            if (!window.cameraStream) return;
-
+    const video = document.getElementById('camera-preview');
+    const canvas = document.getElementById('photo-canvas');
+    const resultImg = document.getElementById('photo-result');
+    
+    if (!video || !video.videoWidth || !videoStream) return;
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
             const ctx = canvas.getContext('2d');
-            // Samakan ukuran canvas dengan resolusi stream video aktual
-            canvas.width = video.videoWidth || 640;
-            canvas.height = video.videoHeight || 480;
+            ctx.translate(canvas.width, 0);
+            ctx.scale(-1, 1);
+            ctx.drawImage(video, 0, 0);
+            // PERCEPATAN 3: Turunkan kualitas selfie agar pengiriman sangat ringan
+            capturedPhoto = canvas.toDataURL('image/jpeg', 0.6); 
+            // Munculkan foto di atas lapisan video tanpa mengubah display video (mencegah crash iOS)
+    if (resultImg) {
+        resultImg.src = capturedPhoto;
+        resultImg.classList.remove('hidden-element');
+    }
+    
+    // Cukup pause video stream, jangan di-hide
+    video.pause();
+    
+    // Atur visibilitas tombol kontrol form
+    document.getElementById('btn-capture').classList.add('hidden-element');
+    document.getElementById('btn-retake').classList.remove('hidden-element');
+    document.getElementById('btn-submit').classList.remove('btn-disabled');
+};
 
-            // Gambar frame video ke canvas
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-            // Konversi base64 dengan kompresi kualitas tinggi namun ringan (0.75)
-            const dataUrl = canvas.toDataURL('image/jpeg', 0.75);
-            window.capturedPhotoData = dataUrl;
-
-            // Tampilkan hasil foto di atas elemen video menggunakan tumpukan z-index
-            photoResult.src = dataUrl;
-            photoResult.classList.remove('hidden-element');
-            
-            // JANGAN menyembunyikan video dengan display:none, cukup pause saja agar engine Safari tetap aktif
-            video.pause();
-
-            // Atur visibilitas tombol kontrol
-            if (btnCapture) btnCapture.classList.add('hidden-element');
-            if (btnRetake) btnRetake.classList.remove('hidden-element');
-        };
-
-        // REVISI: Reset Foto Ulang Instan & Ringan Tanpa Reload Jalur Kamera
-        window.retakePhoto = function() {
+        window.resetCamera = function() {
+            capturedPhoto = null;
+            const preview = document.getElementById('camera-preview');
+            const result = document.getElementById('photo-result');
             const video = document.getElementById('camera-preview');
-            const photoResult = document.getElementById('photo-result');
-            const btnCapture = document.getElementById('btn-capture');
-            const btnRetake = document.getElementById('btn-retake');
+            const resultImg = document.getElementById('photo-result');
+            const btnCap = document.getElementById('btn-capture');
+            const btnRet = document.getElementById('btn-retake');
+            const btnSub = document.getElementById('btn-submit');
 
-            window.capturedPhotoData = null;
-
-            // Sembunyikan kembali lapisan foto hasil jepretan
-            photoResult.classList.add('hidden-element');
-            photoResult.src = "";
-
-            // Jalankan kembali live video stream secara instan
-            if (video && window.cameraStream) {
-                video.play().catch(err => console.log("Gagal memutar ulang video:", err));
-            }
-
-            // Kembalikan tombol kontrol ke posisi semula
-            if (btnCapture) btnCapture.classList.remove('hidden-element');
-            if (btnRetake) btnRetake.classList.add('hidden-element');
-        };
+            if (preview) preview.classList.remove('hidden-element');
+            // Sembunyikan lapisan foto hasil jepretan
+    if (resultImg) {
+        resultImg.classList.add('hidden-element');
+        resultImg.src = "";
+    }
+    // Mainkan kembali live stream video secara instan tanpa reload modul kamera
+    if (video && videoStream) {
+        video.play().catch(err => console.log("Gagal play stream video:", err));
+    }
+            // Kembalikan status tombol kontrol form
+    document.getElementById('btn-capture').classList.remove('hidden-element');
+    document.getElementById('btn-retake').classList.add('hidden-element');
+    document.getElementById('btn-submit').classList.add('btn-disabled');
+};
 
         // AUTH & VIEWS
         function handleLogin() {
