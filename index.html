@@ -2810,6 +2810,16 @@
                             <p class="text-[10px] font-black italic">${s.checkOut.statusOut || '-'}</p>
                         </div>
 
+                        <!-- TAMBAHAN: Durasi Lembur -->
+                        ${s.checkOut.overtimeLabel ? `
+                        <div class="mb-4 p-3 bg-indigo-50 border border-indigo-100 rounded-2xl flex items-center justify-between shadow-sm">
+                            <div class="flex items-center gap-2 text-indigo-600">
+                                <i class="fas fa-business-time text-base"></i>
+                                <p class="text-[9px] font-black uppercase tracking-widest">Durasi Lembur Terdeteksi</p>
+                            </div>
+                            <p class="text-[11px] font-black text-indigo-700">${s.checkOut.overtimeLabel}</p>
+                        </div>` : ''}
+
                         <!-- Alasan Lembur / Pulang Awal -->
                         ${s.checkOut.statusReason ? `
                         <div class="mb-4 p-4 bg-slate-50 border border-slate-100 rounded-2xl">
