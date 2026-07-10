@@ -487,7 +487,7 @@
                             </div>
                         </div>
                     </div>
-                    <button onclick="saveScheduleConfig()" class="w-full py-4 gradient-bg text-white rounded-2xl font-black shadow-lg">UPDATE KONFIGURASI</button>
+                    <button onclick="saveScheduleConfig()" class="w-full py-4 gradient-bg text-white rounded-2xl font-bold shadow-lg">UPDATE KONFIGURASI</button>
                 </div>
             </div>
         </div>
@@ -606,9 +606,9 @@
                     <div class="mb-8">
                         <label class="text-[10px] font-bold text-slate-400 uppercase mb-3 block tracking-widest">Otentikasi Visual</label>
                         <div class="relative w-full aspect-square bg-slate-900 rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white">
-                            <video id="camera-preview" class="w-full h-full object-cover"></video>
-                            <img id="photo-result" class="hidden-element w-full h-full object-cover">
-                            <canvas id="photo-canvas" class="hidden"></canvas>
+                            <video id="camera-preview" autoplay playsinline muted class="w-full h-full object-cover"></video>
+                            <img id="photo-result" class="hidden-element absolute inset-0 w-full h-full object-cover z-10">
+                            <canvas id="photo-canvas" class="hidden-element"></canvas>
                         </div>
                         <div class="flex gap-3 mt-4">
                             <button id="btn-capture" onclick="takeSnapshot()" class="flex-grow py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg active:scale-95 transition-all">
@@ -882,6 +882,14 @@
                         <input type="text" id="reg-password" class="w-full p-4 bg-slate-50 rounded-2xl outline-none text-sm font-bold border border-slate-100">
                     </div>
                 </div>
+                <!-- TAMBAHAN: Kolom URL Tanda Tangan -->
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase mb-2 block">URL Tanda Tangan (Opsional)</label>
+                    <input type="url" id="reg-signature" oninput="handleSignatureUrl(this)" class="w-full p-4 bg-slate-50 rounded-2xl outline-none text-sm font-bold border border-slate-100" placeholder="Tempel link Google Drive gambar tanda tangan...">
+                    <div id="signature-preview-container" class="mt-3 hidden-element border-2 border-dashed border-slate-200 rounded-2xl p-2 bg-slate-50 flex justify-center">
+                        <img id="signature-preview" class="max-h-24 object-contain">
+                    </div>
+                </div>
                 <div class="flex gap-3 pt-4">
                     <button onclick="saveUser()" class="flex-grow py-4 gradient-bg text-white rounded-2xl font-bold shadow-lg transition-opacity hover:opacity-90">SIMPAN</button>
                     <button id="btn-delete-user" onclick="handleDeleteUser()" class="hidden-element px-6 py-4 bg-red-50 text-red-500 rounded-2xl font-bold border border-red-100"><i class="fas fa-trash"></i></button>
@@ -1009,7 +1017,7 @@
     </div>
 
     <script>
-        const webAppUrl = "https://script.google.com/macros/s/AKfycbxPz74lH6-mVAoWvHUN-tVbn6-Vm7gqhFiXrfsw63rrfmARGFvuopgnyVgGgUOGqm9iWg/exec";
+        const webAppUrl = "https://script.google.com/macros/s/AKfycbxXkzOEvmHECTbxAA-i_6vaThIUYRdPOL9PRjJRUiHfso9k7dw1Vj01sgPv1pYzrMFsiQ/exec";
 
         // APP STATE
         let users = [];
@@ -1088,6 +1096,7 @@
                         payload
                     })
                 });
+                if (!response.ok) throw new Error("HTTP error " + response.status);
                 // PERCEPATAN 1: Jangan menunggu download data selesai agar UI instan!
                 // Cukup jalankan sinkronisasi secara diam-diam di background
                 syncWithCloud(true); 
@@ -1096,6 +1105,7 @@
                     status: "success"
                 }
             } catch (err) {
+                console.error("Gagal mengirim data:", err);
                 hideMiniSync();
                 return {
                     status: "error"
@@ -1107,8 +1117,11 @@
             if (!webAppUrl) return;
             if (!isBackground) showMiniSync("MEMPERBARUI...");
             try {
-                // PERBAIKAN: Menambahkan { cache: "no-store" } untuk memaksa browser menarik data terbaru dari server
-                const response = await fetch(webAppUrl + "?action=syncData&t=" + Date.now(), { cache: "no-store" });
+                // PERBAIKAN: Menghapus strict { cache: "no-store" } yang sering memicu pemblokiran CORS di iOS/Safari saat redirect dari GAS.
+                // Penggunaan cache buster "?t=" + Date.now() sudah cukup.
+                const response = await fetch(webAppUrl + "?action=syncData&t=" + Date.now(), { redirect: "follow" });
+                if (!response.ok) throw new Error("HTTP error " + response.status);
+                
                 const data = await response.json();
                 if (data && data.users) {
                     users = data.users || [];
@@ -1126,7 +1139,7 @@
                     console.log("Cloud Sync Completed");
                 }
             } catch (e) {
-                console.error("Sync gagal:", e)
+                console.error("Sync gagal:", e);
             }
             hideMiniSync();
         }
@@ -1783,44 +1796,73 @@
         }
 
          window.renderAllLogs = function() {
-            const container = document.getElementById('all-logs-container'),
-                nameQuery = document.getElementById('filter-all-name').value.toLowerCase(),
-                startVal = document.getElementById('filter-all-start').value,
-                endVal = document.getElementById('filter-all-end').value;
-            if (container) container.innerHTML = "";
+            const container = document.getElementById('all-logs-container');
+            if (!container) return;
+            
+            const nameQuery = document.getElementById('filter-all-name').value.toLowerCase();
+            const startVal = document.getElementById('filter-all-start').value;
+            const endVal = document.getElementById('filter-all-end').value;
+
+            // Pra-hitung batas waktu untuk mempercepat proses filter
+            let startLimit = null, endLimit = null;
+            if (startVal) {
+                const sd = new Date(startVal);
+                sd.setHours(0, 0, 0, 0);
+                startLimit = sd.getTime();
+            }
+            if (endVal) {
+                const ed = new Date(endVal);
+                ed.setHours(23, 59, 59, 999);
+                endLimit = ed.getTime();
+            }
+
             let filtered = dutyHistory.filter(s => {
-                const matchesName = s.userName.toLowerCase().includes(nameQuery),
-                    sessionDate = new Date(s.checkIn.timestamp);
-                sessionDate.setHours(0, 0, 0, 0);
-                let matchesStart = true;
-                if (startVal) {
-                    const startLimit = new Date(startVal);
-                    startLimit.setHours(0, 0, 0, 0);
-                    matchesStart = sessionDate >= startLimit;
+                let matchesName = true;
+                if (nameQuery) {
+                    matchesName = s.userName.toLowerCase().includes(nameQuery);
                 }
-                let matchesEnd = true;
-                if (endVal) {
-                    const endLimit = new Date(endVal);
-                    endLimit.setHours(0, 0, 0, 0);
-                    matchesEnd = sessionDate <= endLimit;
-                }
-                return matchesName && matchesStart && matchesEnd;
+                if (!matchesName) return false;
+
+                const ts = Number(s.checkIn.timestamp);
+                
+                if (startLimit && ts < startLimit) return false;
+                if (endLimit && ts > endLimit) return false;
+                
+                return true;
             });
+            
             filtered.sort((a, b) => b.checkIn.timestamp - a.checkIn.timestamp);
+            
+            // Batasi render awal untuk mencegah UI freeze (DOM overload)
+            const renderLimit = 150;
+            const isTruncated = filtered.length > renderLimit;
+            if (isTruncated) {
+                filtered = filtered.slice(0, renderLimit);
+            }
+
             if (filtered.length === 0) {
-                if (container) container.innerHTML = '<div class="text-center py-16 bg-white rounded-[2rem] border-2 border-dashed border-slate-100"><p class="text-slate-300 text-xs font-bold uppercase">Data tidak ditemukan</p></div>';
+                container.innerHTML = '<div class="text-center py-16 bg-white rounded-[2rem] border-2 border-dashed border-slate-100"><p class="text-slate-300 text-xs font-bold uppercase">Data tidak ditemukan</p></div>';
                 return;
             }
-             filtered.forEach(s => {
+
+            // Gunakan single string html (DOM batching) & lazy loading image
+            let htmlString = "";
+            filtered.forEach(s => {
                 const isC = s.checkOut !== null,
-                    dateObj = new Date(s.checkIn.timestamp),
+                    dateObj = new Date(Number(s.checkIn.timestamp)),
                     df = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
                 
                 const checkInTime = formatTime(s.checkIn.time);
                 const checkOutTime = isC ? formatTime(s.checkOut.time) : 'AKTIF';
 
-                if (container) container.insertAdjacentHTML('beforeend', '<div onclick="showDetail(\'' + s.id + '\')" class="bg-white p-5 rounded-[2rem] shadow-sm border border-slate-50 flex items-center justify-between active:scale-[0.98] transition-all cursor-pointer animate-fade"><div class="flex items-center gap-4"><div class="relative"><img src="' + s.checkIn.photo + '" class="w-14 h-14 rounded-2xl object-cover border-2 border-white shadow-md">' + (isC ? '<div class="absolute -top-1 -right-1 w-6 h-6 bg-blue-500 rounded-lg flex items-center justify-center text-white border border-white"><i class="fas fa-check text-[8px]"></i></div>' : '') + '</div><div class="flex-grow"><h4 class="text-xs font-black text-slate-800">' + s.userName + '</h4><p class="text-[8px] font-bold text-slate-400 uppercase tracking-tight">' + (s.userDivision || "") + ' [' + df + ']' + '</p><div class="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-slate-50"><div><p class="text-[7px] font-black text-slate-400 uppercase tracking-widest">Check In Time</p><p class="text-[9px] font-bold text-blue-600">' + checkInTime + '</p></div><div><p class="text-[7px] font-black text-slate-400 uppercase tracking-widest">Check Out Time</p><p class="text-[9px] ' + (isC ? 'text-slate-700 font-bold' : 'text-blue-500 animate-pulse font-black') + '">' + checkOutTime + '</p></div></div></div></div><div class="w-8 h-8 bg-slate-50 rounded-full flex items-center justify-center text-slate-200"><i class="fas fa-chevron-right text-[10px]"></i></div></div>');
+                htmlString += '<div onclick="showDetail(\'' + s.id + '\')" class="bg-white p-5 rounded-[2rem] shadow-sm border border-slate-50 flex items-center justify-between active:scale-[0.98] transition-all cursor-pointer animate-fade"><div class="flex items-center gap-4"><div class="relative"><img loading="lazy" src="' + s.checkIn.photo + '" class="w-14 h-14 rounded-2xl object-cover border-2 border-white shadow-md">' + (isC ? '<div class="absolute -top-1 -right-1 w-6 h-6 bg-blue-500 rounded-lg flex items-center justify-center text-white border border-white"><i class="fas fa-check text-[8px]"></i></div>' : '') + '</div><div class="flex-grow"><h4 class="text-xs font-black text-slate-800">' + s.userName + '</h4><p class="text-[8px] font-bold text-slate-400 uppercase tracking-tight">' + (s.userDivision || "") + ' [' + df + ']' + '</p><div class="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-slate-50"><div><p class="text-[7px] font-black text-slate-400 uppercase tracking-widest">Check In Time</p><p class="text-[9px] font-bold text-blue-600">' + checkInTime + '</p></div><div><p class="text-[7px] font-black text-slate-400 uppercase tracking-widest">Check Out Time</p><p class="text-[9px] ' + (isC ? 'text-slate-700 font-bold' : 'text-blue-500 animate-pulse font-black') + '">' + checkOutTime + '</p></div></div></div></div><div class="w-8 h-8 bg-slate-50 rounded-full flex items-center justify-center text-slate-200"><i class="fas fa-chevron-right text-[10px]"></i></div></div>';
             });
+            
+            if (isTruncated) {
+                htmlString += '<div class="text-center py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Menampilkan 150 data terbaru. Gunakan filter untuk mencari data yang lebih lama.</div>';
+            }
+
+            container.innerHTML = htmlString;
         };
 
         window.resetAdminFilters = function() {
@@ -2037,6 +2079,12 @@
             document.getElementById('reg-email').value = "";
             document.getElementById('reg-username').value = "";
             document.getElementById('reg-password').value = "";
+            
+            // TAMBAHAN: Reset Kolom Tanda Tangan
+            document.getElementById('reg-signature').value = "";
+            document.getElementById('signature-preview-container').classList.add('hidden-element');
+            document.getElementById('signature-preview').src = "";
+            
             profilePicBase64 = null;
             document.getElementById('profile-pic-preview').classList.add('hidden-element');
             document.getElementById('profile-pic-placeholder').classList.remove('hidden-element');
@@ -2066,6 +2114,14 @@
                     document.getElementById('reg-email').value = u.email;
                     document.getElementById('reg-username').value = u.username;
                     document.getElementById('reg-password').value = u.password;
+                    
+                    // TAMBAHAN: Tampilkan Tanda Tangan jika ada
+                    if (u.signature) {
+                        document.getElementById('reg-signature').value = u.signature;
+                        document.getElementById('signature-preview').src = u.signature;
+                        document.getElementById('signature-preview-container').classList.remove('hidden-element');
+                    }
+                    
                     if (u.profilePic) {
                         profilePicBase64 = u.profilePic;
                         document.getElementById('profile-pic-preview').src = u.profilePic;
@@ -2110,6 +2166,10 @@
             const email = document.getElementById('reg-email').value,
                 user = document.getElementById('reg-username').value,
                 pass = document.getElementById('reg-password').value;
+            
+            // Ambil Data Tanda Tangan
+            const signatureUrl = document.getElementById('reg-signature').value.trim();
+            
             if (!name || !rank || !jabatan || !divisi || !user || !pass) {
                 alert("Wajib diisi!");
                 return;
@@ -2124,7 +2184,8 @@
                 email,
                 username: user,
                 password: pass,
-                profilePic: profilePicBase64
+                profilePic: profilePicBase64,
+                signature: signatureUrl // Simpan data Tanda Tangan ke server
             };
             
             // Optimistic update User
@@ -2148,6 +2209,32 @@
                 renderUserList();
                 await callCloud("deleteUser", { id: idNum });
             }
+        };
+
+        // TAMBAHAN: Fungsi Konversi URL Google Drive
+        window.handleSignatureUrl = function(input) {
+            let url = input.value.trim();
+            const previewCont = document.getElementById('signature-preview-container');
+            const previewImg = document.getElementById('signature-preview');
+            
+            if (!url) {
+                previewCont.classList.add('hidden-element');
+                return;
+            }
+
+            // Deteksi link Google Drive dan ambil File ID-nya
+            const driveRegex = /(?:drive\.google\.com\/file\/d\/|drive\.google\.com\/open\?id=)([\w-]+)/;
+            const match = url.match(driveRegex);
+
+            if (match && match[1]) {
+                const fileId = match[1];
+                url = `https://lh3.googleusercontent.com/d/${fileId}`;
+                input.value = url; // Ganti input dengan format URL langsung
+            }
+
+            // Tampilkan Preview
+            previewImg.src = url;
+            previewCont.classList.remove('hidden-element');
         };
 
         // USER FUNCTIONS
@@ -2557,33 +2644,128 @@
                 if (list) list.innerHTML = '<div class="text-center py-16 bg-white rounded-[2.5rem] border-2 border-dashed border-slate-100"><p class="text-slate-300 text-sm font-medium">Belum ada aktivitas</p></div>';
             } else {
                 userHistory.sort((a, b) => b.checkIn.timestamp - a.checkIn.timestamp);
-                let grouped = {};
-                userHistory.forEach(s => {
-                    const date = new Date(s.checkIn.timestamp);
-                    let key = "";
-                    if (historyFilter === 'daily') {
-                        if (date.toDateString() === new Date().toDateString()) key = "Hari Ini";
-                        else return;
-                    } else if (historyFilter === 'weekly') key = "Minggu Ke-" + getWeekNumber(date) + " (" + date.getFullYear() + ")";
-                    else if (historyFilter === 'monthly') key = date.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
-                    else if (historyFilter === 'yearly') key = "Tahun " + date.getFullYear();
-                    if (!grouped[key]) grouped[key] = [];
-                    grouped[key].push(s);
-                });
-               Object.keys(grouped).forEach(key => {
-                if (list) list.insertAdjacentHTML('beforeend', '<div class="flex items-center gap-3 py-2 px-2"><span class="h-px bg-slate-100 flex-grow"></span><span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">' + key + '</span><span class="h-px bg-slate-100 flex-grow"></span></div>');
-                grouped[key].forEach(s => {
-                    const isC = s.checkOut !== null, 
-                          dateObj = new Date(s.checkIn.timestamp),
-                          df = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+                
+                let htmlString = "";
 
+                // REVISI: Fungsi pembuat kartu laporan agar reusable
+                const renderLogCard = (s) => {
+                    const isC = s.checkOut !== null, 
+                          dateObj = new Date(Number(s.checkIn.timestamp)),
+                          df = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
                     const cInTime = formatTime(s.checkIn.time);
                     const cOutTime = isC ? formatTime(s.checkOut.time) : 'AKTIF';
+                    return `<div onclick="showDetail('${s.id}')" class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-50 flex items-center justify-between active:scale-[0.98] transition-all cursor-pointer animate-fade mb-3"><div class="flex items-center gap-5"><div class="relative"><img loading="lazy" src="${s.checkIn.photo}" class="w-16 h-16 rounded-2xl object-cover border-4 border-white shadow-lg">${isC ? `<div class="absolute -bottom-1 -right-1 w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center text-white border-2 border-white shadow-md"><i class="fas fa-check text-[10px]"></i></div>` : ''}</div><div class="flex-grow"><h4 class="text-sm font-black text-slate-800">${s.userName}</h4><p class="text-[10px] font-black text-slate-400 mt-0.5">${s.userPosition} - ${s.userDivision} [${df}]</p><div class="grid grid-cols-2 gap-4 mt-3 pt-3 border-t border-slate-50"><div><p class="text-[7px] font-black text-slate-400 uppercase tracking-widest">Check In Time</p><p class="text-[11px] font-bold text-blue-600">${cInTime}</p></div><div><p class="text-[7px] font-black text-slate-400 uppercase tracking-widest">Check Out Time</p><p class="text-[11px] ${isC ? 'text-slate-700 font-bold' : 'text-blue-500 font-black animate-pulse'}">${cOutTime}</p></div></div></div></div><div class="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-slate-300"><i class="fas fa-chevron-right text-xs"></i></div></div>`;
+                };
 
-                    if (list) list.insertAdjacentHTML('beforeend', '<div onclick="showDetail(\'' + s.id + '\')" class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-50 flex items-center justify-between active:scale-[0.98] transition-all cursor-pointer animate-fade"><div class="flex items-center gap-5"><div class="relative"><img src="' + s.checkIn.photo + '" class="w-16 h-16 rounded-2xl object-cover border-4 border-white shadow-lg">' + (isC ? '<div class="absolute -bottom-1 -right-1 w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center text-white border-2 border-white shadow-md"><i class="fas fa-check text-[10px]"></i></div>' : '') + '</div><div class="flex-grow"><h4 class="text-sm font-black text-slate-800">' + s.userName + '</h4><p class="text-[10px] font-black text-slate-400 mt-0.5">' + s.userPosition + " - " + s.userDivision + " [" + df + "]" + '</p><div class="grid grid-cols-2 gap-4 mt-3 pt-3 border-t border-slate-50"><div><p class="text-[7px] font-black text-slate-400 uppercase tracking-widest">Check In Time</p><p class="text-[11px] font-bold text-blue-600">' + cInTime + '</p></div><div><p class="text-[7px] font-black text-slate-400 uppercase tracking-widest">Check Out Time</p><p class="text-[11px] ' + (isC ? 'text-slate-700 font-bold' : 'text-blue-500 font-black animate-pulse') + '">' + cOutTime + '</p></div></div></div></div><div class="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-slate-300"><i class="fas fa-chevron-right text-xs"></i></div></div>');
-                });
-            });
-        }
+                // Filter Harian & Mingguan (Tampilan Datar Normal)
+                if (historyFilter === 'daily' || historyFilter === 'weekly') {
+                    let grouped = {};
+                    userHistory.forEach(s => {
+                        const date = new Date(s.checkIn.timestamp);
+                        let key = "";
+                        if (historyFilter === 'daily') {
+                            if (date.toDateString() === new Date().toDateString()) key = "Hari Ini";
+                            else return;
+                        } else if (historyFilter === 'weekly') {
+                            key = "Minggu Ke-" + getWeekNumber(date) + " (" + date.getFullYear() + ")";
+                        }
+                        if (!grouped[key]) grouped[key] = [];
+                        grouped[key].push(s);
+                    });
+                    Object.keys(grouped).forEach(key => {
+                        htmlString += `<div class="flex items-center gap-3 py-2 px-2 mb-3"><span class="h-px bg-slate-100 flex-grow"></span><span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">${key}</span><span class="h-px bg-slate-100 flex-grow"></span></div>`;
+                        grouped[key].forEach(s => { htmlString += renderLogCard(s); });
+                    });
+                } 
+                // Filter Bulanan (Tampilan Akordeon per Bulan)
+                else if (historyFilter === 'monthly') {
+                    let grouped = {};
+                    userHistory.forEach(s => {
+                        const date = new Date(s.checkIn.timestamp);
+                        const key = date.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+                        if (!grouped[key]) grouped[key] = [];
+                        grouped[key].push(s);
+                    });
+                    Object.keys(grouped).forEach(key => {
+                        htmlString += `
+                        <details class="group bg-white rounded-[2rem] shadow-sm border border-slate-100 mb-4 overflow-hidden">
+                            <summary class="list-none [&::-webkit-details-marker]:hidden flex justify-between items-center p-6 cursor-pointer font-black text-slate-700 active:bg-slate-50 transition-colors">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
+                                        <i class="fas fa-calendar-alt"></i>
+                                    </div>
+                                    <span>${key}</span>
+                                </div>
+                                <span class="flex items-center gap-3">
+                                    <span class="text-[10px] bg-slate-100 px-3 py-1 rounded-full text-slate-500">${grouped[key].length} Data</span>
+                                    <i class="fas fa-chevron-down text-slate-300 transition-transform group-open:-rotate-180"></i>
+                                </span>
+                            </summary>
+                            <div class="p-4 pt-0 bg-slate-50/50 border-t border-slate-50">
+                                <div class="pt-4 space-y-3">
+                                    ${grouped[key].map(s => renderLogCard(s)).join('')}
+                                </div>
+                            </div>
+                        </details>`;
+                    });
+                }
+                // Filter Tahunan (Akordeon Bertingkat: Tahun -> Bulan -> Data)
+                else if (historyFilter === 'yearly') {
+                    let grouped = {};
+                    userHistory.forEach(s => {
+                        const date = new Date(s.checkIn.timestamp);
+                        const year = date.getFullYear();
+                        const month = date.toLocaleDateString('id-ID', { month: 'long' });
+                        if (!grouped[year]) grouped[year] = {};
+                        if (!grouped[year][month]) grouped[year][month] = [];
+                        grouped[year][month].push(s);
+                    });
+                    
+                    Object.keys(grouped).sort((a,b) => b-a).forEach(year => {
+                        let monthHtml = "";
+                        Object.keys(grouped[year]).forEach(month => {
+                            monthHtml += `
+                            <details class="group/month bg-white rounded-3xl border border-slate-100 mb-3 overflow-hidden shadow-sm">
+                                <summary class="list-none [&::-webkit-details-marker]:hidden flex justify-between items-center p-5 cursor-pointer font-bold text-sm text-slate-600 hover:bg-slate-50 transition-colors">
+                                    <div class="flex items-center gap-3">
+                                        <i class="fas fa-folder text-blue-400"></i>
+                                        <span>Bulan ${month}</span>
+                                    </div>
+                                    <span class="flex items-center gap-3">
+                                        <span class="text-[9px] bg-blue-50 px-2 py-1 rounded-md text-blue-600">${grouped[year][month].length} Data</span>
+                                        <i class="fas fa-chevron-down text-slate-300 transition-transform group-open/month:-rotate-180 text-[10px]"></i>
+                                    </span>
+                                </summary>
+                                <div class="p-3 pt-0 bg-slate-50/50 border-t border-slate-50">
+                                    <div class="pt-3 space-y-3">
+                                        ${grouped[year][month].map(s => renderLogCard(s)).join('')}
+                                    </div>
+                                </div>
+                            </details>`;
+                        });
+
+                        htmlString += `
+                        <details class="group/year bg-slate-50 rounded-[2.5rem] border border-slate-200 mb-6 overflow-hidden">
+                            <summary class="list-none [&::-webkit-details-marker]:hidden flex justify-between items-center p-6 cursor-pointer font-black text-slate-800 active:bg-slate-100 transition-colors">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center text-lg">
+                                        <i class="fas fa-calendar-check"></i>
+                                    </div>
+                                    <span class="text-lg">Tahun ${year}</span>
+                                </div>
+                                <i class="fas fa-chevron-down text-slate-400 transition-transform group-open/year:-rotate-180"></i>
+                            </summary>
+                            <div class="p-4 pt-0 border-t border-slate-200/50 mt-2">
+                                <div class="pt-4">
+                                    ${monthHtml}
+                                </div>
+                            </div>
+                        </details>`;
+                    });
+                }
+
+                if (list) list.innerHTML = htmlString;
+            }
 
             // --- LOGIKA PERSONAL DATA (PENTING) ---
             const btnPersonal = document.getElementById('btn-open-personal');
@@ -2770,14 +2952,14 @@
                         ${s.statusIn === 'Terlambat' ? `
                         <div class="mb-4 p-4 bg-slate-50 border border-slate-100 rounded-2xl">
                             <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Alasan Terlambat</p>
-                            <p class="text-[10px] font-bold text-red-600 italic justify-text">${s.lateReason || "-"}</p>
+                            <p class="text-[10px] font-bold text-red-600 italic whitespace-pre-wrap">${s.lateReason || "-"}</p>
                         </div>` : ''}
                         
                         <!-- Tambahan: Munculkan Alasan Luar Area jika Outside Area -->
                         ${!s.checkIn.isWithinRadius ? `
                         <div class="mb-4 p-4 bg-orange-50 border border-orange-100 rounded-2xl">
                             <p class="text-[8px] font-black text-orange-400 uppercase tracking-widest mb-1">Alasan Luar Area (Check In)</p>
-                            <p class="text-[10px] font-bold text-orange-700 italic justify-text">${s.outsideOfficeReason || "-"}</p>
+                            <p class="text-[10px] font-bold text-orange-700 italic whitespace-pre-wrap">${s.outsideOfficeReason || "-"}</p>
                         </div>` : ''}
 
                         <div class="grid grid-cols-2 gap-3 mb-4">
@@ -2824,14 +3006,14 @@
                         ${s.checkOut.statusReason ? `
                         <div class="mb-4 p-4 bg-slate-50 border border-slate-100 rounded-2xl">
                             <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Keterangan Status</p>
-                            <p class="text-[10px] font-bold text-slate-700 italic justify-text">${s.checkOut.statusReason}</p>
+                            <p class="text-[10px] font-bold text-slate-700 italic whitespace-pre-wrap">${s.checkOut.statusReason}</p>
                         </div>` : ''}
 
                         <!-- Alasan Luar Area (Check Out) -->
                         ${!s.checkOut.isWithinRadius ? `
                         <div class="mb-4 p-4 bg-orange-50 border border-orange-100 rounded-2xl">
                             <p class="text-[8px] font-black text-orange-400 uppercase tracking-widest mb-1">Alasan Luar Area (Check Out)</p>
-                            <p class="text-[10px] font-bold text-orange-700 italic justify-text">${s.checkOut.outsideReason || "-"}</p>
+                            <p class="text-[10px] font-bold text-orange-700 italic whitespace-pre-wrap">${s.checkOut.outsideReason || "-"}</p>
                         </div>` : ''}
 
                         <div class="grid grid-cols-2 gap-3 mb-4">
@@ -3129,9 +3311,27 @@
 
             const now = new Date(),
                 printWin = window.open('', '_blank');
+                
+            // TAMBAHAN: Logika untuk memanggil Nama Karyawan dan Tanda Tangannya
+            let employeeName = "Karyawan";
+            let employeeSignatureHtml = '<div style="height:80px; margin:10px auto;"></div>'; // Blank space
             
-            // PERUBAHAN HEADER TABEL: Susunan Kolom Diubah
-            let html = '<html><head><title>Laporan Kehadiran E-Crew</title><style>body{font-family:sans-serif;padding:30px;color:#333}table{width:100%;border-collapse:collapse;margin-top:20px}th,td{border:1px solid #ccc;padding:8px;font-size:10px;vertical-align:top}th{background-color:#f8f9fa;text-align:center;font-size:10px}td{text-align:center}.header{text-align:center;border-bottom:2px solid #333;padding-bottom:10px;margin-bottom:30px}.header h1{font-size:14px;margin:10px 0}.header p{font-size:12px;margin:5px 0}.footer{margin-top:60px;float:right;text-align:center;width:250px;font-size:11px}.footer p{margin:5px 0}.remarks-cell{white-space:pre-wrap;word-wrap:break-word;max-width:250px;text-align:left}.logo-container{text-align:center;margin-bottom:10px}.logo-container img{height:70px;width:auto}.signature-img{height:80px;width:auto;margin:10px auto;display:block;}</style></head><body><div class="logo-container"><img src="https://lh3.googleusercontent.com/d/1WNcGjsZ9_Fp54xzOl01EYRqM6-wY5Zh7" alt="Logo"></div><div class="header"><h1>LAPORAN KEHADIRAN KARYAWAN</h1><p>Sistem E-Crew Attendant List</p><p>Periode: ' + formatLongIndo(startVal) + ' s/d ' + formatLongIndo(endVal) + '</p></div><table><thead><tr><th>No</th><th>Nama Karyawan</th><th>Divisi</th><th>Jabatan</th><th>Tanggal Check In</th><th>Check In</th><th>Tanggal Check Out</th><th>Check Out</th><th>Total Waktu Tugas</th><th>Type of Work/Duty Function</th><th>Detail Pekerjaan</th></tr></thead><tbody>';
+            const rawNameQuery = document.getElementById('filter-all-name').value.trim();
+            if (rawNameQuery) {
+                const matchedUser = users.find(u => u.name && u.name.toLowerCase().includes(rawNameQuery.toLowerCase()));
+                if (matchedUser) {
+                    employeeName = matchedUser.name;
+                    // Jika ada data link Tanda Tangan, maka tampilkan
+                    if (matchedUser.signature) {
+                        employeeSignatureHtml = '<img src="' + matchedUser.signature + '" class="signature-img">';
+                    }
+                } else {
+                    employeeName = rawNameQuery;
+                }
+            }
+            
+            // PERUBAHAN HEADER TABEL & CSS FOOTER: Susunan Kolom Diubah, Tambah Footer Left (Karyawan)
+            let html = '<html><head><title>Laporan Kehadiran E-Crew</title><style>body{font-family:sans-serif;padding:30px;color:#333}table{width:100%;border-collapse:collapse;margin-top:20px}th,td{border:1px solid #ccc;padding:8px;font-size:10px;vertical-align:top}th{background-color:#f8f9fa;text-align:center;font-size:10px}td{text-align:center}.header{text-align:center;border-bottom:2px solid #333;padding-bottom:10px;margin-bottom:30px}.header h1{font-size:14px;margin:10px 0}.header p{font-size:12px;margin:5px 0}.footer-container{margin-top:60px;width:100%;display:block;page-break-inside:avoid;font-size:11px}.footer-box{width:250px;text-align:center;float:left}.footer-box.right{float:right}.footer-box p{margin:5px 0}.remarks-cell{white-space:pre-wrap;word-wrap:break-word;max-width:250px;text-align:left}.logo-container{text-align:center;margin-bottom:10px}.logo-container img{height:70px;width:auto}.signature-img{height:80px;width:auto;margin:10px auto;display:block;}</style></head><body><div class="logo-container"><img src="https://lh3.googleusercontent.com/d/1WNcGjsZ9_Fp54xzOl01EYRqM6-wY5Zh7" alt="Logo"></div><div class="header"><h1>LAPORAN KEHADIRAN KARYAWAN</h1><p>Sistem E-Crew Attendant List</p><p>Periode: ' + formatLongIndo(startVal) + ' s/d ' + formatLongIndo(endVal) + '</p></div><table><thead><tr><th>No</th><th>Nama Karyawan</th><th>Divisi</th><th>Jabatan</th><th>Tanggal Check In</th><th>Check In</th><th>Tanggal Check Out</th><th>Check Out</th><th>Total Waktu Tugas</th><th>Type of Work/Duty Function</th><th>Detail Pekerjaan</th></tr></thead><tbody>';
 
             filtered.forEach((s, i) => {
                 // FORMAT TANGGAL CHECK IN
@@ -3149,7 +3349,8 @@
                 // MERAKIT BARIS TABEL (Susunan Kolom Diubah)
                 html += '<tr><td>' + (i + 1) + '</td><td style="text-align:left">' + s.userName + '</td><td>' + (s.userDivision || '-') + '</td><td>' + (s.userPosition || '-') + '</td><td>' + dsIn + '</td><td>' + s.checkIn.time + '</td><td>' + dsOut + '</td><td>' + (s.checkOut ? s.checkOut.time : '-') + '</td><td>' + dur + '</td><td>' + s.workType + ' / ' + s.dutyAs + '</td><td class="remarks-cell">' + (s.checkOut ? s.checkOut.remarks : '-') + '</td></tr>';
             });
-            html += '</tbody></table><div class="footer"><p>Dicetak pada: ' + now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear() + ', pukul ' + now.toLocaleTimeString('id-ID').replace(/\./g, ':') + '</p><p>Penanggung Jawab,</p><img src="https://lh3.googleusercontent.com/d/1yhAmuOoGe6GT4UaJEixJi4cadHbUfXTL" class="signature-img"><p><u><b>Media Marbun</b></u></p><p>HRD Manager</p></div></body></html>';
+            // TAMBAHAN FOOTER SEJAJAR: Kiri Karyawan, Kanan HRD
+            html += '</tbody></table><div class="footer-container"><div class="footer-box"><p style="visibility:hidden;">Dicetak pada: ...</p><p>Mengetahui,</p>' + employeeSignatureHtml + '<p><u><b>' + employeeName + '</b></u></p><p>Karyawan</p></div><div class="footer-box right"><p>Dicetak pada: ' + now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear() + ', pukul ' + now.toLocaleTimeString('id-ID').replace(/\./g, ':') + '</p><p>Penanggung Jawab,</p><img src="https://lh3.googleusercontent.com/d/1yhAmuOoGe6GT4UaJEixJi4cadHbUfXTL" class="signature-img"><p><u><b>Media Marbun</b></u></p><p>HRD Manager</p></div></div></body></html>';
             printWin.document.write(html);
             printWin.document.close();
             setTimeout(() => {
