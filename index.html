@@ -1037,6 +1037,25 @@
             document.getElementById('btn-submit').classList.add('btn-disabled');
         };
 
+        // TAMBAHAN: Fungsi untuk memproses dan menampilkan Foto Laporan
+        window.handleWorkPhoto = async function(input) {
+            if(!input.files[0]) return;
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                // Kompres gambar max 800px agar ringan saat disimpan
+                workPhotoBase64 = await compressImage(e.target.result, 800, 800, 0.6);
+                
+                const previewImg = document.getElementById('work-photo-preview');
+                const placeholder = document.getElementById('work-photo-placeholder');
+                
+                // Tampilkan gambar dan sembunyikan ikon upload
+                previewImg.src = workPhotoBase64;
+                previewImg.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+            };
+            reader.readAsDataURL(input.files[0]);
+        };
+
         window.trackLocation = function() {
             if (navigator.geolocation) {
                 watchId = navigator.geolocation.watchPosition((p) => {
@@ -1066,6 +1085,12 @@
             to.innerHTML = (window.scheduleConfig.workTypes || window.availableWorkTypes).map(x=>`<option>${x}</option>`).join('');
             da.innerHTML = (window.scheduleConfig.dutyRoles || window.availableDutyAs).map(x=>`<option>${x}</option>`).join('');
             document.getElementById('checkout-fields').classList.toggle('hidden-element', mode === 'check-in');
+            
+            // TAMBAHAN: Reset foto laporan setiap kali form dibuka
+            workPhotoBase64 = null;
+            document.getElementById('work-photo-preview').classList.add('hidden');
+            document.getElementById('work-photo-placeholder').classList.remove('hidden');
+            document.getElementById('work-photo-input').value = "";
         };
         window.closeForm = function() {
             document.getElementById('form-container').classList.add('hidden-element'); document.getElementById('main-actions').classList.remove('hidden-element');
@@ -1101,7 +1126,9 @@
                 let statOut = spH ? spH.name : (day === 0 ? "Tugas Minggu" : "Pulang Tepat Waktu");
                 active.checkOut = {
                     time: window.formatTime(d.toLocaleTimeString('id-ID')), lat: currentPos.lat, lng: currentPos.lng,
-                    photo: capturedPhoto, remarks: remarks, timestamp: now, statusOut: statOut,
+                    photo: capturedPhoto, 
+                    workPhoto: workPhotoBase64, // TAMBAHAN: Menyimpan foto laporan ke database
+                    remarks: remarks, timestamp: now, statusOut: statOut,
                     outsideReason: outRes, isWithinRadius: !isOutsideOffice, overtimeLabel: null
                 };
                 logData = active;
