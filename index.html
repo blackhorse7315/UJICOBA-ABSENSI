@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -71,7 +70,6 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         .leaflet-control-attribution { display: none; }
-        .detail-map { height: 120px; border-radius: 1rem; margin-top: 8px; cursor: zoom-in; }
 
         .history-tab.active, .admin-tab.active {
             background: #1e293b; color: white; border-color: #1e293b;
@@ -212,6 +210,7 @@
                 <div id="user-list-container" class="space-y-8 pb-10"></div>
             </div>
 
+            <!-- Admin Section: All Logs -->
             <div id="admin-section-all-logs" class="hidden-element space-y-6">
                 <div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm space-y-4">
                     <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest">Filter Riwayat</h3>
@@ -242,6 +241,7 @@
                 <div id="all-logs-container" class="space-y-4 pb-10"></div>
             </div>
 
+            <!-- Admin Section: News -->
             <div id="admin-section-news" class="hidden-element space-y-6">
                 <div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm space-y-4">
                     <h3 id="news-form-title" class="text-sm font-black text-slate-800 uppercase tracking-widest">Tambah Pengumuman</h3>
@@ -274,7 +274,7 @@
                         </div>
                         <div>
                             <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">Isi Pesan</label>
-                            <textarea id="news-content-input" rows="4" class="w-full p-3 bg-slate-50 rounded-xl text-xs font-medium border border-slate-100 justify-text" placeholder="Detail berita..."></textarea>
+                            <textarea id="news-content-input" rows="4" class="w-full p-3 bg-slate-50 rounded-xl text-xs font-medium border border-slate-100 justify-text whitespace-pre-wrap" placeholder="Detail berita..."></textarea>
                         </div>
                         <div class="flex gap-2">
                             <button id="btn-submit-news" onclick="addNewsItem()" class="flex-grow py-3 bg-blue-600 text-white rounded-xl text-[10px] font-black shadow-lg">POSTING SEKARANG</button>
@@ -285,6 +285,7 @@
                 <div id="admin-news-list" class="space-y-3 pb-10"></div>
             </div>
 
+            <!-- Admin Section: Links -->
             <div id="admin-section-links" class="hidden-element space-y-6">
                 <div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm space-y-4">
                     <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest">Atur Link Personal</h3>
@@ -309,6 +310,7 @@
                 <div id="admin-link-list" class="space-y-3 pb-10"></div>
             </div>
 
+            <!-- Admin Section: Worklists -->
             <div id="admin-section-worklists" class="hidden-element space-y-8">
                 <div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
                     <h3 class="text-sm font-black text-slate-800 mb-4 uppercase tracking-widest">Type of Work</h3>
@@ -328,6 +330,7 @@
                 </div>
             </div>
 
+            <!-- Admin Section: Config (Lengkap dengan Minggu & Libur Khusus) -->
             <div id="admin-section-config" class="hidden-element space-y-6 pb-10">
                 <div class="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-6">
                     <div>
@@ -364,11 +367,44 @@
                             </div>
                         </div>
                     </div>
-                    <button onclick="saveScheduleConfig()" class="w-full py-4 gradient-bg text-white rounded-2xl font-black shadow-lg">UPDATE KONFIGURASI</button>
+                    <!-- TAMBAHAN: Jadwal Minggu -->
+                    <div class="pt-4 border-t border-slate-50">
+                        <h4 class="text-xs font-black text-red-500 mb-4 uppercase tracking-widest">Jadwal Minggu & Libur</h4>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">Jam Masuk</label>
+                                <input type="time" id="cfg-sun-in" class="w-full p-3 bg-slate-50 rounded-xl text-xs font-bold border border-slate-100">
+                            </div>
+                            <div>
+                                <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">Jam Pulang</label>
+                                <input type="time" id="cfg-sun-out" class="w-full p-3 bg-slate-50 rounded-xl text-xs font-bold border border-slate-100">
+                            </div>
+                            <div class="col-span-2">
+                                <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">Batas Mulai Lembur</label>
+                                <input type="time" id="cfg-sun-ot" class="w-full p-3 bg-slate-50 rounded-xl text-xs font-bold border border-slate-100">
+                            </div>
+                        </div>
+                    </div>
+                    <!-- TAMBAHAN: Hari Libur Khusus -->
+                    <div class="pt-4 border-t border-slate-50">
+                        <h4 class="text-xs font-black text-purple-600 mb-4 uppercase tracking-widest">Hari Libur Khusus (Bebas Radius)</h4>
+                        <div class="grid grid-cols-1 gap-4">
+                            <div>
+                                <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">Tanggal Libur</label>
+                                <input type="date" id="cfg-holiday-date" class="w-full p-3 bg-slate-50 rounded-xl text-xs font-bold border border-slate-100">
+                            </div>
+                            <div>
+                                <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">Keterangan Libur</label>
+                                <input type="text" id="cfg-holiday-name" placeholder="Misal: Cuti Bersama Idul Fitri" class="w-full p-3 bg-slate-50 rounded-xl text-xs font-bold border border-slate-100">
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="saveScheduleConfig()" class="w-full py-4 gradient-bg text-white rounded-2xl font-bold shadow-lg">UPDATE KONFIGURASI</button>
                 </div>
             </div>
         </div>
 
+        <!-- User Attendance View -->
         <main id="user-attendance-view" class="hidden-element max-w-md mx-auto px-4 mt-6">
             <div id="status-banner" class="hidden-element mb-6 p-5 bg-blue-600 text-white rounded-[2rem] shadow-xl shadow-blue-200 animate-fade flex items-center justify-between">
                 <div class="flex items-center gap-4">
@@ -474,7 +510,7 @@
                         </div>
                     </div>
 
-                    <!-- Camera Section iOS Fixed -->
+                    <!-- REVISI Kamera Anti-Freeze iOS -->
                     <div class="mb-8">
                         <label class="text-[10px] font-bold text-slate-400 uppercase mb-3 block tracking-widest">Otentikasi Visual</label>
                         <div class="relative w-full aspect-square bg-black rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white mb-4">
@@ -510,7 +546,7 @@
 
                         <div id="outside-office-reason-container" class="hidden-element">
                             <label class="text-[10px] font-bold text-orange-600 uppercase mb-2 block tracking-widest">Alasan di Luar Kantor (Wajib diisi)</label>
-                            <textarea id="outside-office-reason" rows="2" class="w-full p-4 bg-orange-50 border border-orange-200 rounded-2xl outline-none text-sm font-medium resize-none" placeholder="Jelaskan kenapa Anda berada di luar radius kantor..."></textarea>
+                            <textarea id="outside-office-reason" rows="2" class="w-full p-4 bg-orange-50 border border-orange-200 rounded-2xl outline-none text-sm font-medium resize-none whitespace-pre-wrap" placeholder="Jelaskan kenapa Anda berada di luar radius kantor..."></textarea>
                         </div>
 
                         <div id="work-fields">
@@ -525,18 +561,18 @@
                         </div>
 
                         <div id="late-reason-container" class="hidden-element">
-                            <label class="text-[10px] font-bold text-red-500 uppercase mb-2 block tracking-widest">Alasan Terlambat, karena anda check in diatas pukul 09:01 (Wajib diisi)</label>
-                            <textarea id="late-reason" rows="2" class="w-full p-4 bg-red-50 border border-red-200 rounded-2xl outline-none text-sm font-medium resize-none" placeholder="Kenapa terlambat?"></textarea>
+                            <label class="text-[10px] font-bold text-red-500 uppercase mb-2 block tracking-widest">Alasan Terlambat, karena anda check in diatas waktu masuk (Wajib diisi)</label>
+                            <textarea id="late-reason" rows="2" class="w-full p-4 bg-red-50 border border-red-200 rounded-2xl outline-none text-sm font-medium resize-none whitespace-pre-wrap" placeholder="Kenapa terlambat?"></textarea>
                         </div>
 
                         <div id="checkout-fields" class="hidden-element space-y-5">
                             <div id="checkout-status-reason-container" class="hidden-element">
                                 <label id="checkout-reason-label" class="text-[10px] font-bold text-blue-600 uppercase mb-2 block tracking-widest">Alasan (Wajib diisi)</label>
-                                <textarea id="checkout-status-reason" rows="2" class="w-full p-4 bg-blue-50 border border-blue-200 rounded-2xl outline-none text-sm font-medium resize-none" placeholder="Alasan..."></textarea>
+                                <textarea id="checkout-status-reason" rows="2" class="w-full p-4 bg-blue-50 border border-blue-200 rounded-2xl outline-none text-sm font-medium resize-none whitespace-pre-wrap" placeholder="Alasan..."></textarea>
                             </div>
                             <div>
                                 <label class="text-[10px] font-bold text-slate-400 uppercase mb-2 block tracking-widest">Laporan Pekerjaan (Remarks) <span class="text-red-500">*</span></label>
-                                <textarea id="remarks" rows="4" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-sm font-medium resize-none" placeholder="Sebutkan detail pekerjaan hari ini secara lengkap..."></textarea>
+                                <textarea id="remarks" rows="4" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-sm font-medium resize-none whitespace-pre-wrap" placeholder="Sebutkan detail pekerjaan hari ini secara lengkap..."></textarea>
                             </div>
                             <div>
                                 <label class="text-[10px] font-bold text-slate-400 uppercase mb-2 block tracking-widest">Tambahan foto (mode landscape) <span class="text-red-500">*</span></label>
@@ -562,6 +598,7 @@
                 </div>
             </div>
 
+            <!-- Attendance Logs List -->
             <div id="logs-container" class="mt-4 pb-10">
                 <div class="flex items-center justify-between mb-5">
                     <h3 class="text-lg font-bold flex items-center gap-2 text-slate-800">
@@ -581,7 +618,6 @@
         </main>
     </div>
 
-    
     <!-- Custom Alert/Confirm Modal -->
     <div id="custom-dialog-modal" class="fixed inset-0 z-[3000] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm hidden-element">
         <div class="bg-white w-full max-w-xs rounded-[2.5rem] p-8 text-center animate-fade shadow-2xl">
@@ -900,8 +936,8 @@
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'ecrew-absensi-183ac';
-        const defaultFirebaseConfig = {
+        const appId = 'ecrew-absensi-183ac';
+        const firebaseConfig = {
             apiKey: "AIzaSyBiiTUcULMRCM_4FyAX8nSx1Rj1xCdJGSw",
             authDomain: "ecrew-absensi-183ac.firebaseapp.com",
             projectId: "ecrew-absensi-183ac",
@@ -910,7 +946,6 @@
             appId: "1:1080047836290:web:05995d8d73131347e1289b",
             measurementId: "G-5RXL091ML2"
         };
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : defaultFirebaseConfig;
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
@@ -927,18 +962,9 @@
 
         window.initFirebaseAuth = async function() {
             try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
+                await signInAnonymously(auth);
             } catch (err) {
-                console.warn("Auth token fallback to anonymous:", err);
-                try {
-                    await signInAnonymously(auth);
-                } catch (e2) {
-                    console.error("Anonymous auth error:", e2);
-                }
+                console.error("Anonymous auth error:", err);
             }
         };
     </script>
@@ -960,14 +986,12 @@
 
         let scheduleConfig = {
             weekday: { in: "09:00", out: "17:00", ot: "17:15" },
-            saturday: { in: "09:00", out: "14:30", ot: "14:30" }
+            saturday: { in: "09:00", out: "14:30", ot: "14:30" },
+            sunday: { in: "09:00", out: "17:00", ot: "17:15" },
+            holiday: { date: "", name: "" }
         };
 
-        const officePoints = [
-            { lat: -6.266849, lng: 106.897418, radius: 400 }, 
-            { lat: -6.264241, lng: 106.886014, radius: 250 }
-        ];
-
+        const officePoints = [{ lat: -6.266849, lng: 106.897418, radius: 400 }, { lat: -6.264241, lng: 106.886014, radius: 250 }];
         let videoStream, capturedPhoto = null, workPhotoBase64 = null;
         let currentMode = 'check-in', currentPos = { lat: 0, lng: 0 };
         let mainMap, mainMarker, watchId, explorerMap, explorerMarkers = [];
@@ -1096,7 +1120,7 @@
                 if (adminTab === 'users') renderUserList();
                 if (adminTab === 'links') renderAdminLinkList();
                 updateAdminUserDatalist();
-            }, (err) => console.error(err));
+            });
 
             const logsCol = window.fbCollection(db, 'artifacts', appId, 'public', 'data', 'logs');
             window.fbOnSnapshot(logsCol, (snapshot) => {
@@ -1104,7 +1128,7 @@
                 snapshot.forEach(docSnap => dutyHistory.push(docSnap.data()));
                 updateUI();
                 if (adminTab === 'all-logs') renderAllLogs();
-            }, (err) => console.error(err));
+            });
 
             const newsCol = window.fbCollection(db, 'artifacts', appId, 'public', 'data', 'news');
             window.fbOnSnapshot(newsCol, (snapshot) => {
@@ -1112,14 +1136,14 @@
                 snapshot.forEach(docSnap => newsItems.push(docSnap.data()));
                 updateUI();
                 if (adminTab === 'news') renderNewsAdmin();
-            }, (err) => console.error(err));
+            });
 
             const greetingsCol = window.fbCollection(db, 'artifacts', appId, 'public', 'data', 'greetings');
             window.fbOnSnapshot(greetingsCol, (snapshot) => {
                 birthdayGreetings = [];
                 snapshot.forEach(docSnap => birthdayGreetings.push(docSnap.data()));
                 checkBirthdays();
-            }, (err) => console.error(err));
+            });
 
             const settingsCol = window.fbCollection(db, 'artifacts', appId, 'public', 'data', 'settings');
             window.fbOnSnapshot(settingsCol, (snapshot) => {
@@ -1135,7 +1159,7 @@
                         if (adminTab === 'worklists') renderAdminWorkLists();
                     }
                 });
-            }, (err) => console.error(err));
+            });
 
             hideMiniSync();
         }
@@ -1260,9 +1284,14 @@
                     currentPos.lng = p.coords.longitude;
                     const dist1 = getDistance(currentPos.lat, currentPos.lng, officePoints[0].lat, officePoints[0].lng);
                     const dist2 = getDistance(currentPos.lat, currentPos.lng, officePoints[1].lat, officePoints[1].lng);
+                    
+                    const now = new Date();
+                    const todayStr = now.getFullYear() + "-" + String(now.getMonth()+1).padStart(2, '0') + "-" + String(now.getDate()).padStart(2, '0');
+                    const isSpecialHoliday = scheduleConfig.holiday && scheduleConfig.holiday.date === todayStr;
+                    
                     const isInsideP1 = dist1 <= officePoints[0].radius;
                     const isInsideP2 = dist2 <= officePoints[1].radius;
-                    const isSunday = new Date().getDay() === 0;
+                    const isSunday = new Date().getDay() === 0 || isSpecialHoliday;
 
                     const badge = document.getElementById('office-status-badge');
                     const icon = document.getElementById('office-status-icon');
@@ -1273,7 +1302,13 @@
                         isOutsideOffice = false;
                         if (badge) badge.className = "mt-3 flex items-center gap-2 text-[10px] font-bold p-2.5 rounded-xl border bg-emerald-50 text-emerald-600 border-emerald-100";
                         if (icon) icon.className = "fas fa-check-circle";
-                        if (text) text.textContent = (isSunday && !(isInsideP1 || isInsideP2)) ? "Hari Libur (Bebas Radius Lokasi)" : "Anda berada di dalam radius kantor";
+                        if (text) {
+                            if (isSunday && !(isInsideP1 || isInsideP2)) {
+                                text.textContent = isSpecialHoliday ? `Hari Libur: ${scheduleConfig.holiday.name}` : "Hari Libur (Bebas Radius Lokasi)";
+                            } else {
+                                text.textContent = "Anda berada di dalam radius kantor";
+                            }
+                        }
                         if (reasonCont) reasonCont.classList.add('hidden-element');
                     } else {
                         isOutsideOffice = true;
@@ -1359,7 +1394,7 @@
             document.getElementById('btn-submit').classList.add('btn-disabled');
         };
 
-        function handleLogin() {
+        window.handleLogin = function() {
             const uInput = document.getElementById('login-username').value,
                 pInput = document.getElementById('login-password').value,
                 errorBox = document.getElementById('login-error');
@@ -1388,9 +1423,9 @@
                     setTimeout(() => errorBox.classList.add('hidden-element'), 3000);
                 }
             }
-        }
+        };
 
-        function handleLogout() {
+        window.handleLogout = function() {
             if (timerInterval) clearInterval(timerInterval);
             currentUser = null;
             document.getElementById('login-username').value = "";
@@ -1398,9 +1433,9 @@
             document.getElementById('working-badge').classList.add('hidden-element');
             document.getElementById('status-banner').classList.add('hidden-element');
             showView('login');
-        }
+        };
 
-        function showView(view) {
+        window.showView = function(view) {
             document.getElementById('login-page').classList.add('hidden-element');
             document.getElementById('app-content').classList.add('hidden-element');
             document.getElementById('admin-view').classList.add('hidden-element');
@@ -1438,7 +1473,7 @@
                     updateWeather();
                 }
             }
-        }
+        };
 
         async function updateWeather() {
             if (navigator.geolocation) {
@@ -1529,6 +1564,7 @@
                 fromName: senderName,
                 timestamp: new Date().toISOString()
             });
+            document.getElementById('success-msg').textContent = "Ucapan ulang tahun terkirim!";
             document.getElementById('success-modal').classList.remove('hidden-element');
         };
 
@@ -1780,7 +1816,10 @@
         }
         async function deleteDutyRole(i) {
             availableDutyAs.splice(i, 1);
-            await callCloud("saveWorkLists", { types: availableWorkTypes, roles: availableDutyAs });
+            await callCloud("saveWorkLists", {
+                types: availableWorkTypes,
+                roles: availableDutyAs
+            });
             renderAdminWorkLists();
         }
 
@@ -1791,15 +1830,28 @@
             if (cfgOut) cfgOut.value = scheduleConfig.weekday?.out || "17:00";
             const cfgOt = document.getElementById('cfg-weekday-ot');
             if (cfgOt) cfgOt.value = scheduleConfig.weekday?.ot || "17:15";
+            
             const cfgSIn = document.getElementById('cfg-sat-in');
             if (cfgSIn) cfgSIn.value = scheduleConfig.saturday?.in || "09:00";
             const cfgSOut = document.getElementById('cfg-sat-out');
             if (cfgSOut) cfgSOut.value = scheduleConfig.saturday?.out || "14:30";
             const cfgSOt = document.getElementById('cfg-sat-ot');
             if (cfgSOt) cfgSOt.value = scheduleConfig.saturday?.ot || "14:30";
+            
+            const cfgSunIn = document.getElementById('cfg-sun-in');
+            if (cfgSunIn) cfgSunIn.value = scheduleConfig.sunday?.in || "09:00";
+            const cfgSunOut = document.getElementById('cfg-sun-out');
+            if (cfgSunOut) cfgSunOut.value = scheduleConfig.sunday?.out || "17:00";
+            const cfgSunOt = document.getElementById('cfg-sun-ot');
+            if (cfgSunOt) cfgSunOt.value = scheduleConfig.sunday?.ot || "17:15";
+
+            const cfgHolDate = document.getElementById('cfg-holiday-date');
+            if (cfgHolDate) cfgHolDate.value = scheduleConfig.holiday?.date || "";
+            const cfgHolName = document.getElementById('cfg-holiday-name');
+            if (cfgHolName) cfgHolName.value = scheduleConfig.holiday?.name || "";
         }
 
-        async function saveScheduleConfig() {
+        window.saveScheduleConfig = async function() {
             scheduleConfig.weekday = {
                 in: document.getElementById('cfg-weekday-in').value,
                 out: document.getElementById('cfg-weekday-out').value,
@@ -1810,7 +1862,17 @@
                 out: document.getElementById('cfg-sat-out').value,
                 ot: document.getElementById('cfg-sat-ot').value
             };
+            scheduleConfig.sunday = {
+                in: document.getElementById('cfg-sun-in').value,
+                out: document.getElementById('cfg-sun-out').value,
+                ot: document.getElementById('cfg-sun-ot').value
+            };
+            scheduleConfig.holiday = {
+                date: document.getElementById('cfg-holiday-date').value,
+                name: document.getElementById('cfg-holiday-name').value
+            };
             await callCloud("saveConfig", scheduleConfig);
+            document.getElementById('success-msg').textContent = "Konfigurasi jadwal berhasil diperbarui.";
             document.getElementById('success-modal').classList.remove('hidden-element');
         }
 
@@ -1992,6 +2054,29 @@
             document.getElementById('reg-division-manual').classList.toggle('hidden-element', document.getElementById('reg-division').value !== 'manual');
         };
 
+        window.handleSignatureUrl = function(input) {
+            let url = input.value.trim();
+            const previewCont = document.getElementById('signature-preview-container');
+            const previewImg = document.getElementById('signature-preview');
+            
+            if (!url) {
+                previewCont.classList.add('hidden-element');
+                return;
+            }
+
+            const driveRegex = /(?:drive\.google\.com\/file\/d\/|drive\.google\.com\/open\?id=)([\w-]+)/;
+            const match = url.match(driveRegex);
+
+            if (match && match[1]) {
+                const fileId = match[1];
+                url = `https://lh3.googleusercontent.com/d/${fileId}`;
+                input.value = url;
+            }
+
+            previewImg.src = url;
+            previewCont.classList.remove('hidden-element');
+        };
+
         async function saveUser() {
             const id = document.getElementById('edit-user-id').value,
                 name = document.getElementById('reg-name').value,
@@ -2042,27 +2127,6 @@
             });
         };
 
-        window.handleSignatureUrl = function(input) {
-            let url = input.value.trim();
-            const previewCont = document.getElementById('signature-preview-container');
-            const previewImg = document.getElementById('signature-preview');
-            
-            if (!url) {
-                previewCont.classList.add('hidden-element');
-                return;
-            }
-            const driveRegex = /(?:drive\.google\.com\/file\/d\/|drive\.google\.com\/open\?id=)([\w-]+)/;
-            const match = url.match(driveRegex);
-
-            if (match && match[1]) {
-                const fileId = match[1];
-                url = `https://lh3.googleusercontent.com/d/${fileId}`;
-                input.value = url;
-            }
-            previewImg.src = url;
-            previewCont.classList.remove('hidden-element');
-        };
-
         window.openForm = function(mode) {
             currentMode = mode;
             workPhotoBase64 = null;
@@ -2092,10 +2156,22 @@
                 }
             }
 
-            const now = new Date(), day = now.getDay(), h = now.getHours(), m = now.getMinutes(), currentTimeVal = h * 100 + m;
+            const now = new Date(),
+                day = now.getDay(),
+                h = now.getHours(),
+                m = now.getMinutes(),
+                currentTimeVal = h * 100 + m;
+            
+            const todayStr = now.getFullYear() + "-" + String(now.getMonth()+1).padStart(2, '0') + "-" + String(now.getDate()).padStart(2, '0');
+            const isSpecialHoliday = scheduleConfig.holiday && scheduleConfig.holiday.date === todayStr;
+
             const schedule = scheduleConfig || {},
-                weekdayInVal = parseInt((schedule.weekday?.in || "09:00").replace(':', '')),
-                satInVal = parseInt((schedule.saturday?.in || "09:00").replace(':', ''));
+                weekdayInStr = schedule.weekday?.in || "09:00",
+                satInStr = schedule.saturday?.in || "09:00",
+                sunInStr = schedule.sunday?.in || "09:00",
+                weekdayInVal = parseInt(weekdayInStr.replace(':', '')),
+                satInVal = parseInt(satInStr.replace(':', '')),
+                sunInVal = parseInt(sunInStr.replace(':', ''));
 
             document.getElementById('late-reason-container').classList.add('hidden-element');
             document.getElementById('checkout-status-reason-container').classList.add('hidden-element');
@@ -2103,29 +2179,35 @@
 
             const notice = document.getElementById('attendance-notice'),
                 noticeText = document.getElementById('attendance-notice-text');
+            
             if (mode === 'check-in') {
                 let isLate = false;
-                if (day !== 0) {
-                    const targetIn = (day === 6) ? satInVal : weekdayInVal;
+                if (!isSpecialHoliday) {
+                    const targetIn = (day === 0) ? sunInVal : (day === 6) ? satInVal : weekdayInVal;
                     if (currentTimeVal > targetIn) isLate = true;
                 }
+                
                 if (isLate) {
                     notice.className = "mb-6 p-4 rounded-2xl text-xs font-bold flex items-start gap-3 border bg-red-50 text-red-600 border-red-100";
                     noticeText.textContent = "Terlambat. Isi alasan!";
                     notice.classList.remove('hidden-element');
                     document.getElementById('late-reason-container').classList.remove('hidden-element');
-                } else if (day !== 0) {
+                } else if (isSpecialHoliday) {
+                    notice.className = "mb-6 p-4 rounded-2xl text-xs font-bold flex items-start gap-3 border bg-purple-50 text-purple-600 border-purple-100";
+                    noticeText.textContent = `Hari Libur: ${scheduleConfig.holiday.name}. Selamat bertugas!`;
+                    notice.classList.remove('hidden-element');
+                } else {
                     notice.className = "mb-6 p-4 rounded-2xl text-xs font-bold flex items-start gap-3 border bg-emerald-50 text-emerald-600 border-emerald-100";
                     noticeText.textContent = "Tepat waktu. Selamat bertugas!";
                     notice.classList.remove('hidden-element');
                 }
             } else {
                 document.getElementById('remarks').value = "";
-                if (day !== 0) {
+                if (!isSpecialHoliday) {
                     const reasonCont = document.getElementById('checkout-status-reason-container'),
                         reasonLabel = document.getElementById('checkout-reason-label'),
-                        targetOutStr = (day === 6) ? (schedule.saturday?.out || "14:30") : (schedule.weekday?.out || "17:00"),
-                        targetOtStr = (day === 6) ? (schedule.saturday?.ot || "14:30") : (schedule.weekday?.ot || "17:15"),
+                        targetOutStr = (day === 0) ? (schedule.sunday?.out || "17:00") : (day === 6) ? (schedule.saturday?.out || "14:30") : (schedule.weekday?.out || "17:00"),
+                        targetOtStr = (day === 0) ? (schedule.sunday?.ot || "17:15") : (day === 6) ? (schedule.saturday?.ot || "14:30") : (schedule.weekday?.ot || "17:15"),
                         targetOut = parseInt(targetOutStr.replace(':', '')),
                         targetOt = parseInt(targetOtStr.replace(':', ''));
 
@@ -2144,7 +2226,9 @@
                     }
                 }
             }
-            setTimeout(() => { if (mainMap) mainMap.invalidateSize(); }, 400);
+            setTimeout(() => {
+                if (mainMap) mainMap.invalidateSize()
+            }, 400);
             initCamera();
             trackLocation();
             resetCamera();
@@ -2187,30 +2271,59 @@
             }
 
             const timeStr = document.getElementById('current-time').textContent.replace(/\./g, ':');
-            const now = Date.now(), dateObj = new Date(), day = dateObj.getDay(),
-                  h = dateObj.getHours(), m = dateObj.getMinutes(), timeVal = h * 100 + m,
-                  formattedName = (currentUser.rank ? (['Capt', 'FO'].includes(currentUser.rank) ? currentUser.rank + '. ' : currentUser.rank + ' ') : '') + currentUser.name;
+            const now = Date.now(),
+                dateObj = new Date(),
+                day = dateObj.getDay(),
+                h = dateObj.getHours(),
+                m = dateObj.getMinutes(),
+                timeVal = h * 100 + m,
+                formattedName = (currentUser.rank ? (['Capt', 'FO'].includes(currentUser.rank) ? currentUser.rank + '. ' : currentUser.rank + ' ') : '') + currentUser.name;
+
+            const todayStr = dateObj.getFullYear() + "-" + String(dateObj.getMonth()+1).padStart(2, '0') + "-" + String(dateObj.getDate()).padStart(2, '0');
+            const isSpecialHoliday = scheduleConfig.holiday && scheduleConfig.holiday.date === todayStr;
 
             let currentSession;
             if (currentMode === 'check-in') {
-                let status = "Hadir Tepat Waktu", reason = "";
+                let status = "Hadir Tepat Waktu",
+                    reason = "";
                 const schedule = scheduleConfig || {},
-                    targetIn = parseInt(((day === 6) ? (schedule.saturday?.in || "09:00") : (schedule.weekday?.in || "09:00")).replace(':', ''));
+                    targetInStr = (day === 0) ? (schedule.sunday?.in || "09:00") : (day === 6) ? (schedule.saturday?.in || "09:00") : (schedule.weekday?.in || "09:00"),
+                    targetIn = parseInt(targetInStr.replace(':', ''));
                 
-                if (day !== 0 && timeVal > targetIn) {
+                if (!isSpecialHoliday && timeVal > targetIn) {
                     status = "Terlambat";
                     reason = document.getElementById('late-reason').value.trim();
-                    if (!reason) { showFormError("Isi alasan terlambat!"); return; }
+                    if (!reason) {
+                        showFormError("Isi alasan!");
+                        return;
+                    }
                     if (reason === "-" || reason === "--") {
                         showFormError("⚠️ TINDAKAN DITOLAK! Harap masukkan alasan terlambat yang valid, dilarang hanya menggunakan tanda hubung.");
                         return;
                     }
+                } else if (isSpecialHoliday) {
+                    status = `Libur: ${scheduleConfig.holiday.name}`;
                 }
                 currentSession = {
-                    id: 'F-' + now.toString().slice(-6), userId: currentUser.id, userName: formattedName,
-                    userPosition: currentUser.jabatan, userDivision: currentUser.divisi, userProfilePic: currentUser.profilePic,
-                    workType: wt, dutyAs: da, statusIn: status, lateReason: reason, outsideOfficeReason: officeReason,
-                    checkIn: { time: timeStr, lat: currentPos.lat, lng: currentPos.lng, photo: capturedPhoto, timestamp: now, isWithinRadius: !isOutsideOffice },
+                    id: 'F-' + now.toString().slice(-6),
+                    userId: currentUser.id,
+                    userName: formattedName,
+                    userPosition: currentUser.jabatan,
+                    userDivision: currentUser.divisi,
+                    userProfilePic: currentUser.profilePic,
+                    workType: wt,
+                    dutyAs: da,
+                    statusIn: status,
+                    lateReason: reason,
+                    outsideOfficeReason: officeReason,
+                    checkIn: {
+                        time: timeStr,
+                        lat: currentPos.lat,
+                        lng: currentPos.lng,
+                        photo: capturedPhoto,
+                        timestamp: now,
+                        isWithinRadius: !isOutsideOffice
+                    },
                     checkOut: null
                 };
                 dutyHistory.push(currentSession);
@@ -2235,31 +2348,49 @@
                 if (active) {
                     active.workType = wt;
                     active.dutyAs = da;
-                    let sO = "Pulang Tepat Waktu", rO = "";
-                    if (day !== 0) {
+                    let sO = "Pulang Tepat Waktu",
+                        rO = "";
+                    
+                    if (!isSpecialHoliday) {
                         const schedule = scheduleConfig || {},
-                            targetOut = parseInt(((day === 6) ? (schedule.saturday?.out || "14:30") : (schedule.weekday?.out || "17:00")).replace(':', '')),
-                            targetOt = parseInt(((day === 6) ? (schedule.saturday?.ot || "14:30") : (schedule.weekday?.ot || "17:15")).replace(':', ''));
+                            targetOutStr = (day === 0) ? (schedule.sunday?.out || "17:00") : (day === 6) ? (schedule.saturday?.out || "14:30") : (schedule.weekday?.out || "17:00"),
+                            targetOtStr = (day === 0) ? (schedule.sunday?.ot || "17:15") : (day === 6) ? (schedule.saturday?.ot || "14:30") : (schedule.weekday?.ot || "17:15"),
+                            targetOut = parseInt(targetOutStr.replace(':', '')),
+                            targetOt = parseInt(targetOtStr.replace(':', ''));
                         
                         if (timeVal > targetOt) {
-                            sO = "Lembur"; rO = document.getElementById('checkout-status-reason').value.trim();
+                            sO = "Lembur";
+                            rO = document.getElementById('checkout-status-reason').value.trim();
                         } else if (timeVal < targetOut) {
-                            sO = "Pulang Sebelum Waktunya"; rO = document.getElementById('checkout-status-reason').value.trim();
+                            sO = "Pulang Sebelum Waktunya";
+                            rO = document.getElementById('checkout-status-reason').value.trim();
                         }
                         
-                        if (sO === "Lembur" || sO === "Pulang Sebelum Waktunya") {
-                            if (!rO) { showFormError("Isi alasan!"); return; }
-                            if (rO === "-" || rO === "--") {
-                                showFormError("⚠️ TINDAKAN DITOLAK! Harap masukkan alasan yang valid, dilarang hanya menggunakan tanda hubung.");
-                                return;
-                            }
+                        if ((sO === "Lembur" || sO === "Pulang Sebelum Waktunya") && !rO) {
+                            showFormError("Isi alasan!");
+                            return;
                         }
-                    } else { sO = "Tugas Hari Minggu" }
+                        if (rO === "-" || rO === "--") {
+                            showFormError("⚠️ TINDAKAN DITOLAK! Harap masukkan alasan yang valid, dilarang hanya menggunakan tanda hubung.");
+                            return;
+                        }
+                    } else {
+                        sO = `Libur: ${scheduleConfig.holiday.name}`;
+                    }
                     
-                    active.checkOut = {
-                        time: timeStr, lat: currentPos.lat, lng: currentPos.lng, photo: capturedPhoto, remarks: remarksValue,
-                        workPhoto: workPhotoBase64, timestamp: now, statusOut: sO, statusReason: rO, outsideReason: outsideReasonOut, 
-                        isWithinRadius: !isOutsideOffice, overtimeLabel: (sO === "Lembur" ? calculateOvertimeDuration(now) : null)
+                   active.checkOut = {
+                        time: timeStr,
+                        lat: currentPos.lat,
+                        lng: currentPos.lng,
+                        photo: capturedPhoto,
+                        remarks: remarksValue,
+                        workPhoto: workPhotoBase64,
+                        timestamp: now,
+                        statusOut: sO,
+                        statusReason: rO,
+                        outsideReason: outsideReasonOut, 
+                        isWithinRadius: !isOutsideOffice,
+                        overtimeLabel: (sO === "Lembur" ? calculateOvertimeDuration(now) : null)
                     };
                     currentSession = active;
                 }
@@ -2275,9 +2406,8 @@
 
         function calculateOvertimeDuration(now) {
             const d = new Date(now), day = d.getDay();
-            if (day === 0) return null;
             const s = scheduleConfig || {},
-                limit = (day === 6) ? (s.saturday?.ot || "14:30") : (s.weekday?.ot || "17:15"),
+                limit = (day === 0) ? (s.sunday?.ot || "17:15") : (day === 6) ? (s.saturday?.ot || "14:30") : (s.weekday?.ot || "17:15"),
                 [oh, om] = limit.split(':').map(Number);
             const ld = new Date(now);
             ld.setHours(oh, om, 0, 0);
@@ -2322,14 +2452,14 @@
                 slider.innerHTML = '<div class="bg-white p-4 rounded-2xl border border-slate-100 w-full text-center text-slate-300 text-[10px] font-bold">Tidak ada berita</div>';
             } else {
                 newsOnly.forEach(item => {
-                    slider.insertAdjacentHTML('beforeend', '<div onclick="showNewsDetail(\'' + item.id + '\')" class="news-card bg-white p-0 rounded-[2rem] shadow-sm border border-slate-50 overflow-hidden"><div class="w-full h-24 bg-slate-100 flex items-center justify-center">' + (item.image ? '<img src="' + item.image + '" class="w-full h-full object-cover">' : '<i class="fas fa-newspaper text-slate-300 text-2xl"></i>') + '</div><div class="p-4"><span class="text-[8px] font-black text-emerald-500 bg-emerald-50 px-2 py-1 rounded-lg uppercase">Update</span><h4 class="text-xs font-black text-slate-800 mt-2 mb-1 line-clamp-1">' + item.title + '</h4><p class="text-[10px] text-slate-500 line-clamp-1 justify-text">' + item.content + '</p></div></div>');
+                    slider.insertAdjacentHTML('beforeend', '<div onclick="showNewsDetail(\'' + item.id + '\')" class="news-card bg-white p-0 rounded-[2rem] shadow-sm border border-slate-50 overflow-hidden"><div class="w-full h-24 bg-slate-100 flex items-center justify-center">' + (item.image ? '<img src="' + item.image + '" class="w-full h-full object-cover">' : '<i class="fas fa-newspaper text-slate-300 text-2xl"></i>') + '</div><div class="p-4"><span class="text-[8px] font-black text-emerald-500 bg-emerald-50 px-2 py-1 rounded-lg uppercase">Update</span><h4 class="text-xs font-black text-slate-800 mt-2 mb-1 line-clamp-1">' + item.title + '</h4><p class="text-[10px] text-slate-500 line-clamp-1 justify-text whitespace-pre-wrap">' + item.content + '</p></div></div>');
                 });
             }
             if (infoOnly.length === 0) {
                 announcementList.innerHTML = '<p class="text-[10px] opacity-70 font-bold italic text-center">Belum ada pengumuman hari ini</p>';
             } else {
                 infoOnly.forEach(item => {
-                    announcementList.insertAdjacentHTML('beforeend', '<div onclick="showNewsDetail(\'' + item.id + '\')" class="bg-white/10 p-4 rounded-2xl border border-white/10 cursor-pointer hover:bg-white/20 transition-colors"><div class="flex gap-3">' + (item.image ? '<img src="' + item.image + '" class="w-10 h-10 rounded-lg object-cover flex-shrink-0">' : '') + '<div><h4 class="text-[11px] font-black leading-tight">' + item.title + '</h4><p class="text-[10px] opacity-80 mt-1 line-clamp-2 justify-text">' + item.content + '</p></div></div></div>');
+                    announcementList.insertAdjacentHTML('beforeend', '<div onclick="showNewsDetail(\'' + item.id + '\')" class="bg-white/10 p-4 rounded-2xl border border-white/10 cursor-pointer hover:bg-white/20 transition-colors"><div class="flex gap-3">' + (item.image ? '<img src="' + item.image + '" class="w-10 h-10 rounded-lg object-cover flex-shrink-0">' : '') + '<div><h4 class="text-[11px] font-black leading-tight">' + item.title + '</h4><p class="text-[10px] opacity-80 mt-1 line-clamp-2 justify-text whitespace-pre-wrap">' + item.content + '</p></div></div></div>');
                 });
             }
         }
@@ -2380,7 +2510,6 @@
             userHistory.sort((a, b) => b.checkIn.timestamp - a.checkIn.timestamp);
             let htmlString = "";
 
-            // Accordion Logic untuk History
             if (historyFilter === 'daily') {
                 let todayItems = userHistory.filter(s => new Date(Number(s.checkIn.timestamp)).toDateString() === new Date().toDateString());
                 if(todayItems.length === 0) {
@@ -2478,8 +2607,7 @@
                 users[idx].password = newPass; currentUser.password = newPass;
                 await callCloud("saveUser", users[idx]);
                 document.getElementById('my-profile-password').value = "";
-                document.getElementById('success-msg').textContent = "Password berhasil diubah. Silakan gunakan password baru ini untuk login berikutnya.";
-                document.getElementById('success-modal').classList.remove('hidden-element');
+                showCustomAlert("Password berhasil diubah. Silakan gunakan password baru ini untuk login berikutnya.");
                 closeMyProfile();
             }
         }
@@ -2509,9 +2637,9 @@
                 const reader = new FileReader();
                 reader.onload = async (e) => {
                     workPhotoBase64 = await compressImage(e.target.result, 800, 800, 0.6);
-                    document.getElementById('work-photo-placeholder').classList.add('hidden');
+                    document.getElementById('work-photo-placeholder').classList.add('hidden-element');
                     const preview = document.getElementById('work-photo-preview');
-                    preview.src = workPhotoBase64; preview.classList.remove('hidden');
+                    preview.src = workPhotoBase64; preview.classList.remove('hidden-element');
                 };
                 reader.readAsDataURL(file);
             }
