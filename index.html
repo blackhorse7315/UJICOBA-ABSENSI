@@ -4,21 +4,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ECrew-Attendant List - Transwisata Prima Aviation
-</title>
+    <title>ECrew-Attendant List - Transwisata Prima Aviation</title>
     <meta name="theme-color" content="#0f172a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="E-Crew">
     
-    <!-- Ikon Web & Shortcut -->
     <link rel="icon" type="image/png" href="https://lh3.googleusercontent.com/d/14XvFbNETCuybdeUeH6BPrPaC33uBijMc">
     <link rel="shortcut icon" href="https://lh3.googleusercontent.com/d/14XvFbNETCuybdeUeH6BPrPaC33uBijMc">
     <link rel="apple-touch-icon" href="https://lh3.googleusercontent.com/d/14XvFbNETCuybdeUeH6BPrPaC33uBijMc">
     
     <link rel="manifest" id="pwa-manifest">
 
-    <!-- Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -33,7 +30,6 @@
             touch-action: manipulation;
         }
 
-        /* Layout Helpers */
         .gradient-bg {
             background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
         }
@@ -42,9 +38,7 @@
             display: none !important;
         }
 
-        /* Components */
-        #camera-preview,
-        #photo-result {
+        #camera-preview, #photo-result {
             transform: scaleX(-1);
             border-radius: 1.25rem;
             object-fit: cover;
@@ -63,180 +57,70 @@
             width: 100%;
         }
 
-        .btn-disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            pointer-events: none;
-        }
+        .btn-disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
 
-        /* Animations */
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
+        .animate-fade { animation: fadeIn 0.3s ease-out forwards; }
 
-        .animate-fade {
-            animation: fadeIn 0.3s ease-out forwards;
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+        .working-pulse { animation: pulse 2s infinite; }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .leaflet-control-attribution { display: none; }
+        .detail-map { height: 120px; border-radius: 1rem; margin-top: 8px; cursor: zoom-in; }
+
+        .history-tab.active, .admin-tab.active {
+            background: #1e293b; color: white; border-color: #1e293b;
         }
+        .history-tab, .admin-tab { transition: all 0.2s ease; border: 1px solid #e2e8f0; }
 
-        @keyframes pulse {
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
 
-            0%,
-            100% {
-                opacity: 1;
-            }
+        .login-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); }
+        .news-card { min-width: 260px; scroll-snap-align: start; cursor: pointer; }
+        .news-container { scroll-snap-type: x mandatory; }
+        .justify-text { text-align: justify; text-justify: inter-word; }
+        .birthday-gradient { background: linear-gradient(135deg, #f472b6 0%, #fb923c 100%); }
 
-            50% {
-                opacity: .5;
-            }
-        }
-
-        .working-pulse {
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-        /* Leaflet Tweaks */
-        .leaflet-control-attribution {
-            display: none;
-        }
-
-        .detail-map {
-            height: 120px;
-            border-radius: 1rem;
-            margin-top: 8px;
-            cursor: zoom-in;
-        }
-
-        /* Tabs */
-        .history-tab.active,
-        .admin-tab.active {
-            background: #1e293b;
-            color: white;
-            border-color: #1e293b;
-        }
-
-        .history-tab,
-        .admin-tab {
-            transition: all 0.2s ease;
-            border: 1px solid #e2e8f0;
-        }
-
-        /* UI Elements */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 10px;
-        }
-
-        .login-card {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
-        }
-
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-
-        .news-card {
-            min-width: 260px;
-            scroll-snap-align: start;
-            cursor: pointer;
-        }
-
-        .news-container {
-            scroll-snap-type: x mandatory;
-        }
-
-        .justify-text {
-            text-align: justify;
-            text-justify: inter-word;
-        }
-
-        .birthday-gradient {
-            background: linear-gradient(135deg, #f472b6 0%, #fb923c 100%);
-        }
-
-        /* Toast Sync */
         #sync-toast {
-            position: fixed;
-            bottom: 85px;
-            right: 20px;
-            z-index: 4000;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: #1e293b;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 50px;
-            font-size: 10px;
-            font-weight: 800;
+            position: fixed; bottom: 85px; right: 20px; z-index: 4000;
+            display: flex; align-items: center; gap: 10px;
+            background: #1e293b; color: white; padding: 10px 20px;
+            border-radius: 50px; font-size: 10px; font-weight: 800;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            transform: translateY(100px);
-            opacity: 0;
+            transform: translateY(100px); opacity: 0;
             transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
         }
-
-        #sync-toast.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
+        #sync-toast.show { transform: translateY(0); opacity: 1; }
 
         .spin-loader {
-            width: 14px;
-            height: 14px;
+            width: 14px; height: 14px;
             border: 2px solid rgba(255, 255, 255, 0.2);
-            border-top: 2px solid #3b82f6;
-            border-radius: 50%;
+            border-top: 2px solid #3b82f6; border-radius: 50%;
             animation: spin 1s linear infinite;
         }
 
-        /* Web Viewer Style */
         #webview-container {
-            position: fixed;
-            inset: 0;
-            z-index: 2000;
-            background: white;
-            display: flex;
-            flex-direction: column;
+            position: fixed; inset: 0; z-index: 2000;
+            background: white; display: flex; flex-direction: column;
         }
-
-        #external-frame {
-            flex-grow: 1;
-            border: none;
-            width: 100%;
-        }
+        #external-frame { flex-grow: 1; border: none; width: 100%; }
+        
+        details > summary { list-style: none; }
+        details > summary::-webkit-details-marker { display: none; }
     </style>
 </head>
 
 <body class="min-h-screen text-slate-800 pb-20">
 
-    <!-- Global Toast Notifications -->
     <div id="sync-toast">
         <div class="spin-loader"></div>
         <span id="sync-text">SINKRONISASI...</span>
@@ -275,7 +159,6 @@
 
     <!-- Main App Container -->
     <div id="app-content" class="hidden-element">
-        <!-- Navigation Header -->
         <nav class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-[100] px-4 py-3">
             <div class="max-w-md mx-auto flex justify-between items-center">
                 <div class="flex items-center gap-2">
@@ -295,7 +178,7 @@
                         <button id="btn-my-profile" onclick="openMyProfile()" class="hidden-element w-10 h-10 flex items-center justify-center bg-slate-50 text-slate-400 rounded-xl hover:text-blue-500 transition-colors">
                             <i class="fas fa-user-circle"></i>
                         </button>
-                        <button onclick="handleLogout()" class="w-10 h-10 flex items-center justify-center bg-slate-50 text-slate-400 rounded-xl hover:text-red-500 transition-colors">
+                        <button onclick="askConfirm('Apakah Anda yakin ingin keluar dari aplikasi?', handleLogout)" class="w-10 h-10 flex items-center justify-center bg-slate-50 text-slate-400 rounded-xl hover:text-red-500 transition-colors">
                             <i class="fas fa-power-off"></i>
                         </button>
                     </div>
@@ -303,7 +186,6 @@
             </div>
         </nav>
 
-        <!-- Admin View -->
         <div id="admin-view" class="hidden-element max-w-md mx-auto px-4 mt-6 animate-fade">
             <div class="flex items-center justify-between mb-6">
                 <h2 class="text-xl font-black text-slate-800">Admin Panel</h2>
@@ -330,7 +212,6 @@
                 <div id="user-list-container" class="space-y-8 pb-10"></div>
             </div>
 
-            <!-- Admin Section: All Logs -->
             <div id="admin-section-all-logs" class="hidden-element space-y-6">
                 <div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm space-y-4">
                     <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest">Filter Riwayat</h3>
@@ -361,7 +242,6 @@
                 <div id="all-logs-container" class="space-y-4 pb-10"></div>
             </div>
 
-            <!-- Admin Section: News -->
             <div id="admin-section-news" class="hidden-element space-y-6">
                 <div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm space-y-4">
                     <h3 id="news-form-title" class="text-sm font-black text-slate-800 uppercase tracking-widest">Tambah Pengumuman</h3>
@@ -405,7 +285,6 @@
                 <div id="admin-news-list" class="space-y-3 pb-10"></div>
             </div>
 
-            <!-- Admin Section: Personal Links -->
             <div id="admin-section-links" class="hidden-element space-y-6">
                 <div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm space-y-4">
                     <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest">Atur Link Personal</h3>
@@ -430,7 +309,6 @@
                 <div id="admin-link-list" class="space-y-3 pb-10"></div>
             </div>
 
-            <!-- Admin Section: Worklists -->
             <div id="admin-section-worklists" class="hidden-element space-y-8">
                 <div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
                     <h3 class="text-sm font-black text-slate-800 mb-4 uppercase tracking-widest">Type of Work</h3>
@@ -450,7 +328,6 @@
                 </div>
             </div>
 
-            <!-- Admin Section: Config -->
             <div id="admin-section-config" class="hidden-element space-y-6 pb-10">
                 <div class="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-6">
                     <div>
@@ -487,14 +364,12 @@
                             </div>
                         </div>
                     </div>
-                    <button onclick="saveScheduleConfig()" class="w-full py-4 gradient-bg text-white rounded-2xl font-bold shadow-lg">UPDATE KONFIGURASI</button>
+                    <button onclick="saveScheduleConfig()" class="w-full py-4 gradient-bg text-white rounded-2xl font-black shadow-lg">UPDATE KONFIGURASI</button>
                 </div>
             </div>
         </div>
 
-        <!-- User Attendance View -->
         <main id="user-attendance-view" class="hidden-element max-w-md mx-auto px-4 mt-6">
-            <!-- Active Session Banner -->
             <div id="status-banner" class="hidden-element mb-6 p-5 bg-blue-600 text-white rounded-[2rem] shadow-xl shadow-blue-200 animate-fade flex items-center justify-between">
                 <div class="flex items-center gap-4">
                     <div class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center">
@@ -534,7 +409,6 @@
 
             <div id="birthday-section" class="hidden-element mb-8 animate-fade"></div>
 
-            <!-- News & Info -->
             <div id="user-info-section" class="space-y-6 mb-8">
                 <div>
                     <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest mb-3 ml-1">Berita Terkini</h3>
@@ -549,7 +423,6 @@
                 </div>
             </div>
 
-            <!-- Action Buttons -->
             <div id="main-actions" class="grid grid-cols-2 gap-4 mb-8">
                 <button id="btn-open-checkin" onclick="openForm('check-in')" class="flex flex-col items-center justify-center bg-white p-6 rounded-3xl shadow-sm border border-slate-100 hover:shadow-md transition-all active:scale-95 group">
                     <div class="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-blue-600 group-hover:text-white transition-all">
@@ -577,7 +450,6 @@
                 </button>
             </div>
 
-            <!-- Attendance Form -->
             <div id="form-container" class="hidden-element space-y-4 animate-fade">
                 <div class="bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-100">
                     <div class="flex items-center justify-between mb-8">
@@ -602,10 +474,10 @@
                         </div>
                     </div>
 
-                    <!-- Camera Section -->
+                    <!-- Camera Section iOS Fixed -->
                     <div class="mb-8">
                         <label class="text-[10px] font-bold text-slate-400 uppercase mb-3 block tracking-widest">Otentikasi Visual</label>
-                        <div class="relative w-full aspect-square bg-slate-900 rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white">
+                        <div class="relative w-full aspect-square bg-black rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white mb-4">
                             <video id="camera-preview" autoplay playsinline muted class="w-full h-full object-cover"></video>
                             <img id="photo-result" class="hidden-element absolute inset-0 w-full h-full object-cover z-10">
                             <canvas id="photo-canvas" class="hidden-element"></canvas>
@@ -619,7 +491,7 @@
                             </button>
                         </div>
                     </div>
-                    <!-- Form Fields -->
+                    
                     <div id="form-fields" class="space-y-5">
                         <div class="grid grid-cols-2 gap-3">
                             <div class="bg-slate-50 p-4 rounded-2xl">
@@ -690,7 +562,6 @@
                 </div>
             </div>
 
-            <!-- Attendance Logs List -->
             <div id="logs-container" class="mt-4 pb-10">
                 <div class="flex items-center justify-between mb-5">
                     <h3 class="text-lg font-bold flex items-center gap-2 text-slate-800">
@@ -705,12 +576,21 @@
                     <button onclick="setHistoryFilter('yearly')" id="tab-yearly" class="history-tab whitespace-nowrap px-4 py-2 rounded-full text-[10px] font-bold bg-white text-slate-500">TAHUNAN</button>
                 </div>
 
-                <div id="attendance-list" class="space-y-6"></div>
+                <div id="attendance-list" class="space-y-3"></div>
             </div>
         </main>
     </div>
 
-    <!-- Modals & Containers -->
+    
+    <!-- Custom Alert/Confirm Modal -->
+    <div id="custom-dialog-modal" class="fixed inset-0 z-[3000] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm hidden-element">
+        <div class="bg-white w-full max-w-xs rounded-[2.5rem] p-8 text-center animate-fade shadow-2xl">
+            <div id="dialog-icon" class="w-20 h-20 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-6"><i class="fas fa-info-circle text-3xl"></i></div>
+            <h4 id="dialog-title" class="text-lg font-black mb-2 text-slate-800">Perhatian</h4>
+            <p id="dialog-msg" class="text-slate-500 text-xs mb-8 leading-relaxed font-medium">Message</p>
+            <div id="dialog-buttons" class="flex gap-3 justify-center"></div>
+        </div>
+    </div>
 
     <!-- Web Viewer Container -->
     <div id="webview-container" class="hidden-element animate-fade">
@@ -882,7 +762,6 @@
                         <input type="text" id="reg-password" class="w-full p-4 bg-slate-50 rounded-2xl outline-none text-sm font-bold border border-slate-100">
                     </div>
                 </div>
-                <!-- TAMBAHAN: Kolom URL Tanda Tangan -->
                 <div>
                     <label class="text-[10px] font-bold text-slate-400 uppercase mb-2 block">URL Tanda Tangan (Opsional)</label>
                     <input type="url" id="reg-signature" oninput="handleSignatureUrl(this)" class="w-full p-4 bg-slate-50 rounded-2xl outline-none text-sm font-bold border border-slate-100" placeholder="Tempel link Google Drive gambar tanda tangan...">
@@ -1002,7 +881,6 @@
         </div>
         <button onclick="closeExplorer()" class="absolute top-6 right-6 z-[710] w-12 h-12 bg-slate-900 text-white shadow-2xl rounded-full flex items-center justify-center active:scale-90 transition-transform"><i class="fas fa-times"></i></button>
         <div id="full-explorer-map"></div>
-        <!-- Shortcut Navigasi -->
         <div id="explorer-nav-buttons" class="absolute bottom-8 left-1/2 -translate-x-1/2 z-[710] flex gap-3 w-[90%] max-w-sm"></div>
     </div>
 
@@ -1016,9 +894,56 @@
         </div>
     </div>
 
-    <script>
-        const webAppUrl = "https://script.google.com/macros/s/AKfycbxXkzOEvmHECTbxAA-i_6vaThIUYRdPOL9PRjJRUiHfso9k7dw1Vj01sgPv1pYzrMFsiQ/exec";
+    <!-- FIREBASE INITIALIZATION MODULE -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'ecrew-absensi-183ac';
+        const defaultFirebaseConfig = {
+            apiKey: "AIzaSyBiiTUcULMRCM_4FyAX8nSx1Rj1xCdJGSw",
+            authDomain: "ecrew-absensi-183ac.firebaseapp.com",
+            projectId: "ecrew-absensi-183ac",
+            storageBucket: "ecrew-absensi-183ac.firebasestorage.app",
+            messagingSenderId: "1080047836290",
+            appId: "1:1080047836290:web:05995d8d73131347e1289b",
+            measurementId: "G-5RXL091ML2"
+        };
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : defaultFirebaseConfig;
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        window.fbDb = db;
+        window.fbAuth = auth;
+        window.fbAppId = appId;
+        window.fbDoc = doc;
+        window.fbSetDoc = setDoc;
+        window.fbDeleteDoc = deleteDoc;
+        window.fbCollection = collection;
+        window.fbOnSnapshot = onSnapshot;
+
+        window.initFirebaseAuth = async function() {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (err) {
+                console.warn("Auth token fallback to anonymous:", err);
+                try {
+                    await signInAnonymously(auth);
+                } catch (e2) {
+                    console.error("Anonymous auth error:", e2);
+                }
+            }
+        };
+    </script>
+
+    <script>
         // APP STATE
         let users = [];
         let currentUser = null;
@@ -1034,46 +959,55 @@
         let availableDutyAs = ['Pilot in Command', 'Second in Command', 'Staff'];
 
         let scheduleConfig = {
-            weekday: { in: "09:00",
-                out: "17:00",
-                ot: "17:15"
-            },
-            saturday: { in: "09:00",
-                out: "14:30",
-                ot: "14:30"
-            }
+            weekday: { in: "09:00", out: "17:00", ot: "17:15" },
+            saturday: { in: "09:00", out: "14:30", ot: "14:30" }
         };
 
-        const officePoints = [{
-            lat: -6.266849,
-            lng: 106.897418,
-            radius: 400
-        }, {
-            lat: -6.264241,
-            lng: 106.886014,
-            radius: 250
-        }];
+        const officePoints = [
+            { lat: -6.266849, lng: 106.897418, radius: 400 }, 
+            { lat: -6.264241, lng: 106.886014, radius: 250 }
+        ];
 
-        let videoStream, capturedPhoto = null,
-            workPhotoBase64 = null;
-        let currentMode = 'check-in',
-            currentPos = {
-                lat: 0,
-                lng: 0
-            };
+        let videoStream, capturedPhoto = null, workPhotoBase64 = null;
+        let currentMode = 'check-in', currentPos = { lat: 0, lng: 0 };
         let mainMap, mainMarker, watchId, explorerMap, explorerMarkers = [];
-        let isWorking = false,
-            activeStartTime = null,
-            timerInterval;
-        let historyFilter = 'daily',
-            adminTab = 'users',
-            isOutsideOffice = false,
-            deferredPrompt;
+        let isWorking = false, activeStartTime = null, timerInterval;
+        let historyFilter = 'daily', adminTab = 'users', isOutsideOffice = false, deferredPrompt;
 
-        // CLOUD SERVICES
+        // Custom Alert & Confirm Utilities
+        window.showCustomAlert = function(msg) {
+            document.getElementById('dialog-icon').className = "w-20 h-20 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6";
+            document.getElementById('dialog-icon').innerHTML = '<i class="fas fa-exclamation-triangle text-3xl"></i>';
+            document.getElementById('dialog-title').textContent = "Peringatan";
+            document.getElementById('dialog-msg').textContent = msg;
+            document.getElementById('dialog-buttons').innerHTML = '<button onclick="closeCustomDialog()" class="w-full py-3 bg-slate-900 text-white rounded-xl font-bold text-xs">Mengerti</button>';
+            document.getElementById('custom-dialog-modal').classList.remove('hidden-element');
+        };
+
+        window.askConfirm = function(msg, onConfirm) {
+            document.getElementById('dialog-icon').className = "w-20 h-20 bg-orange-50 text-orange-500 rounded-full flex items-center justify-center mx-auto mb-6";
+            document.getElementById('dialog-icon').innerHTML = '<i class="fas fa-question text-3xl"></i>';
+            document.getElementById('dialog-title').textContent = "Konfirmasi";
+            document.getElementById('dialog-msg').textContent = msg;
+            
+            window._tempConfirmAction = () => {
+                closeCustomDialog();
+                if(onConfirm) onConfirm();
+            };
+
+            document.getElementById('dialog-buttons').innerHTML = `
+                <button onclick="closeCustomDialog()" class="flex-1 py-3 bg-slate-100 text-slate-500 rounded-xl font-bold text-xs">Batal</button>
+                <button onclick="window._tempConfirmAction()" class="flex-1 py-3 bg-orange-500 text-white rounded-xl font-bold text-xs shadow-lg shadow-orange-200">Ya, Lanjutkan</button>
+            `;
+            document.getElementById('custom-dialog-modal').classList.remove('hidden-element');
+        };
+
+        window.closeCustomDialog = function() {
+            document.getElementById('custom-dialog-modal').classList.add('hidden-element');
+        };
+
         function showMiniSync(msg = "SINKRONISASI...") {
-            const toast = document.getElementById('sync-toast'),
-                text = document.getElementById('sync-text');
+            const toast = document.getElementById('sync-toast'), text = document.getElementById('sync-text');
             if (text) text.textContent = msg;
             if (toast) toast.classList.add('show');
         }
@@ -1084,105 +1018,155 @@
         }
 
         async function callCloud(action, payload = {}) {
-            if (!webAppUrl) return {
-                status: "offline"
-            };
-            showMiniSync("MENGIRIM...");
+            if (!window.fbDb || !window.fbAuth) {
+                console.warn("Firebase belum terinisialisasi");
+                return { status: "offline" };
+            }
+            if (!window.fbAuth.currentUser) {
+                await window.initFirebaseAuth();
+                if (!window.fbAuth.currentUser) return { status: "unauthenticated" };
+            }
+
+            showMiniSync("MENYIMPAN...");
+            const db = window.fbDb;
+            const appId = window.fbAppId;
+
             try {
-                const response = await fetch(webAppUrl, {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        action,
-                        payload
-                    })
-                });
-                if (!response.ok) throw new Error("HTTP error " + response.status);
-                // PERCEPATAN 1: Jangan menunggu download data selesai agar UI instan!
-                // Cukup jalankan sinkronisasi secara diam-diam di background
-                syncWithCloud(true); 
-                hideMiniSync();
-                return {
-                    status: "success"
+                if (action === "saveUser") {
+                    const uRef = window.fbDoc(db, 'artifacts', appId, 'public', 'data', 'users', String(payload.id));
+                    await window.fbSetDoc(uRef, payload, { merge: true });
+                } else if (action === "bulkSaveUsers") {
+                    for (const u of payload) {
+                        const uRef = window.fbDoc(db, 'artifacts', appId, 'public', 'data', 'users', String(u.id));
+                        await window.fbSetDoc(uRef, u, { merge: true });
+                    }
+                } else if (action === "saveLog") {
+                    const lRef = window.fbDoc(db, 'artifacts', appId, 'public', 'data', 'logs', String(payload.id));
+                    await window.fbSetDoc(lRef, payload, { merge: true });
+                } else if (action === "saveNews") {
+                    const nRef = window.fbDoc(db, 'artifacts', appId, 'public', 'data', 'news', String(payload.id));
+                    await window.fbSetDoc(nRef, payload, { merge: true });
+                } else if (action === "saveGreeting") {
+                    const gid = (payload.toId || 'greet') + '_' + Date.now();
+                    const gRef = window.fbDoc(db, 'artifacts', appId, 'public', 'data', 'greetings', gid);
+                    await window.fbSetDoc(gRef, payload);
+                } else if (action === "deleteUser") {
+                    const uRef = window.fbDoc(db, 'artifacts', appId, 'public', 'data', 'users', String(payload.id));
+                    await window.fbDeleteDoc(uRef);
+                } else if (action === "deleteLog") {
+                    const lRef = window.fbDoc(db, 'artifacts', appId, 'public', 'data', 'logs', String(payload.id));
+                    await window.fbDeleteDoc(lRef);
+                } else if (action === "deleteNews") {
+                    const nRef = window.fbDoc(db, 'artifacts', appId, 'public', 'data', 'news', String(payload.id));
+                    await window.fbDeleteDoc(nRef);
+                } else if (action === "saveConfig") {
+                    const cRef = window.fbDoc(db, 'artifacts', appId, 'public', 'data', 'settings', 'config');
+                    await window.fbSetDoc(cRef, { schedule: payload }, { merge: true });
+                } else if (action === "saveWorkLists") {
+                    const wRef = window.fbDoc(db, 'artifacts', appId, 'public', 'data', 'settings', 'worklists');
+                    await window.fbSetDoc(wRef, payload, { merge: true });
                 }
+
+                hideMiniSync();
+                return { status: "success" };
             } catch (err) {
-                console.error("Gagal mengirim data:", err);
+                console.error("Gagal simpan ke Firestore:", err);
                 hideMiniSync();
-                return {
-                    status: "error"
-                }
+                return { status: "error" };
             }
         }
 
-        async function syncWithCloud(isBackground = false) {
-            if (!webAppUrl) return;
-            if (!isBackground) showMiniSync("MEMPERBARUI...");
-            try {
-                // PERBAIKAN: Menghapus strict { cache: "no-store" } yang sering memicu pemblokiran CORS di iOS/Safari saat redirect dari GAS.
-                // Penggunaan cache buster "?t=" + Date.now() sudah cukup.
-                const response = await fetch(webAppUrl + "?action=syncData&t=" + Date.now(), { redirect: "follow" });
-                if (!response.ok) throw new Error("HTTP error " + response.status);
-                
-                const data = await response.json();
-                if (data && data.users) {
-                    users = data.users || [];
-                    dutyHistory = data.logs || [];
-                    newsItems = data.news || [];
-                    if (data.config && data.config.weekday) scheduleConfig = data.config;
-                    if (data.workTypes) availableWorkTypes = data.workTypes;
-                    if (data.dutyRoles) availableDutyAs = data.dutyRoles;
-                    if (data.greetings) birthdayGreetings = data.greetings;
-
-                    updateUI();
-                    checkBirthdays();
-                    if (adminTab === 'users') renderUserList();
-                    if (adminTab === 'worklists') renderAdminWorkLists();
-                    console.log("Cloud Sync Completed");
-                }
-            } catch (e) {
-                console.error("Sync gagal:", e);
+        async function initRealtimeSync() {
+            showMiniSync("MENYAMBUNGKAN...");
+            await window.initFirebaseAuth();
+            if (!window.fbAuth.currentUser) {
+                hideMiniSync();
+                return;
             }
+
+            const appId = window.fbAppId;
+            const db = window.fbDb;
+
+            const usersCol = window.fbCollection(db, 'artifacts', appId, 'public', 'data', 'users');
+            window.fbOnSnapshot(usersCol, (snapshot) => {
+                users = [];
+                snapshot.forEach(docSnap => users.push(docSnap.data()));
+                updateUI();
+                checkBirthdays();
+                if (adminTab === 'users') renderUserList();
+                if (adminTab === 'links') renderAdminLinkList();
+                updateAdminUserDatalist();
+            }, (err) => console.error(err));
+
+            const logsCol = window.fbCollection(db, 'artifacts', appId, 'public', 'data', 'logs');
+            window.fbOnSnapshot(logsCol, (snapshot) => {
+                dutyHistory = [];
+                snapshot.forEach(docSnap => dutyHistory.push(docSnap.data()));
+                updateUI();
+                if (adminTab === 'all-logs') renderAllLogs();
+            }, (err) => console.error(err));
+
+            const newsCol = window.fbCollection(db, 'artifacts', appId, 'public', 'data', 'news');
+            window.fbOnSnapshot(newsCol, (snapshot) => {
+                newsItems = [];
+                snapshot.forEach(docSnap => newsItems.push(docSnap.data()));
+                updateUI();
+                if (adminTab === 'news') renderNewsAdmin();
+            }, (err) => console.error(err));
+
+            const greetingsCol = window.fbCollection(db, 'artifacts', appId, 'public', 'data', 'greetings');
+            window.fbOnSnapshot(greetingsCol, (snapshot) => {
+                birthdayGreetings = [];
+                snapshot.forEach(docSnap => birthdayGreetings.push(docSnap.data()));
+                checkBirthdays();
+            }, (err) => console.error(err));
+
+            const settingsCol = window.fbCollection(db, 'artifacts', appId, 'public', 'data', 'settings');
+            window.fbOnSnapshot(settingsCol, (snapshot) => {
+                snapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+                    if (docSnap.id === 'config' && data.schedule) {
+                        scheduleConfig = data.schedule;
+                        if (adminTab === 'config') renderScheduleConfig();
+                    }
+                    if (docSnap.id === 'worklists') {
+                        if (data.types) availableWorkTypes = data.types;
+                        if (data.roles) availableDutyAs = data.roles;
+                        if (adminTab === 'worklists') renderAdminWorkLists();
+                    }
+                });
+            }, (err) => console.error(err));
+
             hideMiniSync();
         }
 
-        // PERUBAHAN: Mengubah interval menjadi 180000 milidetik (3 Menit)
-        setInterval(() => syncWithCloud(true), 180000);
+        window.syncWithCloud = function() {
+            showMiniSync("TERHUBUNG FIREBASE");
+            setTimeout(hideMiniSync, 1200);
+        };
 
-        // UTILITIES
-        // FUNGSI GLOBAL UNTUK FORMAT WAKTU (Mencegah Error 1899 & UTC)
         function formatTime(t) {
             if (!t) return "";
             let str = String(t);
-            
-            // Jika mengandung 'T' (ISO format 1899-12-30T13:48:16)
-            if (str.includes('T')) {
-                str = str.split('T')[1].split('.')[0];
-            }
-            
-            // Jika mengandung '+' atau spasi (Format +0707 Western Indonesia...)
-            // Kita ambil 8 karakter pertama (HH:mm:ss)
+            if (str.includes('T')) str = str.split('T')[1].split('.')[0];
             if (str.includes('+') || str.includes(' ')) {
                 const parts = str.split(' ');
-                // Cari bagian yang mengandung titik dua (jam)
                 const timePart = parts.find(p => p.includes(':') || p.includes('.'));
                 if (timePart) str = timePart;
             }
-
-            return str.replace(/\./g, ':').substring(0, 8); // Ambil HH:mm:ss saja
+            return str.replace(/\./g, ':').substring(0, 8);
         }
 
-        // --- NEW: FUNGSI NOTIFIKASI SUARA (Text-to-Speech) ---
         window.speakNotification = function(text) {
             if ('speechSynthesis' in window) {
                 const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'id-ID'; // Set Bahasa Indonesia
+                utterance.lang = 'id-ID';
                 utterance.rate = 1.0;
                 utterance.pitch = 1.0;
                 window.speechSynthesis.speak(utterance);
             }
         };
 
-        // PERCEPATAN 2: FUNGSI KOMPRESI GAMBAR OTOMATIS
-        // Mengecilkan ukuran gambar dari MB menjadi KB sebelum dikirim ke server
         async function compressImage(dataUrl, maxWidth = 800, maxHeight = 800, quality = 0.6) {
             return new Promise((resolve) => {
                 const img = new Image();
@@ -1213,10 +1197,8 @@
 
         function getDistance(lat1, lon1, lat2, lon2) {
             const R = 6371e3;
-            const φ1 = lat1 * Math.PI / 180,
-                φ2 = lat2 * Math.PI / 180,
-                Δφ = (lat2 - lat1) * Math.PI / 180,
-                Δλ = (lon2 - lon1) * Math.PI / 180;
+            const φ1 = lat1 * Math.PI / 180, φ2 = lat2 * Math.PI / 180,
+                Δφ = (lat2 - lat1) * Math.PI / 180, Δλ = (lon2 - lon1) * Math.PI / 180;
             const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
             return R * c;
@@ -1225,19 +1207,13 @@
         function updateClock() {
             const now = new Date();
             const timeStr = now.toLocaleTimeString('id-ID', {
-                hour12: false,
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit'
-            }).replace(/\./g, ':'); // Mengganti titik menjadi titik dua
+                hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit'
+            }).replace(/\./g, ':');
             const clockEl = document.getElementById('current-time'),
-                dateEl = document.getElementById('current-date');
+                  dateEl = document.getElementById('current-date');
             if (clockEl) clockEl.textContent = timeStr;
             if (dateEl) dateEl.textContent = now.toLocaleDateString('id-ID', {
-                weekday: 'long',
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric'
+                weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
             });
         }
         setInterval(updateClock, 1000);
@@ -1262,7 +1238,6 @@
             });
         }
 
-        // MAP & LOCATION
         function initMainMap(lat, lng) {
             if (mainMap) {
                 mainMap.setView([lat, lng], 18);
@@ -1271,17 +1246,10 @@
             }
             const mapEl = document.getElementById('map');
             if (!mapEl) return;
-            mainMap = L.map('map', {
-                zoomControl: false
-            }).setView([lat, lng], 18);
+            mainMap = L.map('map', { zoomControl: false }).setView([lat, lng], 18);
             getSatelliteLayer().addTo(mainMap);
             mainMarker = L.circleMarker([lat, lng], {
-                radius: 10,
-                fillColor: "#3b82f6",
-                color: "#fff",
-                weight: 3,
-                opacity: 1,
-                fillOpacity: 1
+                radius: 10, fillColor: "#3b82f6", color: "#fff", weight: 3, opacity: 1, fillOpacity: 1
             }).addTo(mainMap);
         }
 
@@ -1305,13 +1273,7 @@
                         isOutsideOffice = false;
                         if (badge) badge.className = "mt-3 flex items-center gap-2 text-[10px] font-bold p-2.5 rounded-xl border bg-emerald-50 text-emerald-600 border-emerald-100";
                         if (icon) icon.className = "fas fa-check-circle";
-                        if (text) {
-                            if (isSunday && !(isInsideP1 || isInsideP2)) {
-                                text.textContent = "Hari Libur (Bebas Radius Lokasi)";
-                            } else {
-                                text.textContent = "Anda berada di dalam radius kantor";
-                            }
-                        }
+                        if (text) text.textContent = (isSunday && !(isInsideP1 || isInsideP2)) ? "Hari Libur (Bebas Radius Lokasi)" : "Anda berada di dalam radius kantor";
                         if (reasonCont) reasonCont.classList.add('hidden-element');
                     } else {
                         isOutsideOffice = true;
@@ -1324,130 +1286,94 @@
                 }, (err) => {
                     const text = document.getElementById('form-location-text');
                     if (text) text.textContent = "Mencari koordinat satelit...";
-                }, {
-                    enableHighAccuracy: true,
-                    timeout: 10000
-                });
+                }, { enableHighAccuracy: true, timeout: 10000 });
             }
         }
 
-        // MEDIA HANDLERS
         async function initCamera() {
             try {
-        if (videoStream) {
-            videoStream.getTracks().forEach(t => t.stop());
-        }
-        
-        // Batasi resolusi ideal ke 480p agar rendering Canvas sangat ringan di semua perangkat
-        const constraints = {
-            video: {
-                facingMode: "user",
-                width: { ideal: 640 },
-                height: { ideal: 480 }
-            },
-            audio: false
-        };
+                if (videoStream) {
+                    videoStream.getTracks().forEach(t => t.stop());
+                }
+                const constraints = {
+                    video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } },
+                    audio: false
+                };
                 videoStream = await navigator.mediaDevices.getUserMedia(constraints);
-        const video = document.getElementById('camera-preview');
-        const resultImg = document.getElementById('photo-result');
-        
-        if (video) {
-            // Bersihkan status visual element
-            video.classList.remove('hidden-element');
-            if (resultImg) resultImg.classList.add('hidden-element');
-            
-            video.srcObject = videoStream;
-            // Jalankan paksa putar video (Penting untuk iOS Safari)
-            await video.play();
+                const video = document.getElementById('camera-preview');
+                const resultImg = document.getElementById('photo-result');
+                if (video) {
+                    video.classList.remove('hidden-element');
+                    if (resultImg) resultImg.classList.add('hidden-element');
+                    video.srcObject = videoStream;
+                    await video.play();
+                }
+            } catch (err) {
+                console.error("Gagal akses kamera:", err);
+                showFormError("Gagal mengakses kamera. Mohon izinkan akses kamera perangkat Anda.");
+            }
         }
-    } catch (err) {
-        console.error("Gagal akses kamera:", err);
-        showFormError("Gagal mengakses kamera. Mohon izinkan akses kamera perangkat Anda.");
-    }
-}
-        
+
         window.takeSnapshot = function() {
-    const video = document.getElementById('camera-preview');
-    const canvas = document.getElementById('photo-canvas');
-    const resultImg = document.getElementById('photo-result');
-    
-    if (!video || !video.videoWidth || !videoStream) return;
+            const video = document.getElementById('camera-preview');
+            const canvas = document.getElementById('photo-canvas');
+            const resultImg = document.getElementById('photo-result');
+            
+            if (!video || !video.videoWidth || !videoStream) return;
+            
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             const ctx = canvas.getContext('2d');
             ctx.translate(canvas.width, 0);
             ctx.scale(-1, 1);
             ctx.drawImage(video, 0, 0);
-            // PERCEPATAN 3: Turunkan kualitas selfie agar pengiriman sangat ringan
+            
             capturedPhoto = canvas.toDataURL('image/jpeg', 0.6); 
-            // Munculkan foto di atas lapisan video tanpa mengubah display video (mencegah crash iOS)
-    if (resultImg) {
-        resultImg.src = capturedPhoto;
-        resultImg.classList.remove('hidden-element');
-    }
-    
-    // Cukup pause video stream, jangan di-hide
-    video.pause();
-    
-    // Atur visibilitas tombol kontrol form
-    document.getElementById('btn-capture').classList.add('hidden-element');
-    document.getElementById('btn-retake').classList.remove('hidden-element');
-    document.getElementById('btn-submit').classList.remove('btn-disabled');
-};
+            if (resultImg) {
+                resultImg.src = capturedPhoto;
+                resultImg.classList.remove('hidden-element');
+            }
+            
+            video.pause();
+            
+            document.getElementById('btn-capture').classList.add('hidden-element');
+            document.getElementById('btn-retake').classList.remove('hidden-element');
+            document.getElementById('btn-submit').classList.remove('btn-disabled');
+        };
 
         window.resetCamera = function() {
             capturedPhoto = null;
-            const preview = document.getElementById('camera-preview');
-            const result = document.getElementById('photo-result');
             const video = document.getElementById('camera-preview');
             const resultImg = document.getElementById('photo-result');
-            const btnCap = document.getElementById('btn-capture');
-            const btnRet = document.getElementById('btn-retake');
-            const btnSub = document.getElementById('btn-submit');
 
-            if (preview) preview.classList.remove('hidden-element');
-            // Sembunyikan lapisan foto hasil jepretan
-    if (resultImg) {
-        resultImg.classList.add('hidden-element');
-        resultImg.src = "";
-    }
-    // Mainkan kembali live stream video secara instan tanpa reload modul kamera
-    if (video && videoStream) {
-        video.play().catch(err => console.log("Gagal play stream video:", err));
-    }
-            // Kembalikan status tombol kontrol form
-    document.getElementById('btn-capture').classList.remove('hidden-element');
-    document.getElementById('btn-retake').classList.add('hidden-element');
-    document.getElementById('btn-submit').classList.add('btn-disabled');
-};
+            if (resultImg) {
+                resultImg.classList.add('hidden-element');
+                resultImg.src = "";
+            }
+            if (video && videoStream) {
+                video.play().catch(err => console.log("Gagal play stream video:", err));
+            }
 
-        // AUTH & VIEWS
+            document.getElementById('btn-capture').classList.remove('hidden-element');
+            document.getElementById('btn-retake').classList.add('hidden-element');
+            document.getElementById('btn-submit').classList.add('btn-disabled');
+        };
+
         function handleLogin() {
             const uInput = document.getElementById('login-username').value,
                 pInput = document.getElementById('login-password').value,
                 errorBox = document.getElementById('login-error');
 
-            // Membersihkan input dari spasi yang tidak disengaja di awal/akhir
             const cleanUser = String(uInput).trim();
             const cleanPass = String(pInput).trim();
 
             if (cleanUser === 'admin' && cleanPass === 'TWA119-021') {
-                currentUser = {
-                    id: 'admin-001',
-                    role: 'admin',
-                    name: 'Administrator'
-                };
+                currentUser = { id: 'admin-001', role: 'admin', name: 'Administrator' };
                 showView('admin');
             } else if (cleanUser === 'news' && cleanPass === 'news119-021') {
-                currentUser = {
-                    id: 'news-admin-001',
-                    role: 'news_admin',
-                    name: 'Admin Berita & Info'
-                };
+                currentUser = { id: 'news-admin-001', role: 'news_admin', name: 'Admin Berita & Info' };
                 showView('admin');
             } else {
-                // Membaca data dari Google Sheet sebagai teks murni (String)
-                // dan menghapus spasi gaib agar karakter spesial seperti @ terbaca persis
                 const foundUser = users.find(u => {
                     const sheetUser = u.username ? String(u.username).trim() : "";
                     const sheetPass = u.password ? String(u.password).trim() : "";
@@ -1455,10 +1381,7 @@
                 });
                 
                 if (foundUser) {
-                    currentUser = {
-                        role: 'user',
-                        ...foundUser
-                    };
+                    currentUser = { role: 'user', ...foundUser };
                     showView('user');
                 } else {
                     errorBox.classList.remove('hidden-element');
@@ -1491,20 +1414,11 @@
                 document.getElementById('app-content').classList.remove('hidden-element');
                 if (view === 'admin') {
                     document.getElementById('admin-view').classList.remove('hidden-element');
-                    
                     if (currentUser && currentUser.role === 'news_admin') {
-                        document.getElementById('admin-tab-users').classList.add('hidden-element');
-                        document.getElementById('admin-tab-all-logs').classList.add('hidden-element');
-                        document.getElementById('admin-tab-links').classList.add('hidden-element');
-                        document.getElementById('admin-tab-worklists').classList.add('hidden-element');
-                        document.getElementById('admin-tab-config').classList.add('hidden-element');
+                        ['users','all-logs','links','worklists','config'].forEach(t => document.getElementById('admin-tab-'+t).classList.add('hidden-element'));
                         setAdminTab('news');
                     } else {
-                        document.getElementById('admin-tab-users').classList.remove('hidden-element');
-                        document.getElementById('admin-tab-all-logs').classList.remove('hidden-element');
-                        document.getElementById('admin-tab-links').classList.remove('hidden-element');
-                        document.getElementById('admin-tab-worklists').classList.remove('hidden-element');
-                        document.getElementById('admin-tab-config').classList.remove('hidden-element');
+                        ['users','all-logs','links','worklists','config'].forEach(t => document.getElementById('admin-tab-'+t).classList.remove('hidden-element'));
                         setAdminTab('users');
                     }
                 } else {
@@ -1515,9 +1429,9 @@
                     document.getElementById('welcome-role').textContent = (currentUser.jabatan || "-") + " - " + (currentUser.divisi || "-");
                     const picCont = document.getElementById('welcome-profile-pic-container');
                     if (currentUser.profilePic) {
-                        picCont.innerHTML = '<img src="' + currentUser.profilePic + '" class="w-full h-full object-cover">'
+                        picCont.innerHTML = '<img src="' + currentUser.profilePic + '" class="w-full h-full object-cover">';
                     } else {
-                        picCont.innerHTML = '<i class="fas fa-user text-white/50 text-2xl"></i>'
+                        picCont.innerHTML = '<i class="fas fa-user text-white/50 text-2xl"></i>';
                     }
                     updateUI();
                     checkBirthdays();
@@ -1526,21 +1440,16 @@
             }
         }
 
-        // LOGIC FUNCTIONS
         async function updateWeather() {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(async (position) => {
                     const lat = position.coords.latitude;
                     const lng = position.coords.longitude;
-
                     try {
-                        // 1. Ambil Cuaca (Open-Meteo API - Gratis)
                         const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`);
                         const weatherData = await weatherRes.json();
                         const temp = Math.round(weatherData.current_weather.temperature);
                         const code = weatherData.current_weather.weathercode;
-
-                        // 2. Mapping Ikon Cuaca
                         let icon = "fas fa-cloud-sun text-orange-300";
                         if (code === 0) icon = "fas fa-sun text-yellow-400";
                         else if (code >= 1 && code <= 3) icon = "fas fa-cloud-sun text-orange-300";
@@ -1550,19 +1459,15 @@
                         else if (code >= 80 && code <= 82) icon = "fas fa-cloud-showers-heavy text-blue-500";
                         else if (code >= 95 && code <= 99) icon = "fas fa-bolt text-yellow-500";
 
-                        // 3. Ambil Nama Kota (BigDataCloud API - Gratis)
                         const geoRes = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=id`);
                         const geoData = await geoRes.json();
                         const city = geoData.city || geoData.locality || "Lokasi Anda";
 
-                        // 4. Update UI
                         const iconEl = document.getElementById('weather-icon');
                         const textEl = document.getElementById('weather-text');
                         if (iconEl) iconEl.className = icon + " text-3xl mb-1";
                         if (textEl) textEl.textContent = `${temp}°C ${city}`;
-
                     } catch (error) {
-                        console.error("Gagal memuat cuaca:", error);
                         document.getElementById('weather-text').textContent = "--°C Offline";
                     }
                 }, () => {
@@ -1577,9 +1482,7 @@
                 section.classList.add('hidden-element');
                 return;
             }
-            const today = new Date(),
-                tDay = today.getDate(),
-                tMonth = today.getMonth();
+            const today = new Date(), tDay = today.getDate(), tMonth = today.getMonth();
             let isMyBirthday = false;
             if (currentUser.dob) {
                 const myDob = new Date(currentUser.dob);
@@ -1607,13 +1510,11 @@
                 } else {
                     titleText = "Ada " + othersBirthday.length + " rekan berulang tahun hari ini!";
                 }
-                
                 let listHtml = "";
                 othersBirthday.forEach(p => {
                     const displayName = (p.rank ? p.rank + " " : "") + p.name;
                     listHtml += '<div class="flex items-center justify-between bg-slate-50 p-3 rounded-2xl border border-slate-100"><p class="text-[10px] font-bold text-slate-700 truncate mr-2">' + displayName + '</p><button onclick="sendBirthdayGreeting(\'' + displayName + '\', \'' + p.id + '\')" class="px-4 py-2 birthday-gradient text-white rounded-xl text-[9px] font-black shadow-md shadow-pink-100 active:scale-95 transition-transform whitespace-nowrap">UCAPKAN</button></div>';
                 });
-
                 section.innerHTML = '<div class="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col gap-4"><div class="flex items-center gap-4"><div class="w-12 h-12 bg-pink-50 text-pink-500 rounded-2xl flex items-center justify-center text-xl shrink-0">🎉</div><div><h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest">Hari Bahagia</h3><p class="text-xs font-bold text-slate-700">' + titleText + '</p></div></div><div class="space-y-2 max-h-48 overflow-y-auto no-scrollbar">' + listHtml + '</div></div>';
                 section.classList.remove('hidden-element');
             } else {
@@ -1631,30 +1532,19 @@
             document.getElementById('success-modal').classList.remove('hidden-element');
         };
 
-        // ADMIN FUNCTIONS
         window.setAdminTab = function(tab) {
             adminTab = tab;
-            // Update daftar tab untuk menyertakan 'links'
             ['users', 'all-logs', 'news', 'links', 'worklists', 'config'].forEach(t => {
                 const btn = document.getElementById("admin-tab-" + t),
-                    sec = document.getElementById("admin-section-" + t);
+                      sec = document.getElementById("admin-section-" + t);
                 if (btn) btn.classList.toggle('active', t === tab);
                 if (sec) sec.classList.toggle('hidden-element', t !== tab);
             });
             
             if (tab === 'users') renderUserList();
-            if (tab === 'all-logs') {
-                updateAdminUserDatalist();
-                renderAllLogs();
-            }
-            if (tab === 'news') {
-                resetNewsForm();
-                renderNewsAdmin();
-            }
-            if (tab === 'links') {
-                renderAdminLinkOptions();
-                renderAdminLinkList();
-            }
+            if (tab === 'all-logs') { updateAdminUserDatalist(); renderAllLogs(); }
+            if (tab === 'news') { resetNewsForm(); renderNewsAdmin(); }
+            if (tab === 'links') { renderAdminLinkOptions(); renderAdminLinkList(); }
             if (tab === 'worklists') renderAdminWorkLists();
             if (tab === 'config') renderScheduleConfig();
         };
@@ -1664,7 +1554,6 @@
             if (file) {
                 const reader = new FileReader();
                 reader.onload = async (e) => {
-                    // PERCEPATAN 4: Kompresi gambar berita
                     newsImageBase64 = await compressImage(e.target.result);
                     document.getElementById('news-image-placeholder').classList.add('hidden-element');
                     const preview = document.getElementById('news-image-preview');
@@ -1720,10 +1609,7 @@
                 document.getElementById('news-image-preview').classList.add('hidden-element');
                 document.getElementById('news-image-placeholder').classList.remove('hidden-element');
             }
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
         async function addNewsItem() {
@@ -1732,19 +1618,12 @@
                 type = document.getElementById('news-type-input').value,
                 content = document.getElementById('news-content-input').value;
             if (!title || !content) {
-                alert("Judul dan isi wajib diisi!");
+                showCustomAlert("Judul dan isi berita wajib diisi!");
                 return;
             }
             const data = {
-                id: id || Date.now(),
-                title,
-                type,
-                content,
-                image: newsImageBase64,
-                date: new Date().toISOString()
+                id: id || Date.now(), title, type, content, image: newsImageBase64, date: new Date().toISOString()
             };
-            
-            // PERCEPATAN 5: Optimistic Update (Langsung tampilkan hasil di UI sebelum server merespon)
             const existingIndex = newsItems.findIndex(n => n.id == data.id);
             if(existingIndex > -1) newsItems[existingIndex] = data;
             else newsItems.unshift(data);
@@ -1752,19 +1631,17 @@
             resetNewsForm();
             renderNewsAdmin();
             updateUI();
-            
-            // Kirim data diam-diam di latar belakang
             await callCloud("saveNews", data);
         }
 
-        window.deleteNewsItem = async function(idx) {
-            if (confirm("Hapus berita ini secara permanen dari server?")) {
+        window.deleteNewsItem = function(idx) {
+            askConfirm("Hapus berita ini secara permanen dari server?", async () => {
                 const item = newsItems[idx];
-                newsItems.splice(idx, 1); // Optimistic Update hapus langsung di UI
+                newsItems.splice(idx, 1);
                 renderNewsAdmin();
                 updateUI();
                 await callCloud("deleteNews", { id: item.id });
-            }
+            });
         };
 
         window.showNewsDetail = function(id) {
@@ -1787,11 +1664,7 @@
             }
             typeSpan.textContent = item.type === 'news' ? 'BERITA' : 'PENGUMUMAN';
             typeSpan.className = 'text-[9px] font-black px-3 py-1 rounded-full ' + (item.type === 'news' ? 'bg-emerald-50 text-emerald-600' : 'bg-blue-50 text-blue-600');
-            dateSpan.textContent = new Date(item.date).toLocaleDateString('id-ID', {
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric'
-            });
+            dateSpan.textContent = new Date(item.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
             title.textContent = item.title;
             content.textContent = item.content;
             modal.classList.remove('hidden-element');
@@ -1807,7 +1680,7 @@
             datalist.innerHTML = users.map(u => '<option value="' + u.name + '">').join('');
         }
 
-         window.renderAllLogs = function() {
+        window.renderAllLogs = function() {
             const container = document.getElementById('all-logs-container');
             if (!container) return;
             
@@ -1815,7 +1688,6 @@
             const startVal = document.getElementById('filter-all-start').value;
             const endVal = document.getElementById('filter-all-end').value;
 
-            // Pra-hitung batas waktu untuk mempercepat proses filter
             let startLimit = null, endLimit = null;
             if (startVal) {
                 const sd = new Date(startVal);
@@ -1830,34 +1702,26 @@
 
             let filtered = dutyHistory.filter(s => {
                 let matchesName = true;
-                if (nameQuery) {
-                    matchesName = s.userName.toLowerCase().includes(nameQuery);
-                }
+                if (nameQuery) matchesName = s.userName.toLowerCase().includes(nameQuery);
                 if (!matchesName) return false;
 
                 const ts = Number(s.checkIn.timestamp);
-                
                 if (startLimit && ts < startLimit) return false;
                 if (endLimit && ts > endLimit) return false;
-                
                 return true;
             });
             
             filtered.sort((a, b) => b.checkIn.timestamp - a.checkIn.timestamp);
             
-            // Batasi render awal untuk mencegah UI freeze (DOM overload)
             const renderLimit = 150;
             const isTruncated = filtered.length > renderLimit;
-            if (isTruncated) {
-                filtered = filtered.slice(0, renderLimit);
-            }
+            if (isTruncated) filtered = filtered.slice(0, renderLimit);
 
             if (filtered.length === 0) {
                 container.innerHTML = '<div class="text-center py-16 bg-white rounded-[2rem] border-2 border-dashed border-slate-100"><p class="text-slate-300 text-xs font-bold uppercase">Data tidak ditemukan</p></div>';
                 return;
             }
 
-            // Gunakan single string html (DOM batching) & lazy loading image
             let htmlString = "";
             filtered.forEach(s => {
                 const isC = s.checkOut !== null,
@@ -1896,42 +1760,27 @@
             if (val && !availableWorkTypes.includes(val)) {
                 availableWorkTypes.push(val);
                 document.getElementById('new-work-type').value = "";
-                await callCloud("saveWorkLists", {
-                    types: availableWorkTypes,
-                    roles: availableDutyAs
-                });
+                await callCloud("saveWorkLists", { types: availableWorkTypes, roles: availableDutyAs });
                 renderAdminWorkLists();
             }
         }
-
         async function deleteWorkType(i) {
             availableWorkTypes.splice(i, 1);
-            await callCloud("saveWorkLists", {
-                types: availableWorkTypes,
-                roles: availableDutyAs
-            });
+            await callCloud("saveWorkLists", { types: availableWorkTypes, roles: availableDutyAs });
             renderAdminWorkLists();
         }
-
         async function addDutyRole() {
             const val = document.getElementById('new-duty-role').value;
             if (val && !availableDutyAs.includes(val)) {
                 availableDutyAs.push(val);
                 document.getElementById('new-duty-role').value = "";
-                await callCloud("saveWorkLists", {
-                    types: availableWorkTypes,
-                    roles: availableDutyAs
-                });
+                await callCloud("saveWorkLists", { types: availableWorkTypes, roles: availableDutyAs });
                 renderAdminWorkLists();
             }
         }
-
         async function deleteDutyRole(i) {
             availableDutyAs.splice(i, 1);
-            await callCloud("saveWorkLists", {
-                types: availableWorkTypes,
-                roles: availableDutyAs
-            });
+            await callCloud("saveWorkLists", { types: availableWorkTypes, roles: availableDutyAs });
             renderAdminWorkLists();
         }
 
@@ -1970,7 +1819,6 @@
             document.getElementById('bulk-error-msg').classList.add('hidden-element');
             document.getElementById('bulk-import-modal').classList.remove('hidden-element');
         };
-
         window.closeBulkImport = function() {
             document.getElementById('bulk-import-modal').classList.add('hidden-element');
         };
@@ -1989,27 +1837,15 @@
             for (const line of lines.slice(0, limit)) {
                 const parts = line.split('|').map(p => p.trim());
                 if (parts.length >= 7) {
-                    const name = parts[0],
-                        rank = parts[1],
-                        position = parts[2],
-                        division = parts[3],
-                        email = parts[4],
-                        user = parts[5],
-                        pass = parts[6],
-                        dob = parts[7] || null;
+                    const name = parts[0], rank = parts[1], position = parts[2],
+                        division = parts[3], email = parts[4], user = parts[5],
+                        pass = parts[6], dob = parts[7] || null;
                     if (rank && !availableRanks.includes(rank)) availableRanks.push(rank);
                     if (division && !availableDivisions.includes(division)) availableDivisions.push(division);
                     newUsers.push({
                         id: Date.now() + Math.random(),
-                        name,
-                        dob,
-                        rank,
-                        jabatan: position,
-                        divisi: division,
-                        email,
-                        username: user,
-                        password: pass,
-                        profilePic: null
+                        name, dob, rank, jabatan: position, divisi: division,
+                        email, username: user, password: pass, profilePic: null
                     });
                 }
             }
@@ -2092,7 +1928,6 @@
             document.getElementById('reg-username').value = "";
             document.getElementById('reg-password').value = "";
             
-            // TAMBAHAN: Reset Kolom Tanda Tangan
             document.getElementById('reg-signature').value = "";
             document.getElementById('signature-preview-container').classList.add('hidden-element');
             document.getElementById('signature-preview').src = "";
@@ -2110,7 +1945,6 @@
                     const dobInput = document.getElementById('reg-dob');
                     if (dobInput) {
                         if (u.dob) {
-                            // FIXED: Gunakan waktu lokal agar tanggal tidak berkurang 1 hari
                             const d = new Date(u.dob);
                             const year = d.getFullYear();
                             const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -2127,13 +1961,11 @@
                     document.getElementById('reg-username').value = u.username;
                     document.getElementById('reg-password').value = u.password;
                     
-                    // TAMBAHAN: Tampilkan Tanda Tangan jika ada
                     if (u.signature) {
                         document.getElementById('reg-signature').value = u.signature;
                         document.getElementById('signature-preview').src = u.signature;
                         document.getElementById('signature-preview-container').classList.remove('hidden-element');
                     }
-                    
                     if (u.profilePic) {
                         profilePicBase64 = u.profilePic;
                         document.getElementById('profile-pic-preview').src = u.profilePic;
@@ -2178,52 +2010,38 @@
             const email = document.getElementById('reg-email').value,
                 user = document.getElementById('reg-username').value,
                 pass = document.getElementById('reg-password').value;
-            
-            // Ambil Data Tanda Tangan
             const signatureUrl = document.getElementById('reg-signature').value.trim();
             
             if (!name || !rank || !jabatan || !divisi || !user || !pass) {
-                alert("Wajib diisi!");
+                showCustomAlert("Form belum lengkap, Wajib diisi!");
                 return;
             }
             const data = {
-                id: id || Date.now(),
-                name,
-                dob,
-                rank,
-                jabatan,
-                divisi,
-                email,
-                username: user,
-                password: pass,
-                profilePic: profilePicBase64,
-                signature: signatureUrl // Simpan data Tanda Tangan ke server
+                id: id || Date.now(), name, dob, rank, jabatan, divisi,
+                email, username: user, password: pass, profilePic: profilePicBase64, signature: signatureUrl
             };
             
-            // Optimistic update User
             const existingIndex = users.findIndex(u => u.id == data.id);
             if(existingIndex > -1) users[existingIndex] = data;
             else users.push(data);
 
             closeUserForm();
             renderUserList();
-
             await callCloud("saveUser", data);
         }
 
-        window.handleDeleteUser = async function() {
+        window.handleDeleteUser = function() {
             const idInput = document.getElementById('edit-user-id').value;
             if (!idInput) return;
-            if (confirm("Hapus karyawan ini secara permanen dari server?")) {
+            askConfirm("Hapus karyawan ini secara permanen dari server?", async () => {
                 const idNum = parseFloat(idInput);
-                users = users.filter(u => u.id != idNum); // Optimistic Update hapus
+                users = users.filter(u => u.id != idNum);
                 closeUserForm();
                 renderUserList();
                 await callCloud("deleteUser", { id: idNum });
-            }
+            });
         };
 
-        // TAMBAHAN: Fungsi Konversi URL Google Drive
         window.handleSignatureUrl = function(input) {
             let url = input.value.trim();
             const previewCont = document.getElementById('signature-preview-container');
@@ -2233,23 +2051,18 @@
                 previewCont.classList.add('hidden-element');
                 return;
             }
-
-            // Deteksi link Google Drive dan ambil File ID-nya
             const driveRegex = /(?:drive\.google\.com\/file\/d\/|drive\.google\.com\/open\?id=)([\w-]+)/;
             const match = url.match(driveRegex);
 
             if (match && match[1]) {
                 const fileId = match[1];
                 url = `https://lh3.googleusercontent.com/d/${fileId}`;
-                input.value = url; // Ganti input dengan format URL langsung
+                input.value = url;
             }
-
-            // Tampilkan Preview
             previewImg.src = url;
             previewCont.classList.remove('hidden-element');
         };
 
-        // USER FUNCTIONS
         window.openForm = function(mode) {
             currentMode = mode;
             workPhotoBase64 = null;
@@ -2279,16 +2092,10 @@
                 }
             }
 
-            const now = new Date(),
-                day = now.getDay(),
-                h = now.getHours(),
-                m = now.getMinutes(),
-                currentTimeVal = h * 100 + m;
+            const now = new Date(), day = now.getDay(), h = now.getHours(), m = now.getMinutes(), currentTimeVal = h * 100 + m;
             const schedule = scheduleConfig || {},
-                weekdayInStr = schedule.weekday?.in || "09:00",
-                satInStr = schedule.saturday?.in || "09:00",
-                weekdayInVal = parseInt(weekdayInStr.replace(':', '')),
-                satInVal = parseInt(satInStr.replace(':', ''));
+                weekdayInVal = parseInt((schedule.weekday?.in || "09:00").replace(':', '')),
+                satInVal = parseInt((schedule.saturday?.in || "09:00").replace(':', ''));
 
             document.getElementById('late-reason-container').classList.add('hidden-element');
             document.getElementById('checkout-status-reason-container').classList.add('hidden-element');
@@ -2337,9 +2144,7 @@
                     }
                 }
             }
-            setTimeout(() => {
-                if (mainMap) mainMap.invalidateSize()
-            }, 400);
+            setTimeout(() => { if (mainMap) mainMap.invalidateSize(); }, 400);
             initCamera();
             trackLocation();
             resetCamera();
@@ -2359,184 +2164,102 @@
             if (watchId) navigator.geolocation.clearWatch(watchId);
         };
 
-        // WEB VIEWER HANDLERS
-        window.openWebView = function(url, title) {
-            const container = document.getElementById('webview-container');
-            const frame = document.getElementById('external-frame');
-            const titleEl = document.getElementById('webview-title');
-            
-            document.getElementById('app-content').classList.add('hidden-element');
-            titleEl.textContent = title;
-            frame.src = url;
-            container.classList.remove('hidden-element');
-        };
-
-        window.closeWebView = function() {
-            const container = document.getElementById('webview-container');
-            const frame = document.getElementById('external-frame');
-            
-            container.classList.add('hidden-element');
-            frame.src = 'about:blank';
-            document.getElementById('app-content').classList.remove('hidden-element');
-        };
-
         function showFormError(msg) {
-            const container = document.getElementById('form-error-msg'),
-                errorText = document.getElementById('error-text');
+            const container = document.getElementById('form-error-msg'), errorText = document.getElementById('error-text');
             if (errorText) errorText.textContent = msg;
             if (container) container.classList.remove('hidden-element');
-            if (container) container.scrollIntoView({
-                behavior: 'smooth',
-                block: 'center'
-            });
+            if (container) container.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
 
         async function submitAttendance() {
-            if (!capturedPhoto) {
-                showFormError("Ambil foto selfie!");
-                return;
-            }
-            const wt = document.getElementById('type-of-work').value,
-                da = document.getElementById('duty-as').value;
-            if (!wt || !da) {
-                showFormError("Tipe Pekerjaan dan Peran Tugas wajib diisi!");
-                return;
-            }
+            if (!capturedPhoto) { showFormError("Ambil foto selfie!"); return; }
+            const wt = document.getElementById('type-of-work').value, da = document.getElementById('duty-as').value;
+            if (!wt || !da) { showFormError("Tipe Pekerjaan dan Peran Tugas wajib diisi!"); return; }
+            
             let officeReason = "";
             if (isOutsideOffice) {
                 officeReason = document.getElementById('outside-office-reason').value.trim();
-                if (!officeReason) {
-                    showFormError("Isi alasan berada di luar radius kantor!");
-                    return;
-                }
-                // VALIDASI KERAS: Cek jika hanya berisi tanda hubung
+                if (!officeReason) { showFormError("Isi alasan berada di luar radius kantor!"); return; }
                 if (officeReason === "-" || officeReason === "--") {
                     showFormError("⚠️ TINDAKAN DITOLAK! Harap masukkan alasan diluar radius office yang valid dan jelas, dilarang hanya menggunakan tanda hubung.");
                     return;
                 }
             }
-            // Memastikan waktu yang diambil dari jam dashboard menggunakan format titik dua
+
             const timeStr = document.getElementById('current-time').textContent.replace(/\./g, ':');
-            const now = Date.now(),
-                dateObj = new Date(),
-                day = dateObj.getDay(),
-                h = dateObj.getHours(),
-                m = dateObj.getMinutes(),
-                timeVal = h * 100 + m,
-                formattedName = (currentUser.rank ? (['Capt', 'FO'].includes(currentUser.rank) ? currentUser.rank + '. ' : currentUser.rank + ' ') : '') + currentUser.name;
+            const now = Date.now(), dateObj = new Date(), day = dateObj.getDay(),
+                  h = dateObj.getHours(), m = dateObj.getMinutes(), timeVal = h * 100 + m,
+                  formattedName = (currentUser.rank ? (['Capt', 'FO'].includes(currentUser.rank) ? currentUser.rank + '. ' : currentUser.rank + ' ') : '') + currentUser.name;
 
             let currentSession;
             if (currentMode === 'check-in') {
-                let status = "Hadir Tepat Waktu",
-                    reason = "";
+                let status = "Hadir Tepat Waktu", reason = "";
                 const schedule = scheduleConfig || {},
-                    targetInStr = (day === 6) ? (schedule.saturday?.in || "09:00") : (schedule.weekday?.in || "09:00"),
-                    targetIn = parseInt(targetInStr.replace(':', ''));
+                    targetIn = parseInt(((day === 6) ? (schedule.saturday?.in || "09:00") : (schedule.weekday?.in || "09:00")).replace(':', ''));
+                
                 if (day !== 0 && timeVal > targetIn) {
                     status = "Terlambat";
                     reason = document.getElementById('late-reason').value.trim();
-                    if (!reason) {
-                        showFormError("Isi alasan!");
-                        return;
-                    }
-                    // VALIDASI KERAS: Alasan Terlambat
+                    if (!reason) { showFormError("Isi alasan terlambat!"); return; }
                     if (reason === "-" || reason === "--") {
                         showFormError("⚠️ TINDAKAN DITOLAK! Harap masukkan alasan terlambat yang valid, dilarang hanya menggunakan tanda hubung.");
                         return;
                     }
                 }
                 currentSession = {
-                    id: 'F-' + now.toString().slice(-6),
-                    userId: currentUser.id,
-                    userName: formattedName,
-                    userPosition: currentUser.jabatan,
-                    userDivision: currentUser.divisi,
-                    userProfilePic: currentUser.profilePic,
-                    workType: wt,
-                    dutyAs: da,
-                    statusIn: status,
-                    lateReason: reason,
-                    outsideOfficeReason: officeReason,
-                    checkIn: {
-                        time: timeStr,
-                        lat: currentPos.lat,
-                        lng: currentPos.lng,
-                        photo: capturedPhoto,
-                        timestamp: now,
-                        isWithinRadius: !isOutsideOffice
-                    },
+                    id: 'F-' + now.toString().slice(-6), userId: currentUser.id, userName: formattedName,
+                    userPosition: currentUser.jabatan, userDivision: currentUser.divisi, userProfilePic: currentUser.profilePic,
+                    workType: wt, dutyAs: da, statusIn: status, lateReason: reason, outsideOfficeReason: officeReason,
+                    checkIn: { time: timeStr, lat: currentPos.lat, lng: currentPos.lng, photo: capturedPhoto, timestamp: now, isWithinRadius: !isOutsideOffice },
                     checkOut: null
                 };
-                dutyHistory.push(currentSession); // PERCEPATAN: Tambahkan langsung ke UI!
+                dutyHistory.push(currentSession);
                 document.getElementById('success-msg').textContent = "Anda Berhasil Melakukan Check in - Selamat Bekerja😀";
                 speakNotification("Berhasil, anda telah check in.");
             } else {
                 const remarksValue = document.getElementById('remarks').value.trim();
-                if (!remarksValue) {
-                    showFormError("Kolom Laporan Pekerjaan (Remarks) wajib diisi!");
-                    return;
-                }
-                if (!workPhotoBase64) {
-                    showFormError("Tambahan foto dokumentasi wajib diunggah!");
-                    return;
-                }
-                 let outsideReasonOut = "";
+                if (!remarksValue) { showFormError("Kolom Laporan Pekerjaan (Remarks) wajib diisi!"); return; }
+                if (!workPhotoBase64) { showFormError("Tambahan foto dokumentasi wajib diunggah!"); return; }
+                
+                let outsideReasonOut = "";
                 if (isOutsideOffice) {
                     outsideReasonOut = document.getElementById('outside-office-reason').value.trim();
-                    if (!outsideReasonOut) {
-                        showFormError("Isi alasan berada di luar radius kantor!");
-                        return;
-                    }
-                    // VALIDASI KERAS: Cek jika hanya berisi tanda hubung (Check Out)
+                    if (!outsideReasonOut) { showFormError("Isi alasan berada di luar radius kantor!"); return; }
                     if (outsideReasonOut === "-" || outsideReasonOut === "--") {
-                        showFormError("⚠️ TINDAKAN DITOLAK! Harap masukkan alasan diluar radius office yang valid dan jelas, dilarang hanya menggunakan tanda hubung.");
+                        showFormError("⚠️ TINDAKAN DITOLAK! Harap masukkan alasan diluar radius office yang valid, dilarang hanya menggunakan tanda hubung.");
                         return;
                     }
                 }
+                
                 const active = dutyHistory.find(s => s.checkOut === null && s.userId == currentUser.id);
                 if (active) {
                     active.workType = wt;
                     active.dutyAs = da;
-                    let sO = "Pulang Tepat Waktu",
-                        rO = "";
+                    let sO = "Pulang Tepat Waktu", rO = "";
                     if (day !== 0) {
                         const schedule = scheduleConfig || {},
-                            targetOutStr = (day === 6) ? (schedule.saturday?.out || "14:30") : (schedule.weekday?.out || "17:00"),
-                            targetOtStr = (day === 6) ? (schedule.saturday?.ot || "14:30") : (schedule.weekday?.ot || "17:15"),
-                            targetOut = parseInt(targetOutStr.replace(':', '')),
-                            targetOt = parseInt(targetOtStr.replace(':', ''));
+                            targetOut = parseInt(((day === 6) ? (schedule.saturday?.out || "14:30") : (schedule.weekday?.out || "17:00")).replace(':', '')),
+                            targetOt = parseInt(((day === 6) ? (schedule.saturday?.ot || "14:30") : (schedule.weekday?.ot || "17:15")).replace(':', ''));
+                        
                         if (timeVal > targetOt) {
-                            sO = "Lembur";
-                            rO = document.getElementById('checkout-status-reason').value;
+                            sO = "Lembur"; rO = document.getElementById('checkout-status-reason').value.trim();
                         } else if (timeVal < targetOut) {
-                            sO = "Pulang Sebelum Waktunya";
-                            rO = document.getElementById('checkout-status-reason').value;
+                            sO = "Pulang Sebelum Waktunya"; rO = document.getElementById('checkout-status-reason').value.trim();
                         }
-                        if ((sO === "Lembur" || sO === "Pulang Sebelum Waktunya") && !rO.trim()) {
-                            showFormError("Isi alasan!");
-                            return;
-                        }
-                        // VALIDASI KERAS: Alasan Lembur / Pulang Awal
+                        
+                        if (sO === "Lembur" || sO === "Pulang Sebelum Waktunya") {
+                            if (!rO) { showFormError("Isi alasan!"); return; }
                             if (rO === "-" || rO === "--") {
                                 showFormError("⚠️ TINDAKAN DITOLAK! Harap masukkan alasan yang valid, dilarang hanya menggunakan tanda hubung.");
                                 return;
+                            }
                         }
-                    } else {
-                        sO = "Tugas Hari Minggu"
-                    }
-                   active.checkOut = {
-                        time: timeStr,
-                        lat: currentPos.lat,
-                        lng: currentPos.lng,
-                        photo: capturedPhoto,
-                        remarks: remarksValue,
-                        workPhoto: workPhotoBase64,
-                        timestamp: now,
-                        statusOut: sO,
-                        statusReason: rO,
-                        outsideReason: outsideReasonOut, 
-                        isWithinRadius: !isOutsideOffice,
-                        overtimeLabel: (sO === "Lembur" ? calculateOvertimeDuration(now) : null)
+                    } else { sO = "Tugas Hari Minggu" }
+                    
+                    active.checkOut = {
+                        time: timeStr, lat: currentPos.lat, lng: currentPos.lng, photo: capturedPhoto, remarks: remarksValue,
+                        workPhoto: workPhotoBase64, timestamp: now, statusOut: sO, statusReason: rO, outsideReason: outsideReasonOut, 
+                        isWithinRadius: !isOutsideOffice, overtimeLabel: (sO === "Lembur" ? calculateOvertimeDuration(now) : null)
                     };
                     currentSession = active;
                 }
@@ -2544,18 +2267,14 @@
                 speakNotification("Berhasil, anda check out. Hati-hati di jalan ya.");
             }
             
-            // PERCEPATAN: Tampilkan modal sukses INSTAN tanpa menunggu server
             updateUI();
             document.getElementById('success-modal').classList.remove('hidden-element');
             closeForm();
-
-            // Background Upload
             await callCloud("saveLog", currentSession);
         }
 
         function calculateOvertimeDuration(now) {
-            const d = new Date(now),
-                day = d.getDay();
+            const d = new Date(now), day = d.getDay();
             if (day === 0) return null;
             const s = scheduleConfig || {},
                 limit = (day === 6) ? (s.saturday?.ot || "14:30") : (s.weekday?.ot || "17:15"),
@@ -2563,10 +2282,7 @@
             const ld = new Date(now);
             ld.setHours(oh, om, 0, 0);
             if (now > ld.getTime()) {
-                const diff = now - ld.getTime(),
-                    tm = Math.floor(diff / 60000),
-                    h = Math.floor(tm / 60),
-                    m = tm % 60;
+                const diff = now - ld.getTime(), tm = Math.floor(diff / 60000), h = Math.floor(tm / 60), m = tm % 60;
                 return String(h).padStart(2, '0') + ":" + String(m).padStart(2, '0') + " Jam";
             }
             return null;
@@ -2575,9 +2291,7 @@
         function formatDuration(s, e) {
             const d = e - s;
             if (isNaN(d)) return "0j 0m 0d";
-            const h = Math.floor(d / 3600000),
-                m = Math.floor((d % 3600000) / 60000),
-                sec = Math.floor((d % 60000) / 1000);
+            const h = Math.floor(d / 3600000), m = Math.floor((d % 3600000) / 60000), sec = Math.floor((d % 60000) / 1000);
             return h + "j " + m + "m " + sec + "d";
         }
 
@@ -2601,10 +2315,8 @@
             const slider = document.getElementById('user-news-slider'),
                 announcementList = document.getElementById('user-announcement-list');
             if (!slider || !announcementList) return;
-            slider.innerHTML = "";
-            announcementList.innerHTML = "";
-            const newsOnly = newsItems.filter(i => i.type === 'news'),
-                infoOnly = newsItems.filter(i => i.type === 'info');
+            slider.innerHTML = ""; announcementList.innerHTML = "";
+            const newsOnly = newsItems.filter(i => i.type === 'news'), infoOnly = newsItems.filter(i => i.type === 'info');
 
             if (newsOnly.length === 0) {
                 slider.innerHTML = '<div class="bg-white p-4 rounded-2xl border border-slate-100 w-full text-center text-slate-300 text-[10px] font-bold">Tidak ada berita</div>';
@@ -2622,30 +2334,38 @@
             }
         }
 
+        function createLogCard(s) {
+            const isC = s.checkOut !== null, 
+                  dateObj = new Date(Number(s.checkIn.timestamp)),
+                  df = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+            const cInTime = formatTime(s.checkIn.time);
+            const cOutTime = isC ? formatTime(s.checkOut.time) : 'AKTIF';
+
+            return '<div onclick="showDetail(\'' + s.id + '\')" class="bg-white p-5 rounded-[2rem] shadow-sm border border-slate-100 flex items-center justify-between active:scale-[0.98] transition-all cursor-pointer animate-fade"><div class="flex items-center gap-4"><div class="relative"><img loading="lazy" src="' + s.checkIn.photo + '" class="w-14 h-14 rounded-2xl object-cover border-4 border-slate-50 shadow-sm">' + (isC ? '<div class="absolute -bottom-1 -right-1 w-6 h-6 bg-orange-500 rounded-lg flex items-center justify-center text-white border-2 border-white shadow-md"><i class="fas fa-check text-[8px]"></i></div>' : '') + '</div><div class="flex-grow"><h4 class="text-xs font-black text-slate-800 line-clamp-1">' + s.userName + '</h4><p class="text-[9px] font-bold text-slate-400 mt-0.5">' + s.userPosition + " - " + s.userDivision + " [" + df + "]" + '</p><div class="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-slate-50"><div><p class="text-[7px] font-black text-slate-400 uppercase tracking-widest">In</p><p class="text-[10px] font-bold text-blue-600">' + cInTime + '</p></div><div><p class="text-[7px] font-black text-slate-400 uppercase tracking-widest">Out</p><p class="text-[10px] ' + (isC ? 'text-slate-700 font-bold' : 'text-blue-500 font-black animate-pulse') + '">' + cOutTime + '</p></div></div></div></div><div class="w-8 h-8 bg-slate-50 rounded-full flex items-center justify-center text-slate-300 shrink-0"><i class="fas fa-chevron-right text-[10px]"></i></div></div>';
+        }
+
         function updateUI() {
-            const inBtn = document.getElementById('btn-open-checkin'),
-                outBtn = document.getElementById('btn-open-checkout'),
-                badge = document.getElementById('working-badge'),
-                banner = document.getElementById('status-banner');
+            const inBtn = document.getElementById('btn-open-checkin'), outBtn = document.getElementById('btn-open-checkout'),
+                  badge = document.getElementById('working-badge'), banner = document.getElementById('status-banner');
             if (!inBtn) return;
+            
             const userActiveSession = dutyHistory.find(s => s.userId == (currentUser?.id || "") && s.checkOut === null);
             isWorking = !!userActiveSession;
             if (isWorking) {
-                inBtn.classList.add('btn-disabled');
-                outBtn.classList.remove('btn-disabled');
+                inBtn.classList.add('btn-disabled'); outBtn.classList.remove('btn-disabled');
                 if (badge) badge.classList.remove('hidden-element');
                 if (banner) banner.classList.remove('hidden-element');
                 activeStartTime = new Date(userActiveSession.checkIn.timestamp);
                 startTimer();
             } else {
-                inBtn.classList.remove('btn-disabled');
-                outBtn.classList.add('btn-disabled');
+                inBtn.classList.remove('btn-disabled'); outBtn.classList.add('btn-disabled');
                 if (badge) badge.classList.add('hidden-element');
                 if (banner) banner.classList.add('hidden-element');
                 if (timerInterval) clearInterval(timerInterval);
                 activeStartTime = null;
             }
             renderNewsUser();
+            
             const list = document.getElementById('attendance-list');
             if (list) list.innerHTML = "";
             let userHistory = dutyHistory;
@@ -2654,132 +2374,56 @@
             }
             if (userHistory.length === 0) {
                 if (list) list.innerHTML = '<div class="text-center py-16 bg-white rounded-[2.5rem] border-2 border-dashed border-slate-100"><p class="text-slate-300 text-sm font-medium">Belum ada aktivitas</p></div>';
-            } else {
-                userHistory.sort((a, b) => b.checkIn.timestamp - a.checkIn.timestamp);
-                
-                let htmlString = "";
-
-                // REVISI: Fungsi pembuat kartu laporan agar reusable
-                const renderLogCard = (s) => {
-                    const isC = s.checkOut !== null, 
-                          dateObj = new Date(Number(s.checkIn.timestamp)),
-                          df = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-                    const cInTime = formatTime(s.checkIn.time);
-                    const cOutTime = isC ? formatTime(s.checkOut.time) : 'AKTIF';
-                    return `<div onclick="showDetail('${s.id}')" class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-50 flex items-center justify-between active:scale-[0.98] transition-all cursor-pointer animate-fade mb-3"><div class="flex items-center gap-5"><div class="relative"><img loading="lazy" src="${s.checkIn.photo}" class="w-16 h-16 rounded-2xl object-cover border-4 border-white shadow-lg">${isC ? `<div class="absolute -bottom-1 -right-1 w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center text-white border-2 border-white shadow-md"><i class="fas fa-check text-[10px]"></i></div>` : ''}</div><div class="flex-grow"><h4 class="text-sm font-black text-slate-800">${s.userName}</h4><p class="text-[10px] font-black text-slate-400 mt-0.5">${s.userPosition} - ${s.userDivision} [${df}]</p><div class="grid grid-cols-2 gap-4 mt-3 pt-3 border-t border-slate-50"><div><p class="text-[7px] font-black text-slate-400 uppercase tracking-widest">Check In Time</p><p class="text-[11px] font-bold text-blue-600">${cInTime}</p></div><div><p class="text-[7px] font-black text-slate-400 uppercase tracking-widest">Check Out Time</p><p class="text-[11px] ${isC ? 'text-slate-700 font-bold' : 'text-blue-500 font-black animate-pulse'}">${cOutTime}</p></div></div></div></div><div class="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-slate-300"><i class="fas fa-chevron-right text-xs"></i></div></div>`;
-                };
-
-                // Filter Harian & Mingguan (Tampilan Datar Normal)
-                if (historyFilter === 'daily' || historyFilter === 'weekly') {
-                    let grouped = {};
-                    userHistory.forEach(s => {
-                        const date = new Date(s.checkIn.timestamp);
-                        let key = "";
-                        if (historyFilter === 'daily') {
-                            if (date.toDateString() === new Date().toDateString()) key = "Hari Ini";
-                            else return;
-                        } else if (historyFilter === 'weekly') {
-                            key = "Minggu Ke-" + getWeekNumber(date) + " (" + date.getFullYear() + ")";
-                        }
-                        if (!grouped[key]) grouped[key] = [];
-                        grouped[key].push(s);
-                    });
-                    Object.keys(grouped).forEach(key => {
-                        htmlString += `<div class="flex items-center gap-3 py-2 px-2 mb-3"><span class="h-px bg-slate-100 flex-grow"></span><span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">${key}</span><span class="h-px bg-slate-100 flex-grow"></span></div>`;
-                        grouped[key].forEach(s => { htmlString += renderLogCard(s); });
-                    });
-                } 
-                // Filter Bulanan (Tampilan Akordeon per Bulan)
-                else if (historyFilter === 'monthly') {
-                    let grouped = {};
-                    userHistory.forEach(s => {
-                        const date = new Date(s.checkIn.timestamp);
-                        const key = date.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
-                        if (!grouped[key]) grouped[key] = [];
-                        grouped[key].push(s);
-                    });
-                    Object.keys(grouped).forEach(key => {
-                        htmlString += `
-                        <details class="group bg-white rounded-[2rem] shadow-sm border border-slate-100 mb-4 overflow-hidden">
-                            <summary class="list-none [&::-webkit-details-marker]:hidden flex justify-between items-center p-6 cursor-pointer font-black text-slate-700 active:bg-slate-50 transition-colors">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
-                                        <i class="fas fa-calendar-alt"></i>
-                                    </div>
-                                    <span>${key}</span>
-                                </div>
-                                <span class="flex items-center gap-3">
-                                    <span class="text-[10px] bg-slate-100 px-3 py-1 rounded-full text-slate-500">${grouped[key].length} Data</span>
-                                    <i class="fas fa-chevron-down text-slate-300 transition-transform group-open:-rotate-180"></i>
-                                </span>
-                            </summary>
-                            <div class="p-4 pt-0 bg-slate-50/50 border-t border-slate-50">
-                                <div class="pt-4 space-y-3">
-                                    ${grouped[key].map(s => renderLogCard(s)).join('')}
-                                </div>
-                            </div>
-                        </details>`;
-                    });
-                }
-                // Filter Tahunan (Akordeon Bertingkat: Tahun -> Bulan -> Data)
-                else if (historyFilter === 'yearly') {
-                    let grouped = {};
-                    userHistory.forEach(s => {
-                        const date = new Date(s.checkIn.timestamp);
-                        const year = date.getFullYear();
-                        const month = date.toLocaleDateString('id-ID', { month: 'long' });
-                        if (!grouped[year]) grouped[year] = {};
-                        if (!grouped[year][month]) grouped[year][month] = [];
-                        grouped[year][month].push(s);
-                    });
-                    
-                    Object.keys(grouped).sort((a,b) => b-a).forEach(year => {
-                        let monthHtml = "";
-                        Object.keys(grouped[year]).forEach(month => {
-                            monthHtml += `
-                            <details class="group/month bg-white rounded-3xl border border-slate-100 mb-3 overflow-hidden shadow-sm">
-                                <summary class="list-none [&::-webkit-details-marker]:hidden flex justify-between items-center p-5 cursor-pointer font-bold text-sm text-slate-600 hover:bg-slate-50 transition-colors">
-                                    <div class="flex items-center gap-3">
-                                        <i class="fas fa-folder text-blue-400"></i>
-                                        <span>Bulan ${month}</span>
-                                    </div>
-                                    <span class="flex items-center gap-3">
-                                        <span class="text-[9px] bg-blue-50 px-2 py-1 rounded-md text-blue-600">${grouped[year][month].length} Data</span>
-                                        <i class="fas fa-chevron-down text-slate-300 transition-transform group-open/month:-rotate-180 text-[10px]"></i>
-                                    </span>
-                                </summary>
-                                <div class="p-3 pt-0 bg-slate-50/50 border-t border-slate-50">
-                                    <div class="pt-3 space-y-3">
-                                        ${grouped[year][month].map(s => renderLogCard(s)).join('')}
-                                    </div>
-                                </div>
-                            </details>`;
-                        });
-
-                        htmlString += `
-                        <details class="group/year bg-slate-50 rounded-[2.5rem] border border-slate-200 mb-6 overflow-hidden">
-                            <summary class="list-none [&::-webkit-details-marker]:hidden flex justify-between items-center p-6 cursor-pointer font-black text-slate-800 active:bg-slate-100 transition-colors">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center text-lg">
-                                        <i class="fas fa-calendar-check"></i>
-                                    </div>
-                                    <span class="text-lg">Tahun ${year}</span>
-                                </div>
-                                <i class="fas fa-chevron-down text-slate-400 transition-transform group-open/year:-rotate-180"></i>
-                            </summary>
-                            <div class="p-4 pt-0 border-t border-slate-200/50 mt-2">
-                                <div class="pt-4">
-                                    ${monthHtml}
-                                </div>
-                            </div>
-                        </details>`;
-                    });
-                }
-
-                if (list) list.innerHTML = htmlString;
+                return;
             }
 
-            // --- LOGIKA PERSONAL DATA (PENTING) ---
+            userHistory.sort((a, b) => b.checkIn.timestamp - a.checkIn.timestamp);
+            let htmlString = "";
+
+            // Accordion Logic untuk History
+            if (historyFilter === 'daily') {
+                let todayItems = userHistory.filter(s => new Date(Number(s.checkIn.timestamp)).toDateString() === new Date().toDateString());
+                if(todayItems.length === 0) {
+                    htmlString = '<div class="text-center py-10 bg-white rounded-[2rem] border-2 border-dashed border-slate-100"><p class="text-slate-300 text-xs font-bold uppercase">Belum ada absen hari ini</p></div>';
+                } else {
+                    todayItems.forEach(s => { htmlString += createLogCard(s); });
+                }
+            } else if (historyFilter === 'yearly') {
+                let groupedYear = {};
+                userHistory.forEach(s => {
+                    const d = new Date(Number(s.checkIn.timestamp));
+                    const yr = d.getFullYear(), mo = d.toLocaleDateString('id-ID', { month: 'long' });
+                    if(!groupedYear[yr]) groupedYear[yr] = {};
+                    if(!groupedYear[yr][mo]) groupedYear[yr][mo] = [];
+                    groupedYear[yr][mo].push(s);
+                });
+                Object.keys(groupedYear).forEach(yr => {
+                    htmlString += `<details class="bg-white p-4 rounded-[2rem] border border-slate-100 shadow-sm mb-3 group"><summary class="font-bold text-slate-700 flex justify-between items-center cursor-pointer outline-none"><span class="text-sm uppercase tracking-widest">Tahun ${yr}</span><i class="fas fa-chevron-down text-slate-400 group-open:rotate-180 transition-transform"></i></summary><div class="mt-4 space-y-3 pt-4 border-t border-slate-50">`;
+                    Object.keys(groupedYear[yr]).forEach(mo => {
+                        htmlString += `<details class="bg-slate-50 p-4 rounded-2xl border border-slate-200 group"><summary class="font-bold text-slate-600 flex justify-between items-center cursor-pointer outline-none"><span class="text-xs uppercase tracking-widest">${mo}</span><i class="fas fa-chevron-down text-slate-400 group-open:rotate-180 transition-transform"></i></summary><div class="mt-4 space-y-3 pt-4 border-t border-slate-200">`;
+                        groupedYear[yr][mo].forEach(s => { htmlString += createLogCard(s); });
+                        htmlString += `</div></details>`;
+                    });
+                    htmlString += `</div></details>`;
+                });
+            } else {
+                let grouped = {};
+                userHistory.forEach(s => {
+                    const date = new Date(Number(s.checkIn.timestamp));
+                    let key = "";
+                    if (historyFilter === 'weekly') key = "Minggu Ke-" + getWeekNumber(date) + " (" + date.getFullYear() + ")";
+                    else if (historyFilter === 'monthly') key = date.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+                    if (!grouped[key]) grouped[key] = [];
+                    grouped[key].push(s);
+                });
+                Object.keys(grouped).forEach(key => {
+                    htmlString += `<details class="bg-white p-4 rounded-[2rem] border border-slate-100 shadow-sm mb-3 group"><summary class="font-bold text-slate-700 flex justify-between items-center cursor-pointer outline-none"><span class="text-xs uppercase tracking-widest">${key}</span><i class="fas fa-chevron-down text-slate-400 group-open:rotate-180 transition-transform"></i></summary><div class="mt-4 space-y-3 pt-4 border-t border-slate-50">`;
+                    grouped[key].forEach(s => { htmlString += createLogCard(s); });
+                    htmlString += `</div></details>`;
+                });
+            }
+            if (list) list.innerHTML = htmlString;
+
             const btnPersonal = document.getElementById('btn-open-personal');
             const labelPersonal = document.getElementById('label-personal-data');
             const updatedUser = users.find(u => u.id == (currentUser ? currentUser.id : null));
@@ -2793,57 +2437,46 @@
             }
         }
 
+        window.openWebView = function(url, title) {
+            const container = document.getElementById('webview-container'), frame = document.getElementById('external-frame'), titleEl = document.getElementById('webview-title');
+            document.getElementById('app-content').classList.add('hidden-element');
+            titleEl.textContent = title; frame.src = url; container.classList.remove('hidden-element');
+        };
+        window.closeWebView = function() {
+            document.getElementById('webview-container').classList.add('hidden-element');
+            document.getElementById('external-frame').src = 'about:blank';
+            document.getElementById('app-content').classList.remove('hidden-element');
+        };
+
         window.openMyProfile = function() {
             if (!currentUser || currentUser.role === 'admin') return;
             const modal = document.getElementById('my-profile-modal'),
-                formattedName = (currentUser.rank ? (['Capt', 'FO'].includes(currentUser.rank) ? currentUser.rank + '. ' : currentUser.rank + ' ') : '') + currentUser.name,
-                fullEl = document.getElementById('my-profile-fullname'),
-                subEl = document.getElementById('my-profile-sub'),
-                rnkEl = document.getElementById('my-profile-rank'),
-                posEl = document.getElementById('my-profile-position'),
-                divEl = document.getElementById('my-profile-division'),
-                emlEl = document.getElementById('my-profile-email'),
-                usrEl = document.getElementById('my-profile-username'),
-                pasEl = document.getElementById('my-profile-password'),
-                dobEl = document.getElementById('my-profile-dob');
+                formattedName = (currentUser.rank ? (['Capt', 'FO'].includes(currentUser.rank) ? currentUser.rank + '. ' : currentUser.rank + ' ') : '') + currentUser.name;
 
-            if (fullEl) fullEl.textContent = formattedName;
-            if (subEl) subEl.textContent = currentUser.divisi;
-            if (rnkEl) rnkEl.textContent = currentUser.rank;
-            if (posEl) posEl.textContent = currentUser.jabatan;
-            if (divEl) divEl.textContent = currentUser.divisi;
-            if (emlEl) emlEl.textContent = currentUser.email || '-';
-            if (usrEl) usrEl.textContent = currentUser.username;
-            if (pasEl) pasEl.value = currentUser.password;
-            if (dobEl) dobEl.textContent = currentUser.dob ? new Date(currentUser.dob).toLocaleDateString('id-ID', {
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric'
-            }) : '-';
+            document.getElementById('my-profile-fullname').textContent = formattedName;
+            document.getElementById('my-profile-sub').textContent = currentUser.divisi;
+            document.getElementById('my-profile-rank').textContent = currentUser.rank;
+            document.getElementById('my-profile-position').textContent = currentUser.jabatan;
+            document.getElementById('my-profile-division').textContent = currentUser.divisi;
+            document.getElementById('my-profile-email').textContent = currentUser.email || '-';
+            document.getElementById('my-profile-username').textContent = currentUser.username;
+            document.getElementById('my-profile-password').value = currentUser.password;
+            document.getElementById('my-profile-dob').textContent = currentUser.dob ? new Date(currentUser.dob).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '-';
 
             const picCont = document.getElementById('my-profile-pic');
             if (currentUser.profilePic) picCont.innerHTML = '<img src="' + currentUser.profilePic + '" class="w-full h-full object-cover">';
             else picCont.innerHTML = '<i class="fas fa-user text-slate-200 text-3xl"></i>';
             modal.classList.remove('hidden-element');
         };
-
-        window.closeMyProfile = function() {
-            document.getElementById('my-profile-modal').classList.add('hidden-element');
-        };
+        window.closeMyProfile = function() { document.getElementById('my-profile-modal').classList.add('hidden-element'); };
 
         async function saveMyPassword() {
             const newPass = document.getElementById('my-profile-password').value;
             if (!newPass.trim()) return;
             const idx = users.findIndex(u => u.id == currentUser.id);
             if (idx !== -1) {
-                // Perbarui password di memori lokal
-                users[idx].password = newPass;
-                currentUser.password = newPass;
-                
-                // Simpan langsung array user asli ke Cloud
+                users[idx].password = newPass; currentUser.password = newPass;
                 await callCloud("saveUser", users[idx]);
-                
-                // Beri pesan sukses dan kosongkan kolom
                 document.getElementById('my-profile-password').value = "";
                 document.getElementById('success-msg').textContent = "Password berhasil diubah. Silakan gunakan password baru ini untuk login berikutnya.";
                 document.getElementById('success-modal').classList.remove('hidden-element');
@@ -2856,12 +2489,10 @@
             if (file) {
                 const reader = new FileReader();
                 reader.onload = async (e) => {
-                    // Kompresi ketat untuk foto profil agar sangat ringan
                     profilePicBase64 = await compressImage(e.target.result, 400, 400, 0.7);
                     document.getElementById('profile-pic-placeholder').classList.add('hidden-element');
                     const preview = document.getElementById('profile-pic-preview');
-                    preview.src = profilePicBase64;
-                    preview.classList.remove('hidden-element');
+                    preview.src = profilePicBase64; preview.classList.remove('hidden-element');
                 };
                 reader.readAsDataURL(file);
             }
@@ -2870,23 +2501,17 @@
         window.handleWorkPhoto = function(input) {
             const file = input.files[0];
             if (file) {
-
-                // VALIDASI KERAS: Batasi ukuran file (contoh: maks 5MB)
                 const fileSizeMB = file.size / (1024 * 1024);
                 if (fileSizeMB > 5) {
-                    showFormError("⚠️ UKURAN FILE TERLALU BESAR! Foto dokumentasi maksimal 5MB. Harap gunakan foto dengan resolusi lebih rendah atau kompres terlebih dahulu.");
-                    input.value = ""; // Reset input
-                    return;
+                    showCustomAlert("⚠️ UKURAN FILE TERLALU BESAR! Foto dokumentasi maksimal 5MB. Harap gunakan foto dengan resolusi lebih rendah atau kompres terlebih dahulu.");
+                    input.value = ""; return;
                 }
-
                 const reader = new FileReader();
                 reader.onload = async (e) => {
-                    // Kompresi foto laporan / remarks
                     workPhotoBase64 = await compressImage(e.target.result, 800, 800, 0.6);
                     document.getElementById('work-photo-placeholder').classList.add('hidden');
                     const preview = document.getElementById('work-photo-preview');
-                    preview.src = workPhotoBase64;
-                    preview.classList.remove('hidden');
+                    preview.src = workPhotoBase64; preview.classList.remove('hidden');
                 };
                 reader.readAsDataURL(file);
             }
@@ -2896,7 +2521,6 @@
             const s = dutyHistory.find(x => x.id == id);
             if (!s) return;
 
-            // Pastikan timestamp dikonversi ke angka sebelum dibuat objek Date
             const tsIn = Number(s.checkIn.timestamp);
             const dateIn = isNaN(tsIn) ? new Date() : new Date(tsIn);
             const dsIn = dateIn.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -2908,29 +2532,19 @@
                 dsOut = dateOut.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
             }
 
-            // Ambil data user untuk foto profil
             const userData = users.find(u => u.id == s.userId);
             const profilePic = userData && userData.profilePic ? userData.profilePic : 'https://lh3.googleusercontent.com/d/14XvFbNETCuybdeUeH6BPrPaC33uBijMc';
-            
-            // Format Waktu Menggunakan Fungsi Global formatTime
             const checkInTime = formatTime(s.checkIn.time);
             const checkOutTime = s.checkOut ? formatTime(s.checkOut.time) : 'AKTIF';
 
-            // LOGIKA PENGHITUNGAN TOTAL WAKTU KERJA
             let totalWorkDuration = "0j 0m 0s";
             if (s.checkOut && s.checkOut.timestamp) {
                 const diff = Number(s.checkOut.timestamp) - Number(s.checkIn.timestamp);
-                const h = Math.floor(diff / 3600000);
-                const m = Math.floor((diff % 3600000) / 60000);
-                const sec = Math.floor((diff % 60000) / 1000);
+                const h = Math.floor(diff / 3600000), m = Math.floor((diff % 3600000) / 60000), sec = Math.floor((diff % 60000) / 1000);
                 totalWorkDuration = h + "j " + m + "m " + sec + "s";
-            } else {
-                totalWorkDuration = "Sedang Berlangsung";
-            }
+            } else { totalWorkDuration = "Sedang Berlangsung"; }
 
-            const modal = document.getElementById('detail-modal'),
-                  content = document.getElementById('detail-content');
-
+            const modal = document.getElementById('detail-modal'), content = document.getElementById('detail-content');
             content.innerHTML = `
                 ${currentUser.role === 'admin' ? `
                 <div class="flex gap-2 mb-6">
@@ -2947,27 +2561,23 @@
                 </div>
 
                 <div class="grid grid-cols-1 gap-4">
-                    <!-- CHECK IN CARD -->
                     <div class="bg-white p-5 rounded-[2.5rem] border border-slate-100 shadow-sm">
                         <div class="flex items-center justify-between mb-4">
                             <span class="px-4 py-1.5 bg-blue-50 text-blue-600 rounded-full text-[8px] font-black uppercase tracking-widest italic">Check In Evidence</span>
                             <span class="text-[9px] font-bold text-slate-400">${dsIn}</span>
                         </div>
                         
-                        <!-- ADDED: Indikator Status Waktu Check In -->
                         <div class="mb-4 p-3 ${s.statusIn === 'Terlambat' ? 'bg-red-50 border-red-100 text-red-600' : 'bg-emerald-50 border-emerald-100 text-emerald-600'} border rounded-2xl flex items-center justify-between">
                             <p class="text-[9px] font-black uppercase tracking-widest">Status Kedatangan</p>
                             <p class="text-[10px] font-black italic">${s.statusIn || 'Hadir Tepat Waktu'}</p>
                         </div>
 
-                        <!-- REVISI: Munculkan Alasan Terlambat jika status Terlambat -->
                         ${s.statusIn === 'Terlambat' ? `
                         <div class="mb-4 p-4 bg-slate-50 border border-slate-100 rounded-2xl">
                             <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Alasan Terlambat</p>
                             <p class="text-[10px] font-bold text-red-600 italic whitespace-pre-wrap">${s.lateReason || "-"}</p>
                         </div>` : ''}
                         
-                        <!-- Tambahan: Munculkan Alasan Luar Area jika Outside Area -->
                         ${!s.checkIn.isWithinRadius ? `
                         <div class="mb-4 p-4 bg-orange-50 border border-orange-100 rounded-2xl">
                             <p class="text-[8px] font-black text-orange-400 uppercase tracking-widest mb-1">Alasan Luar Area (Check In)</p>
@@ -2990,7 +2600,6 @@
                         </div>
                     </div>
 
-                    <!-- CHECK OUT CARD -->
                     ${s.checkOut ? `
                     <div class="bg-white p-5 rounded-[2.5rem] border border-slate-100 shadow-sm">
                         <div class="flex items-center justify-between mb-4">
@@ -2998,13 +2607,11 @@
                             <span class="text-[9px] font-bold text-slate-400">${dsOut}</span>
                         </div>
 
-                        <!-- Status Kepulangan -->
                         <div class="mb-4 p-3 ${s.checkOut.statusOut === 'Pulang Tepat Waktu' ? 'bg-emerald-50 border-emerald-100 text-emerald-600' : s.checkOut.statusOut === 'Lembur' ? 'bg-blue-50 border-blue-100 text-blue-600' : 'bg-orange-50 border-orange-100 text-orange-600'} border rounded-2xl flex items-center justify-between">
                             <p class="text-[9px] font-black uppercase tracking-widest">Status Kepulangan</p>
                             <p class="text-[10px] font-black italic">${s.checkOut.statusOut || '-'}</p>
                         </div>
 
-                        <!-- TAMBAHAN: Durasi Lembur -->
                         ${s.checkOut.overtimeLabel ? `
                         <div class="mb-4 p-3 bg-indigo-50 border border-indigo-100 rounded-2xl flex items-center justify-between shadow-sm">
                             <div class="flex items-center gap-2 text-indigo-600">
@@ -3014,14 +2621,12 @@
                             <p class="text-[11px] font-black text-indigo-700">${s.checkOut.overtimeLabel}</p>
                         </div>` : ''}
 
-                        <!-- Alasan Lembur / Pulang Awal -->
                         ${s.checkOut.statusReason ? `
                         <div class="mb-4 p-4 bg-slate-50 border border-slate-100 rounded-2xl">
                             <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Keterangan Status</p>
                             <p class="text-[10px] font-bold text-slate-700 italic whitespace-pre-wrap">${s.checkOut.statusReason}</p>
                         </div>` : ''}
 
-                        <!-- Alasan Luar Area (Check Out) -->
                         ${!s.checkOut.isWithinRadius ? `
                         <div class="mb-4 p-4 bg-orange-50 border border-orange-100 rounded-2xl">
                             <p class="text-[8px] font-black text-orange-400 uppercase tracking-widest mb-1">Alasan Luar Area (Check Out)</p>
@@ -3043,9 +2648,8 @@
                             </div>
                         </div>
 
-                         <!-- REVISI: DOKUMENTASI KEGIATAN (FOTO KERJA & REMARKS) -->
                     ${s.checkOut && s.checkOut.workPhoto ? `
-                    <div class="bg-white p-5 rounded-[2.5rem] border border-slate-100 shadow-sm">
+                    <div class="bg-white p-5 rounded-[2.5rem] border border-slate-100 shadow-sm mt-4">
                         <div class="flex items-center justify-between mb-4">
                             <span class="px-4 py-1.5 bg-emerald-50 text-emerald-600 rounded-full text-[8px] font-black uppercase tracking-widest italic">Dokumentasi Kegiatan</span>
                         </div>
@@ -3084,17 +2688,14 @@
                     </div>
                 </div>
             `;
-
             modal.classList.remove('hidden-element');
 
-            // Inisialisasi Peta satelit
             setTimeout(() => {
                 if (L.DomUtil.get(`map-in-${s.id}`)) {
                     const mapIn = L.map(`map-in-${s.id}`, { zoomControl: false, attributionControl: false }).setView([s.checkIn.lat, s.checkIn.lng], 16);
                     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}').addTo(mapIn);
                     L.marker([s.checkIn.lat, s.checkIn.lng]).addTo(mapIn);
                 }
-
                 if (s.checkOut && L.DomUtil.get(`map-out-${s.id}`)) {
                     const mapOut = L.map(`map-out-${s.id}`, { zoomControl: false, attributionControl: false }).setView([s.checkOut.lat, s.checkOut.lng], 16);
                     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}').addTo(mapOut);
@@ -3106,91 +2707,54 @@
         window.openExplorer = function(id) {
             const s = dutyHistory.find(x => x.id == id);
             if (!s) return;
-            
-            const distEl = document.getElementById('explorer-distance-text');
-            const navCont = document.getElementById('explorer-nav-buttons');
+            const distEl = document.getElementById('explorer-distance-text'), navCont = document.getElementById('explorer-nav-buttons');
             if(distEl) distEl.textContent = "Checking GPS...";
             if(navCont) navCont.innerHTML = "";
 
             document.getElementById('explorer-modal').classList.remove('hidden-element');
-            
             if (!explorerMap) {
                 explorerMap = L.map('full-explorer-map', { zoomControl: false, attributionControl: false }).setView([s.checkIn.lat, s.checkIn.lng], 15);
                 L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}').addTo(explorerMap);
             }
-            
-            // Bersihkan marker lama
             explorerMarkers.forEach(m => explorerMap.removeLayer(m));
             explorerMarkers = [];
 
-            // Marker Check In
-            const ci = L.marker([s.checkIn.lat, s.checkIn.lng]).addTo(explorerMap)
-                        .bindPopup("<div class='text-[10px] font-bold'>CHECK IN POINT</div><div class='text-[9px]'>" + s.checkIn.time + "</div>");
+            const ci = L.marker([s.checkIn.lat, s.checkIn.lng]).addTo(explorerMap).bindPopup("<div class='text-[10px] font-bold'>CHECK IN POINT</div><div class='text-[9px]'>" + s.checkIn.time + "</div>");
             explorerMarkers.push(ci);
-
-            // Tombol Navigasi Google Maps (Check In)
-            if(navCont) {
-                navCont.insertAdjacentHTML('beforeend', `<button onclick="window.open('https://www.google.com/maps?q=${s.checkIn.lat},${s.checkIn.lng}', '_blank')" class="flex-grow py-4 bg-white/90 backdrop-blur-md text-slate-800 rounded-2xl text-[10px] font-black shadow-xl border border-slate-100 uppercase tracking-tighter">Navigate In</button>`);
-            }
+            if(navCont) navCont.insertAdjacentHTML('beforeend', `<button onclick="window.open('https://www.google.com/maps?q=${s.checkIn.lat},${s.checkIn.lng}', '_blank')" class="flex-grow py-4 bg-white/90 backdrop-blur-md text-slate-800 rounded-2xl text-[10px] font-black shadow-xl border border-slate-100 uppercase tracking-tighter">Navigate In</button>`);
 
             if (s.checkOut && s.checkOut.lat) {
-                // Marker Check Out
-                const co = L.marker([s.checkOut.lat, s.checkOut.lng]).addTo(explorerMap)
-                            .bindPopup("<div class='text-[10px] font-bold'>CHECK OUT POINT</div><div class='text-[9px]'>" + s.checkOut.time + "</div>");
+                const co = L.marker([s.checkOut.lat, s.checkOut.lng]).addTo(explorerMap).bindPopup("<div class='text-[10px] font-bold'>CHECK OUT POINT</div><div class='text-[9px]'>" + s.checkOut.time + "</div>");
                 explorerMarkers.push(co);
-
-                // Garis Track (Polyline)
-                const p = L.polyline([[s.checkIn.lat, s.checkIn.lng], [s.checkOut.lat, s.checkOut.lng]], {
-                    color: '#3b82f6',
-                    weight: 6,
-                    opacity: 0.9,
-                    dashArray: '12, 12'
-                }).addTo(explorerMap);
+                const p = L.polyline([[s.checkIn.lat, s.checkIn.lng], [s.checkOut.lat, s.checkOut.lng]], { color: '#3b82f6', weight: 6, opacity: 0.9, dashArray: '12, 12' }).addTo(explorerMap);
                 explorerMarkers.push(p);
 
-                // Hitung Jarak via haversine (reuse getDistance)
                 const distance = getDistance(s.checkIn.lat, s.checkIn.lng, s.checkOut.lat, s.checkOut.lng);
                 const distanceText = distance < 1000 ? Math.round(distance) + " Meter" : (distance / 1000).toFixed(2) + " KM";
                 if(distEl) distEl.textContent = "Jarak: " + distanceText;
 
-                // Tombol Navigasi Google Maps (Check Out)
-                if(navCont) {
-                    navCont.insertAdjacentHTML('beforeend', `<button onclick="window.open('https://www.google.com/maps?q=${s.checkOut.lat},${s.checkOut.lng}', '_blank')" class="flex-grow py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black shadow-xl uppercase tracking-tighter">Navigate Out</button>`);
-                }
-
-                // Auto Zoom menyesuaikan kedua titik
+                if(navCont) navCont.insertAdjacentHTML('beforeend', `<button onclick="window.open('https://www.google.com/maps?q=${s.checkOut.lat},${s.checkOut.lng}', '_blank')" class="flex-grow py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black shadow-xl uppercase tracking-tighter">Navigate Out</button>`);
                 explorerMap.fitBounds(p.getBounds(), { padding: [100, 100] });
             } else {
                 if(distEl) distEl.textContent = "Sedang Bertugas";
                 explorerMap.setView([s.checkIn.lat, s.checkIn.lng], 17);
                 ci.openPopup();
             }
-            
             setTimeout(() => explorerMap.invalidateSize(), 300);
         };
 
-        window.closeExplorer = function() {
-            document.getElementById('explorer-modal').classList.add('hidden-element');
-        };
+        window.closeExplorer = function() { document.getElementById('explorer-modal').classList.add('hidden-element'); };
+        window.closeDetail = function() { document.getElementById('detail-modal').classList.add('hidden-element'); };
+        window.closeSuccessModal = function() { document.getElementById('success-modal').classList.add('hidden-element'); };
 
-        window.closeDetail = function() {
-            document.getElementById('detail-modal').classList.add('hidden-element');
-        };
-
-        window.closeSuccessModal = function() {
-            document.getElementById('success-modal').classList.add('hidden-element');
-        };
-
-        window.deleteLog = async function(id) {
-            if (confirm("Hapus data absen ini secara permanen dari server?")) {
-                dutyHistory = dutyHistory.filter(h => h.id != id); // Optimistic hapus
+        window.deleteLog = function(id) {
+            askConfirm("Hapus data absen ini secara permanen dari server?", async () => {
+                dutyHistory = dutyHistory.filter(h => h.id != id);
                 closeDetail();
                 if (adminTab === 'all-logs') renderAllLogs();
                 updateUI();
-                await callCloud("deleteLog", {
-                    id
-                });
-            }
+                await callCloud("deleteLog", { id });
+            });
         };
 
         window.editLog = function(id) {
@@ -3198,20 +2762,14 @@
             if (!s) return;
             document.getElementById('edit-log-id').value = id;
             
-            // Render Select Options
-            const workTypeEl = document.getElementById('edit-log-work-type');
-            const dutyAsEl = document.getElementById('edit-log-duty-as');
+            const workTypeEl = document.getElementById('edit-log-work-type'), dutyAsEl = document.getElementById('edit-log-duty-as');
             workTypeEl.innerHTML = availableWorkTypes.map(t => `<option value="${t}">${t}</option>`).join('');
             dutyAsEl.innerHTML = availableDutyAs.map(r => `<option value="${r}">${r}</option>`).join('');
+            workTypeEl.value = s.workType || ""; dutyAsEl.value = s.dutyAs || "";
             
-            workTypeEl.value = s.workType || "";
-            dutyAsEl.value = s.dutyAs || "";
-            
-            // Format Datetime untuk input type="datetime-local" (YYYY-MM-DDThh:mm:ss)
             const formatForDatetimeLocal = (timestamp) => {
                 if (!timestamp) return "";
-                const d = new Date(timestamp);
-                const tzOffset = d.getTimezoneOffset() * 60000;
+                const d = new Date(timestamp), tzOffset = d.getTimezoneOffset() * 60000;
                 return new Date(d.getTime() - tzOffset).toISOString().slice(0, 19);
             };
 
@@ -3235,16 +2793,12 @@
             document.getElementById('log-edit-modal').classList.remove('hidden-element');
         };
 
-        window.closeLogEdit = function() {
-            document.getElementById('log-edit-modal').classList.add('hidden-element');
-        };
+        window.closeLogEdit = function() { document.getElementById('log-edit-modal').classList.add('hidden-element'); };
 
         window.saveLogEdit = async function() {
-            const id = document.getElementById('edit-log-id').value,
-                s = dutyHistory.find(x => x.id == id);
+            const id = document.getElementById('edit-log-id').value, s = dutyHistory.find(x => x.id == id);
             if (!s) return;
-            s.workType = document.getElementById('edit-log-work-type').value;
-            s.dutyAs = document.getElementById('edit-log-duty-as').value;
+            s.workType = document.getElementById('edit-log-work-type').value; s.dutyAs = document.getElementById('edit-log-duty-as').value;
             
             const inTimeVal = document.getElementById('edit-log-in-time').value;
             if (inTimeVal) {
@@ -3257,8 +2811,8 @@
             s.checkIn.lng = parseFloat(document.getElementById('edit-log-in-lng').value);
             s.statusIn = document.getElementById('edit-log-status-in').value;
             const inR = document.getElementById('edit-log-in-reasons').value.split('|');
-            s.lateReason = inR[0] ? inR[0].trim() : "";
-            s.outsideOfficeReason = inR[1] ? inR[1].trim() : "";
+            s.lateReason = inR[0] ? inR[0].trim() : ""; s.outsideOfficeReason = inR[1] ? inR[1].trim() : "";
+            
             if (s.checkOut) {
                 const outTimeVal = document.getElementById('edit-log-out-time').value;
                 if (outTimeVal) {
@@ -3266,19 +2820,16 @@
                     s.checkOut.timestamp = outDate.getTime();
                     s.checkOut.time = outDate.toLocaleTimeString('id-ID', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }).replace(/\./g, ':');
                 }
-
                 s.checkOut.lat = parseFloat(document.getElementById('edit-log-out-lat').value);
                 s.checkOut.lng = parseFloat(document.getElementById('edit-log-out-lng').value);
                 s.checkOut.statusOut = document.getElementById('edit-log-status-out').value;
                 const outR = document.getElementById('edit-log-remarks').value.split('|');
                 s.checkOut.statusReason = outR[1] ? outR[0].trim() : "";
                 s.checkOut.remarks = outR[1] ? outR[1].trim() : outR[0].trim();
-                
                 s.checkOut.overtimeLabel = calculateOvertimeDuration(s.checkOut.timestamp);
             }
             await callCloud("saveLog", s);
-            closeLogEdit();
-            showDetail(id);
+            closeLogEdit(); showDetail(id);
             if (adminTab === 'all-logs') renderAllLogs();
         };
 
@@ -3289,236 +2840,140 @@
 
             let filtered = dutyHistory.filter(s => {
                 const matchesName = s.userName.toLowerCase().includes(nameQuery),
-                    sessionDate = new Date(s.checkIn.timestamp);
+                    sessionDate = new Date(Number(s.checkIn.timestamp));
                 sessionDate.setHours(0, 0, 0, 0);
-                let matchesStart = true;
-                if (startVal) {
-                    const startLimit = new Date(startVal);
-                    startLimit.setHours(0, 0, 0, 0);
-                    matchesStart = sessionDate >= startLimit;
-                }
-                let matchesEnd = true;
-                if (endVal) {
-                    const endLimit = new Date(endVal);
-                    endLimit.setHours(0, 0, 0, 0);
-                    matchesEnd = sessionDate <= endLimit;
-                }
+                let matchesStart = true, matchesEnd = true;
+                if (startVal) matchesStart = sessionDate >= new Date(startVal).setHours(0, 0, 0, 0);
+                if (endVal) matchesEnd = sessionDate <= new Date(endVal).setHours(23, 59, 59, 999);
                 return matchesName && matchesStart && matchesEnd;
             });
             
-            // PERUBAHAN: Diubah dari b - a menjadi a - b agar urut dari tanggal terkecil/awal
             filtered.sort((a, b) => a.checkIn.timestamp - b.checkIn.timestamp);
             
             if (filtered.length === 0) {
-                alert("Tidak ada data untuk dicetak");
-                return;
+                showCustomAlert("Tidak ada data untuk dicetak"); return;
             }
 
-            const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+            const months = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
             const formatLongIndo = (s) => {
-                if (!s) return "Semua";
-                const d = new Date(s);
+                if (!s) return "Semua"; const d = new Date(s);
                 return String(d.getDate()).padStart(2, '0') + " " + months[d.getMonth()] + " " + d.getFullYear();
             };
 
-            const now = new Date(),
-                printWin = window.open('', '_blank');
-                
-            // TAMBAHAN: Logika untuk memanggil Nama Karyawan dan Tanda Tangannya
-            let employeeName = "Karyawan";
-            let employeeSignatureHtml = '<div style="height:80px; margin:10px auto;"></div>'; // Blank space
+            const now = new Date(), printWin = window.open('', '_blank');
+            let employeeName = "Karyawan", employeeSignatureHtml = '<div style="height:80px; margin:10px auto;"></div>';
             
             const rawNameQuery = document.getElementById('filter-all-name').value.trim();
             if (rawNameQuery) {
                 const matchedUser = users.find(u => u.name && u.name.toLowerCase().includes(rawNameQuery.toLowerCase()));
                 if (matchedUser) {
                     employeeName = matchedUser.name;
-                    // Jika ada data link Tanda Tangan, maka tampilkan
-                    if (matchedUser.signature) {
-                        employeeSignatureHtml = '<img src="' + matchedUser.signature + '" class="signature-img">';
-                    }
-                } else {
-                    employeeName = rawNameQuery;
-                }
+                    if (matchedUser.signature) employeeSignatureHtml = '<img src="' + matchedUser.signature + '" class="signature-img">';
+                } else { employeeName = rawNameQuery; }
             }
             
-            // PERUBAHAN HEADER TABEL & CSS FOOTER: Susunan Kolom Diubah, Tambah Footer Left (Karyawan)
             let html = '<html><head><title>Laporan Kehadiran E-Crew</title><style>body{font-family:sans-serif;padding:30px;color:#333}table{width:100%;border-collapse:collapse;margin-top:20px}th,td{border:1px solid #ccc;padding:8px;font-size:10px;vertical-align:top}th{background-color:#f8f9fa;text-align:center;font-size:10px}td{text-align:center}.header{text-align:center;border-bottom:2px solid #333;padding-bottom:10px;margin-bottom:30px}.header h1{font-size:14px;margin:10px 0}.header p{font-size:12px;margin:5px 0}.footer-container{margin-top:60px;width:100%;display:block;page-break-inside:avoid;font-size:11px}.footer-box{width:250px;text-align:center;float:left}.footer-box.right{float:right}.footer-box p{margin:5px 0}.remarks-cell{white-space:pre-wrap;word-wrap:break-word;max-width:250px;text-align:left}.logo-container{text-align:center;margin-bottom:10px}.logo-container img{height:70px;width:auto}.signature-img{height:80px;width:auto;margin:10px auto;display:block;}</style></head><body><div class="logo-container"><img src="https://lh3.googleusercontent.com/d/1WNcGjsZ9_Fp54xzOl01EYRqM6-wY5Zh7" alt="Logo"></div><div class="header"><h1>LAPORAN KEHADIRAN KARYAWAN</h1><p>Sistem E-Crew Attendant List</p><p>Periode: ' + formatLongIndo(startVal) + ' s/d ' + formatLongIndo(endVal) + '</p></div><table><thead><tr><th>No</th><th>Nama Karyawan</th><th>Divisi</th><th>Jabatan</th><th>Tanggal Check In</th><th>Check In</th><th>Tanggal Check Out</th><th>Check Out</th><th>Total Waktu Tugas</th><th>Type of Work/Duty Function</th><th>Detail Pekerjaan</th></tr></thead><tbody>';
 
             filtered.forEach((s, i) => {
-                // FORMAT TANGGAL CHECK IN
-                const dIn = new Date(s.checkIn.timestamp),
+                const dIn = new Date(Number(s.checkIn.timestamp)),
                     dsIn = String(dIn.getDate()).padStart(2, '0') + '/' + String(dIn.getMonth() + 1).padStart(2, '0') + '/' + dIn.getFullYear(),
                     dur = s.checkOut ? formatDuration(s.checkIn.timestamp, s.checkOut.timestamp) : '-';
                 
-                // FORMAT TANGGAL CHECK OUT (Jika data Check Out belum ada, maka set strip "-")
                 let dsOut = '-';
                 if (s.checkOut && s.checkOut.timestamp) {
-                    const dOut = new Date(s.checkOut.timestamp);
+                    const dOut = new Date(Number(s.checkOut.timestamp));
                     dsOut = String(dOut.getDate()).padStart(2, '0') + '/' + String(dOut.getMonth() + 1).padStart(2, '0') + '/' + dOut.getFullYear();
                 }
 
-                // MERAKIT BARIS TABEL (Susunan Kolom Diubah)
                 html += '<tr><td>' + (i + 1) + '</td><td style="text-align:left">' + s.userName + '</td><td>' + (s.userDivision || '-') + '</td><td>' + (s.userPosition || '-') + '</td><td>' + dsIn + '</td><td>' + s.checkIn.time + '</td><td>' + dsOut + '</td><td>' + (s.checkOut ? s.checkOut.time : '-') + '</td><td>' + dur + '</td><td>' + s.workType + ' / ' + s.dutyAs + '</td><td class="remarks-cell">' + (s.checkOut ? s.checkOut.remarks : '-') + '</td></tr>';
             });
-            // TAMBAHAN FOOTER SEJAJAR: Kiri Karyawan, Kanan HRD
             html += '</tbody></table><div class="footer-container"><div class="footer-box"><p style="visibility:hidden;">Dicetak pada: ...</p><p>Mengetahui,</p>' + employeeSignatureHtml + '<p><u><b>' + employeeName + '</b></u></p><p>Karyawan</p></div><div class="footer-box right"><p>Dicetak pada: ' + now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear() + ', pukul ' + now.toLocaleTimeString('id-ID').replace(/\./g, ':') + '</p><p>Penanggung Jawab,</p><img src="https://lh3.googleusercontent.com/d/1yhAmuOoGe6GT4UaJEixJi4cadHbUfXTL" class="signature-img"><p><u><b>Media Marbun</b></u></p><p>HRD Manager</p></div></div></body></html>';
             printWin.document.write(html);
             printWin.document.close();
-            setTimeout(() => {
-                printWin.print()
-            }, 500);
+            setTimeout(() => { printWin.print() }, 500);
         };
 
-        // PERSONAL LINK FUNCTIONS
         function renderAdminLinkOptions() {
             const select = document.getElementById('link-user-select');
-            if (select) {
-                select.innerHTML = '<option value="">-- Pilih User --</option>' + 
-                    users.map(u => `<option value="${u.id}">${u.name} (${u.rank || ''})</option>`).join('');
-            }
+            if (select) select.innerHTML = '<option value="">-- Pilih User --</option>' + users.map(u => `<option value="${u.id}">${u.name} (${u.rank || ''})</option>`).join('');
         }
 
         async function savePersonalLink() {
-            const userId = document.getElementById('link-user-select').value;
-            const menuName = document.getElementById('link-menu-name').value || "Personal Data";
-            const url = document.getElementById('link-url-input').value;
-
-            if (!userId || !url) {
-                alert("Pilih user dan masukkan link URL!");
-                return;
-            }
-
+            const userId = document.getElementById('link-user-select').value, menuName = document.getElementById('link-menu-name').value || "Personal Data", url = document.getElementById('link-url-input').value;
+            if (!userId || !url) { showCustomAlert("Pilih user dan masukkan link URL!"); return; }
             const userIndex = users.findIndex(u => u.id == userId);
             if (userIndex !== -1) {
-                // Tambahkan data ke array lokal
-                users[userIndex].cvLink = url;
-                users[userIndex].cvMenuName = menuName;
-                
-                // Kirim ke Google Sheet
+                users[userIndex].cvLink = url; users[userIndex].cvMenuName = menuName;
                 const res = await callCloud("saveUser", users[userIndex]);
-                
                 if (res.status === "success") {
                     document.getElementById('link-url-input').value = "";
                     document.getElementById('success-msg').textContent = "Link berhasil disimpan ke server.";
                     document.getElementById('success-modal').classList.remove('hidden-element');
                     renderAdminLinkList();
-                } else {
-                    alert("Gagal menyimpan ke server. Cek koneksi.");
-                }
+                } else { showCustomAlert("Gagal menyimpan ke server. Cek koneksi."); }
             }
         }
 
         function renderAdminLinkList() {
             const container = document.getElementById('admin-link-list');
             if (!container) return;
-            
             const usersWithLinks = users.filter(u => u.cvLink);
             container.innerHTML = "";
-
             if (usersWithLinks.length === 0) {
-                container.innerHTML = '<div class="text-center py-10 bg-white rounded-3xl border-2 border-dashed border-slate-100 text-slate-300 text-[10px] font-bold uppercase">Belum ada link yang diatur</div>';
-                return;
+                container.innerHTML = '<div class="text-center py-10 bg-white rounded-3xl border-2 border-dashed border-slate-100 text-slate-300 text-[10px] font-bold uppercase">Belum ada link yang diatur</div>'; return;
             }
-
             usersWithLinks.forEach(u => {
                 container.insertAdjacentHTML('beforeend', `
                     <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-50 flex items-center justify-between">
-                        <div class="flex-grow">
-                            <h4 class="text-xs font-black text-slate-800">${u.name}</h4>
-                            <p class="text-[9px] font-bold text-blue-600 uppercase">${u.cvMenuName || 'Personal Data'}</p>
-                            <p class="text-[8px] text-slate-400 truncate max-w-[200px]">${u.cvLink}</p>
-                        </div>
-                        <button onclick="removePersonalLink('${u.id}')" class="w-8 h-8 flex items-center justify-center bg-red-50 text-red-500 rounded-lg">
-                            <i class="fas fa-trash text-[10px]"></i>
-                        </button>
-                    </div>
-                `);
+                        <div class="flex-grow"><h4 class="text-xs font-black text-slate-800">${u.name}</h4><p class="text-[9px] font-bold text-blue-600 uppercase">${u.cvMenuName || 'Personal Data'}</p><p class="text-[8px] text-slate-400 truncate max-w-[200px]">${u.cvLink}</p></div>
+                        <button onclick="removePersonalLink('${u.id}')" class="w-8 h-8 flex items-center justify-center bg-red-50 text-red-500 rounded-lg"><i class="fas fa-trash text-[10px]"></i></button>
+                    </div>`);
             });
         }
 
-        async function removePersonalLink(id) {
-            if (confirm("Hapus link personal untuk user ini?")) {
+        function removePersonalLink(id) {
+            askConfirm("Hapus link personal untuk user ini?", async () => {
                 const userIndex = users.findIndex(u => u.id == id);
                 if (userIndex !== -1) {
-                    delete users[userIndex].cvLink;
-                    delete users[userIndex].cvMenuName;
+                    delete users[userIndex].cvLink; delete users[userIndex].cvMenuName;
                     await callCloud("saveUser", users[userIndex]);
                     renderAdminLinkList();
                 }
-            }
+            });
         }
 
         function handlePersonalDataClick() {
-            if (currentUser && currentUser.cvLink) {
-                openWebView(currentUser.cvLink, currentUser.cvMenuName || 'PERSONAL DATA');
-            }
+            if (currentUser && currentUser.cvLink) openWebView(currentUser.cvLink, currentUser.cvMenuName || 'PERSONAL DATA');
         }
 
-        // INITIALIZATION
         function initPWA() {
             const iconUrl = "https://lh3.googleusercontent.com/d/14XvFbNETCuybdeUeH6BPrPaC33uBijMc";
             const manifestData = {
-                "name": "E Crew Attendant List", 
-                "short_name": "E-Crew", 
-                "start_url": "./", 
-                "display": "standalone",
-                "background_color": "#0f172a", 
-                "theme_color": "#0f172a",
-                "icons": [ 
-                    { "src": iconUrl, "sizes": "192x192", "type": "image/png", "purpose": "any" },
-                    { "src": iconUrl, "sizes": "512x512", "type": "image/png", "purpose": "any" },
-                    { "src": iconUrl, "sizes": "192x192", "type": "image/png", "purpose": "maskable" }
-                ]
+                "name": "E Crew Attendant List", "short_name": "E-Crew", "start_url": "./", "display": "standalone", "background_color": "#0f172a", "theme_color": "#0f172a",
+                "icons": [ { "src": iconUrl, "sizes": "192x192", "type": "image/png", "purpose": "any" }, { "src": iconUrl, "sizes": "512x512", "type": "image/png", "purpose": "any" }, { "src": iconUrl, "sizes": "192x192", "type": "image/png", "purpose": "maskable" } ]
             };
             const manifestBlob = new Blob([JSON.stringify(manifestData)], {type: 'application/json'});
             const manifestLink = document.getElementById('pwa-manifest');
             if (manifestLink) manifestLink.href = URL.createObjectURL(manifestBlob);
-
             if ('serviceWorker' in navigator) {
-                const swCode = `
-                    self.addEventListener('install', (e) => { self.skipWaiting(); }); 
-                    self.addEventListener('activate', (e) => { e.waitUntil(clients.claim()); }); 
-                    self.addEventListener('fetch', (e) => { 
-                        if (e.request.mode === 'navigate') {
-                            e.respondWith(
-                                fetch(e.request).catch(() => caches.match(e.request))
-                            );
-                        }
-                    });
-                `;
+                const swCode = `self.addEventListener('install', (e) => { self.skipWaiting(); }); self.addEventListener('activate', (e) => { e.waitUntil(clients.claim()); }); self.addEventListener('fetch', (e) => { if (e.request.mode === 'navigate') { e.respondWith(fetch(e.request).catch(() => caches.match(e.request))); } });`;
                 const swBlob = new Blob([swCode], {type: 'application/javascript'});
-                navigator.serviceWorker.register(URL.createObjectURL(swBlob)).then(registration => {
-                    registration.update();
-                }).catch(console.warn);
+                navigator.serviceWorker.register(URL.createObjectURL(swBlob)).then(registration => { registration.update(); }).catch(console.warn);
             }
         }
 
         window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
+            e.preventDefault(); deferredPrompt = e;
             const btn = document.getElementById('pwa-install-btn');
             if (btn) {
                 btn.classList.remove('hidden-element');
                 btn.onclick = async () => {
-                    if (deferredPrompt) {
-                        deferredPrompt.prompt();
-                        const {
-                            outcome
-                        } = await deferredPrompt.userChoice;
-                        deferredPrompt = null;
-                        btn.classList.add('hidden-element');
-                    }
+                    if (deferredPrompt) { deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; deferredPrompt = null; btn.classList.add('hidden-element'); }
                 };
             }
         });
 
-        window.onload = () => {
-            initPWA();
-            updateClock();
-            syncWithCloud();
-        };
+        window.onload = () => { initPWA(); updateClock(); initRealtimeSync(); };
     </script>
 </body>
-
 </html>
