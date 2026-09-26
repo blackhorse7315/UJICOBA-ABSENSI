@@ -92,11 +92,13 @@
 
 <body class="min-h-screen text-slate-800 pb-20">
 
+    <!-- Toast Sync Notification -->
     <div id="sync-toast">
         <div class="spin-loader"></div>
         <span id="sync-text">SINKRONISASI...</span>
     </div>
 
+    <!-- Login Page -->
     <div id="login-page" class="fixed inset-0 z-[1000] gradient-bg flex items-center justify-center p-6">
         <div class="w-full max-w-sm login-card p-8 rounded-[2.5rem] shadow-2xl animate-fade">
             <div class="text-center mb-8">
@@ -125,6 +127,7 @@
         </div>
     </div>
 
+    <!-- Main App Container -->
     <div id="app-content" class="hidden-element">
         <nav class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-[100] px-4 py-3">
             <div class="max-w-md mx-auto flex justify-between items-center">
@@ -147,6 +150,7 @@
             </div>
         </nav>
 
+        <!-- Admin View -->
         <div id="admin-view" class="hidden-element max-w-md mx-auto px-4 mt-6 animate-fade">
             <h2 class="text-xl font-black text-slate-800 mb-6">Admin Panel</h2>
             <div class="flex gap-2 mb-6 overflow-x-auto pb-2 no-scrollbar">
@@ -179,11 +183,11 @@
                     <div class="grid grid-cols-2 gap-3 mb-2">
                         <div>
                             <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">Mulai Tanggal</label>
-                            <input type="date" id="filter-all-start" class="w-full p-3 bg-slate-50 rounded-xl text-xs font-bold border border-slate-100">
+                            <input type="date" id="filter-all-start" onchange="renderAllLogs()" class="w-full p-3 bg-slate-50 rounded-xl text-xs font-bold border border-slate-100">
                         </div>
                         <div>
                             <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">Sampai Tanggal</label>
-                            <input type="date" id="filter-all-end" class="w-full p-3 bg-slate-50 rounded-xl text-xs font-bold border border-slate-100">
+                            <input type="date" id="filter-all-end" onchange="renderAllLogs()" class="w-full p-3 bg-slate-50 rounded-xl text-xs font-bold border border-slate-100">
                         </div>
                     </div>
                     <div class="flex gap-2">
@@ -405,7 +409,7 @@
     <!-- My Profile -->
     <div id="my-profile-modal" class="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm hidden-element"><div class="bg-white w-full max-w-md rounded-[2.5rem] p-8 max-h-[90vh] overflow-y-auto"><div class="flex justify-between items-center mb-6"><h4 class="text-xl font-black">Profil Saya</h4><button onclick="closeMyProfile()" class="text-slate-300 text-2xl"><i class="fas fa-times-circle"></i></button></div><div class="flex flex-col items-center mb-6"><div id="my-profile-pic" class="w-20 h-20 rounded-2xl overflow-hidden border mb-3"></div><h5 id="my-profile-fullname" class="text-base font-black">-</h5><p id="my-profile-sub" class="text-[10px] text-blue-600 font-bold uppercase">-</p></div><div class="space-y-3 text-xs"><p><b>Email:</b> <span id="my-profile-email"></span></p><p><b>Username:</b> <span id="my-profile-username"></span></p><input type="text" id="my-profile-password" class="w-full p-3 bg-blue-50 rounded-xl" placeholder="Ubah Password"><button onclick="saveMyPassword()" class="w-full py-3 gradient-bg text-white rounded-xl font-black">SIMPAN PERUBAHAN</button></div></div></div>
 
-    <!-- User Admin Form Modal (DIKEMBALIKAN KE DESAIN MEWAH & LENGKAP) -->
+    <!-- User Form Modal (DESAIN MEWAH KEMBALI) -->
     <div id="user-form-modal" class="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm hidden-element">
         <div class="bg-white w-full max-w-md rounded-[2.5rem] p-8 animate-fade max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-6">
@@ -477,16 +481,12 @@
         </div>
     </div>
 
-    <!-- Detail Log & Explorer -->
-    <div id="detail-modal" class="fixed inset-0 z-[600] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm hidden-element"><div class="bg-white w-full max-w-lg rounded-[2.5rem] p-6 max-h-[90vh] overflow-y-auto"><div class="flex justify-between mb-4"><h4 class="text-xl font-black">Detail Tugas</h4><button onclick="closeDetail()" class="text-slate-400 text-2xl"><i class="fas fa-times"></i></button></div><div id="detail-content" class="space-y-4"></div><button onclick="closeDetail()" class="w-full py-4 bg-slate-900 text-white rounded-xl font-bold mt-4">Tutup</button></div></div>
-    
-    <div id="explorer-modal" class="fixed inset-0 z-[700] bg-white hidden-element"><button onclick="closeExplorer()" class="absolute top-4 right-4 z-[710] w-12 h-12 bg-slate-900 text-white rounded-full"><i class="fas fa-times"></i></button><div class="absolute top-4 left-4 z-[710] bg-white p-3 rounded-xl shadow-lg text-[9px] font-bold"><p id="explorer-distance-text">Jarak...</p></div><div id="full-explorer-map"></div><div id="explorer-nav-buttons" class="absolute bottom-8 left-1/2 -translate-x-1/2 z-[710] flex gap-2 w-full max-w-xs"></div></div>
-
     <!-- FIREBASE SDK MODULAR CONFIGURATION -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, query, orderBy, limit, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
+        // Konfigurasi Asli Milik Anda
         const firebaseConfig = {
             apiKey: "AIzaSyBiiTUcULMRCM_4FyAX8nSx1Rj1xCdJGSw",
             authDomain: "ecrew-absensi-183ac.firebaseapp.com",
@@ -528,9 +528,9 @@
 
         let videoStream, capturedPhoto = null, workPhotoBase64 = null;
         let currentMode = 'check-in', currentPos = { lat: 0, lng: 0 };
-        let mainMap, mainMarker, watchId, explorerMap, explorerMarkers = [];
-        let isWorking = false, activeStartTime = null, timerInterval;
-        let historyFilter = 'daily', adminTab = 'users', isOutsideOffice = false, deferredPrompt;
+        let watchId;
+        let isWorking = false;
+        let historyFilter = 'daily', adminTab = 'users', isOutsideOffice = false;
 
         // UI HELPERS
         window.showMiniSync = function(msg = "SINKRONISASI...") {
@@ -538,6 +538,7 @@
             if(x) x.textContent = msg; if(t) t.classList.add('show');
         };
         window.hideMiniSync = function() { document.getElementById('sync-toast')?.classList.remove('show'); };
+        
         window.speakNotification = function(text) {
             if ('speechSynthesis' in window) {
                 const u = new SpeechSynthesisUtterance(text); u.lang = 'id-ID'; window.speechSynthesis.speak(u);
@@ -575,36 +576,52 @@
             return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         }
 
-        // FIREBASE SYNC (Optimized Reads limit 200)
+        // ==========================================
+        // FIREBASE SYNC (LIMIT 200 MEMBACA AGAR HEMAT)
+        // ==========================================
         window.syncWithCloud = async function(isBackground = false) {
             if (!isBackground) window.showMiniSync("MEMUAT DATA...");
             try {
+                // Tarik Users
                 const usersSnap = await getDocs(collection(db, "users"));
                 window.users = usersSnap.docs.map(d => d.data());
 
+                // Tarik Logs (DIBATASI 200 DATA TERBARU)
                 const logsQuery = query(collection(db, "logs"), orderBy("checkIn.timestamp", "desc"), limit(200));
                 const logsSnap = await getDocs(logsQuery);
                 window.dutyHistory = logsSnap.docs.map(d => d.data());
 
+                // Tarik Berita (DIBATASI 20 TERBARU)
                 const newsQuery = query(collection(db, "news"), orderBy("date", "desc"), limit(20));
                 const newsSnap = await getDocs(newsQuery);
                 window.newsItems = newsSnap.docs.map(d => d.data());
 
+                // Tarik Konfigurasi
                 const cfgSnap = await getDocs(collection(db, "config"));
                 cfgSnap.forEach(d => { if(d.id === "schedule") window.scheduleConfig = d.data(); });
                 if(!window.scheduleConfig.specialHolidays) window.scheduleConfig.specialHolidays = [];
 
                 window.updateUI(); window.checkBirthdays();
-                if (adminTab === 'users') window.renderUserList();
-                if (adminTab === 'all-logs') window.renderAllLogs();
-                if (adminTab === 'news') window.renderNewsAdmin();
-                if (adminTab === 'config') window.renderScheduleConfig();
-                if (adminTab === 'worklists') window.renderWorklists();
-                if (adminTab === 'links') window.renderPersonalLinks();
+                
+                if (window.currentUser && window.currentUser.role === 'user') {
+                    window.renderUserNews(); 
+                    window.renderUserPersonalLink();
+                }
+
+                // Render tab admin jika aktif
+                if (window.currentUser && window.currentUser.role !== 'user') {
+                    if (adminTab === 'users') window.renderUserList();
+                    if (adminTab === 'all-logs') window.renderAllLogs();
+                    if (adminTab === 'news') window.renderNewsAdmin();
+                    if (adminTab === 'config') window.renderScheduleConfig();
+                    if (adminTab === 'worklists') window.renderWorklists();
+                    if (adminTab === 'links') window.renderPersonalLinks();
+                }
             } catch (e) { console.error("Sync Error:", e); }
             window.hideMiniSync();
         };
 
+        // FUNGSI ADMIN CARI DATA LAMA KE SERVER
         window.cariDataAbsenLama = async function() {
             const startVal = document.getElementById('filter-all-start').value;
             const endVal = document.getElementById('filter-all-end').value;
@@ -625,9 +642,11 @@
             window.hideMiniSync();
         };
 
-        setInterval(() => window.syncWithCloud(true), 180000);
+        setInterval(() => window.syncWithCloud(true), 180000); // Latar belakang tiap 3 menit
 
+        // ==========================================
         // AUTH & VIEWS
+        // ==========================================
         window.handleLogin = function() {
             const u = document.getElementById('login-username').value.trim();
             const p = document.getElementById('login-password').value.trim();
@@ -669,7 +688,9 @@
             }
         };
 
-        // ADMIN CONFIG
+        // ==========================================
+        // ADMIN CONFIG (ATURAN WAKTU)
+        // ==========================================
         window.saveScheduleConfig = async function() {
             window.scheduleConfig.weekday = { in: document.getElementById('cfg-weekday-in').value, out: document.getElementById('cfg-weekday-out').value, ot: document.getElementById('cfg-weekday-ot').value };
             window.scheduleConfig.saturday = { in: document.getElementById('cfg-sat-in').value, out: document.getElementById('cfg-sat-out').value, ot: document.getElementById('cfg-sat-ot').value };
@@ -695,9 +716,11 @@
             document.getElementById('cfg-weekday-in').value = window.scheduleConfig.weekday?.in || "09:00";
             document.getElementById('cfg-weekday-out').value = window.scheduleConfig.weekday?.out || "17:00";
             document.getElementById('cfg-weekday-ot').value = window.scheduleConfig.weekday?.ot || "17:15";
+            
             document.getElementById('cfg-sat-in').value = window.scheduleConfig.saturday?.in || "09:00";
             document.getElementById('cfg-sat-out').value = window.scheduleConfig.saturday?.out || "14:30";
             document.getElementById('cfg-sat-ot').value = window.scheduleConfig.saturday?.ot || "14:30";
+            
             document.getElementById('cfg-sun-in').value = window.scheduleConfig.sunday?.in || "09:00";
             document.getElementById('cfg-sun-out').value = window.scheduleConfig.sunday?.out || "17:00";
             document.getElementById('cfg-sun-ot').value = window.scheduleConfig.sunday?.ot || "17:15";
@@ -706,21 +729,9 @@
             if(hl) hl.innerHTML = (window.scheduleConfig.specialHolidays||[]).map((h, i) => `<div class="flex justify-between items-center p-2 bg-slate-50 border rounded-xl"><div class="text-[10px] font-bold"><span>${h.date}</span> - <span class="text-emerald-600">${h.name}</span></div><button onclick="deleteSpecialHoliday(${i})" class="text-red-500"><i class="fas fa-trash"></i></button></div>`).join('');
         };
 
-        window.setAdminTab = function(t) {
-            adminTab = t;
-            ['users','all-logs','news','links','worklists','config'].forEach(x => {
-                document.getElementById('admin-tab-'+x)?.classList.toggle('active', x===t);
-                document.getElementById('admin-section-'+x)?.classList.toggle('hidden-element', x!==t);
-            });
-            if(t==='users') window.renderUserList();
-            if(t==='all-logs') window.renderAllLogs();
-            if(t==='news') window.renderNewsAdmin();
-            if(t==='config') window.renderScheduleConfig();
-            if(t==='worklists') window.renderWorklists();
-            if(t==='links') window.renderPersonalLinks();
-        };
-
-        // ACCORDION HISTORY RENDER (All Logs)
+        // ==========================================
+        // RENDER RIWAYAT SEMUA (ADMIN)
+        // ==========================================
         window.renderAllLogs = function() {
             const container = document.getElementById('all-logs-container');
             if(!container) return;
@@ -740,7 +751,7 @@
         };
 
         // ==========================================
-        // USER CRUD & RENDER LIST (DESAIN LENGKAP & MEWAH)
+        // USER CRUD & RENDER LIST (DESAIN MEWAH)
         // ==========================================
         window.renderUserList = function() {
             const container = document.getElementById('user-list-container');
@@ -769,17 +780,17 @@
             });
             
             for (const div in groups) {
-                let html = '<div><div class="flex items-center gap-3 mb-4 px-2"><span class="h-px bg-slate-200 flex-grow"></span><span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">' + div + '</span><span class="h-px bg-slate-200 flex-grow"></span></div><div class="grid grid-cols-1 gap-3">';
+                let html = `<div><div class="flex items-center gap-3 mb-4 px-2"><span class="h-px bg-slate-200 flex-grow"></span><span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">${div}</span><span class="h-px bg-slate-200 flex-grow"></span></div><div class="grid grid-cols-1 gap-3">`;
                 groups[div].forEach(u => {
-                    const avatar = u.profilePic ? '<img src="' + u.profilePic + '" class="w-full h-full object-cover">' : '<i class="fas fa-user text-slate-300 text-2xl"></i>';
-                    html += '<div onclick="openUserForm(\'' + u.id + '\')" class="bg-white p-5 rounded-3xl shadow-sm flex items-center justify-between hover:shadow-md transition-all cursor-pointer border border-slate-50"><div class="flex items-center gap-4"><div class="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center overflow-hidden border border-slate-100">' + avatar + '</div><div><h4 class="text-sm font-black text-slate-800">' + u.name + '</h4><p class="text-[10px] font-bold text-blue-600 uppercase">' + u.jabatan + '</p></div></div><i class="fas fa-chevron-right text-slate-200 text-xs"></i></div>';
+                    const avatar = u.profilePic ? `<img src="${u.profilePic}" class="w-full h-full object-cover">` : `<i class="fas fa-user text-slate-300 text-2xl"></i>`;
+                    html += `<div onclick="openUserForm('${u.id}')" class="bg-white p-5 rounded-3xl shadow-sm flex items-center justify-between hover:shadow-md transition-all cursor-pointer border border-slate-50"><div class="flex items-center gap-4"><div class="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center overflow-hidden border border-slate-100">${avatar}</div><div><h4 class="text-sm font-black text-slate-800">${u.name}</h4><p class="text-[10px] font-bold text-blue-600 uppercase">${u.jabatan || '-'}</p></div></div><i class="fas fa-chevron-right text-slate-200 text-xs"></i></div>`;
                 });
-                html += '</div></div>';
+                html += `</div></div>`;
                 if (container) container.insertAdjacentHTML('beforeend', html);
             }
             
             const datalist = document.getElementById('admin-user-datalist');
-            if (datalist) datalist.innerHTML = window.users.map(u => '<option value="' + u.name + '">').join('');
+            if (datalist) datalist.innerHTML = window.users.map(u => `<option value="${u.name}">`).join('');
         };
 
         window.openUserForm = function(id = null) {
@@ -872,13 +883,10 @@
                 await deleteDoc(doc(db, "users", idInput.toString()));
             }
         };
-        // ==========================================
 
         // ==========================================
         // MESIN FITUR (BERITA, LINK, WORKLISTS)
         // ==========================================
-
-        // 1. BERITA & INFO
         window.handleNewsImage = async function(input) {
             if(!input.files[0]) return;
             const reader = new FileReader();
@@ -919,7 +927,6 @@
             if(confirm("Hapus pengumuman ini?")) { await deleteDoc(doc(db, "news", id)); window.syncWithCloud(); }
         };
 
-        // 2. WORKLISTS (TYPE OF WORK & DUTY ROLE)
         window.addWorkType = async function() {
             const val = document.getElementById('new-work-type').value.trim();
             if(!val) return;
@@ -928,6 +935,7 @@
             await setDoc(doc(db, "config", "schedule"), window.scheduleConfig);
             document.getElementById('new-work-type').value = ""; window.renderWorklists();
         };
+
         window.addDutyRole = async function() {
             const val = document.getElementById('new-duty-role').value.trim();
             if(!val) return;
@@ -936,6 +944,7 @@
             await setDoc(doc(db, "config", "schedule"), window.scheduleConfig);
             document.getElementById('new-duty-role').value = ""; window.renderWorklists();
         };
+
         window.renderWorklists = function() {
             const wList = document.getElementById('admin-work-type-list');
             const dList = document.getElementById('admin-duty-role-list');
@@ -945,10 +954,10 @@
             if(wList) wList.innerHTML = wt.map((w, i) => `<div class="flex justify-between items-center p-3 bg-slate-50 border rounded-xl mb-2"><span class="text-xs font-bold">${w}</span><button onclick="deleteWorkType(${i})" class="text-red-500"><i class="fas fa-trash"></i></button></div>`).join('');
             if(dList) dList.innerHTML = dr.map((d, i) => `<div class="flex justify-between items-center p-3 bg-slate-50 border rounded-xl mb-2"><span class="text-xs font-bold">${d}</span><button onclick="deleteDutyRole(${i})" class="text-red-500"><i class="fas fa-trash"></i></button></div>`).join('');
         };
+
         window.deleteWorkType = async function(idx) { window.scheduleConfig.workTypes.splice(idx, 1); await setDoc(doc(db, "config", "schedule"), window.scheduleConfig); window.renderWorklists(); };
         window.deleteDutyRole = async function(idx) { window.scheduleConfig.dutyRoles.splice(idx, 1); await setDoc(doc(db, "config", "schedule"), window.scheduleConfig); window.renderWorklists(); };
 
-        // 3. LINK PERSONAL
         window.savePersonalLink = async function() {
             const userId = document.getElementById('link-user-select').value;
             const menuName = document.getElementById('link-menu-name').value.trim();
@@ -962,6 +971,7 @@
             await setDoc(doc(db, "config", "schedule"), window.scheduleConfig);
             alert("Link tersimpan!"); document.getElementById('link-menu-name').value = ""; document.getElementById('link-url-input').value = ""; window.renderPersonalLinks();
         };
+
         window.renderPersonalLinks = function() {
             const select = document.getElementById('link-user-select');
             const list = document.getElementById('admin-link-list');
@@ -979,12 +989,29 @@
             }
             list.innerHTML = html;
         };
+
         window.deletePersonalLink = async function(uId, idx) {
             window.scheduleConfig.personalLinks[uId].splice(idx, 1);
             await setDoc(doc(db, "config", "schedule"), window.scheduleConfig); window.renderPersonalLinks();
         };
 
-        // CAMERA iOS FIX & MAPS
+        window.setAdminTab = function(t) {
+            adminTab = t;
+            ['users','all-logs','news','links','worklists','config'].forEach(x => {
+                document.getElementById('admin-tab-'+x)?.classList.toggle('active', x===t);
+                document.getElementById('admin-section-'+x)?.classList.toggle('hidden-element', x!==t);
+            });
+            if(t==='users') window.renderUserList();
+            if(t==='all-logs') window.renderAllLogs();
+            if(t==='news') window.renderNewsAdmin();
+            if(t==='config') window.renderScheduleConfig();
+            if(t==='worklists') window.renderWorklists();
+            if(t==='links') window.renderPersonalLinks();
+        };
+
+        // ==========================================
+        // FITUR ABSENSI: CAMERA, LOKASI, & SUBMIT
+        // ==========================================
         window.initCamera = async function() {
             try {
                 if(videoStream) videoStream.getTracks().forEach(t=>t.stop());
@@ -992,7 +1019,7 @@
                 const v = document.getElementById('camera-preview');
                 v.classList.remove('hidden-element'); document.getElementById('photo-result').classList.add('hidden-element');
                 v.srcObject = videoStream; await v.play();
-            } catch(e) { alert("Izinkan Kamera!"); }
+            } catch(e) { alert("Izinkan Kamera agar bisa absen!"); }
         };
         window.takeSnapshot = function() {
             const v = document.getElementById('camera-preview'), c = document.getElementById('photo-canvas'), r = document.getElementById('photo-result');
@@ -1048,7 +1075,7 @@
         window.submitAttendance = async function() {
             if(!capturedPhoto) return alert("Foto wajib!");
             const outRes = document.getElementById('outside-office-reason').value.trim();
-            if(isOutsideOffice && (!outRes || outRes === "-" || outRes === "--")) return alert("Alasan luar kantor tidak valid!");
+            if(isOutsideOffice && (!outRes || outRes === "-" || outRes === "--")) return alert("Alasan luar kantor wajib diisi dengan jelas!");
             
             const now = Date.now(), d = new Date(), day = d.getDay();
             const nowISO = d.toISOString().split('T')[0];
@@ -1069,7 +1096,7 @@
             } else {
                 const active = window.dutyHistory.find(x => x.userId == window.currentUser.id && x.checkOut === null);
                 if(!active) return;
-                const remarks = document.getElementById('remarks').value; if(!remarks) return alert("Remarks wajib!");
+                const remarks = document.getElementById('remarks').value; if(!remarks) return alert("Remarks laporan wajib diisi!");
                 
                 let statOut = spH ? spH.name : (day === 0 ? "Tugas Minggu" : "Pulang Tepat Waktu");
                 active.checkOut = {
@@ -1085,7 +1112,9 @@
             document.getElementById('success-modal').classList.remove('hidden-element');
         };
 
-        // ACCORDION USER HISTORY & USER RENDER
+        // ==========================================
+        // TAMPILAN USER (DASHBOARD KARYAWAN)
+        // ==========================================
         window.setHistoryFilter = function(f) {
             historyFilter = f;
             ['daily', 'monthly', 'yearly'].forEach(t => document.getElementById("tab-"+t)?.classList.toggle('active', t===f));
@@ -1206,9 +1235,11 @@
             const win = window.open('','_blank'); win.document.write(html); win.document.close(); setTimeout(()=>win.print(), 500);
         };
 
+        // ==========================================
+        // MODAL & UTILS
+        // ==========================================
         window.openWebView = function(url, title) { document.getElementById('webview-title').textContent = title; document.getElementById('external-frame').src = url; document.getElementById('webview-container').classList.remove('hidden-element'); };
         window.closeWebView = function() { document.getElementById('external-frame').src = 'about:blank'; document.getElementById('webview-container').classList.add('hidden-element'); };
-
         window.closeSuccessModal = () => document.getElementById('success-modal').classList.add('hidden-element');
         window.closeDetail = () => document.getElementById('detail-modal').classList.add('hidden-element');
         window.closeExplorer = () => document.getElementById('explorer-modal').classList.add('hidden-element');
