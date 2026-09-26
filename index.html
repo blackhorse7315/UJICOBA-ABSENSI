@@ -26,13 +26,24 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
 
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f4f7fa; touch-action: manipulation; }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #f4f7fa;
+            touch-action: manipulation;
+        }
 
         .gradient-bg { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
         .hidden-element { display: none !important; }
 
-        #camera-preview, #photo-result { transform: scaleX(-1); border-radius: 1.25rem; object-fit: cover; }
-        .map-container { height: 160px; width: 100%; border-radius: 1.25rem; z-index: 1; border: 1px solid #e2e8f0; }
+        #camera-preview, #photo-result {
+            transform: scaleX(-1);
+            border-radius: 1.25rem;
+            object-fit: cover;
+        }
+        .map-container {
+            height: 160px; width: 100%;
+            border-radius: 1.25rem; z-index: 1; border: 1px solid #e2e8f0;
+        }
         #full-explorer-map { height: 100%; width: 100%; }
         .btn-disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
 
@@ -86,7 +97,6 @@
         <span id="sync-text">SINKRONISASI...</span>
     </div>
 
-    <!-- Login Page -->
     <div id="login-page" class="fixed inset-0 z-[1000] gradient-bg flex items-center justify-center p-6">
         <div class="w-full max-w-sm login-card p-8 rounded-[2.5rem] shadow-2xl animate-fade">
             <div class="text-center mb-8">
@@ -115,7 +125,6 @@
         </div>
     </div>
 
-    <!-- Main App Container -->
     <div id="app-content" class="hidden-element">
         <nav class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-[100] px-4 py-3">
             <div class="max-w-md mx-auto flex justify-between items-center">
@@ -138,7 +147,6 @@
             </div>
         </nav>
 
-        <!-- Admin View -->
         <div id="admin-view" class="hidden-element max-w-md mx-auto px-4 mt-6 animate-fade">
             <h2 class="text-xl font-black text-slate-800 mb-6">Admin Panel</h2>
             <div class="flex gap-2 mb-6 overflow-x-auto pb-2 no-scrollbar">
@@ -171,11 +179,11 @@
                     <div class="grid grid-cols-2 gap-3 mb-2">
                         <div>
                             <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">Mulai Tanggal</label>
-                            <input type="date" id="filter-all-start" onchange="renderAllLogs()" class="w-full p-3 bg-slate-50 rounded-xl text-xs font-bold border border-slate-100">
+                            <input type="date" id="filter-all-start" class="w-full p-3 bg-slate-50 rounded-xl text-xs font-bold border border-slate-100">
                         </div>
                         <div>
                             <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">Sampai Tanggal</label>
-                            <input type="date" id="filter-all-end" onchange="renderAllLogs()" class="w-full p-3 bg-slate-50 rounded-xl text-xs font-bold border border-slate-100">
+                            <input type="date" id="filter-all-end" class="w-full p-3 bg-slate-50 rounded-xl text-xs font-bold border border-slate-100">
                         </div>
                     </div>
                     <div class="flex gap-2">
@@ -266,7 +274,6 @@
                             <div class="col-span-2"><label class="text-[9px] font-bold text-slate-400 uppercase">Batas Mulai Lembur</label><input type="time" id="cfg-sat-ot" class="w-full p-3 bg-slate-50 rounded-xl text-xs font-bold"></div>
                         </div>
                     </div>
-                    
                     <div class="pt-4 border-t border-slate-50">
                         <h4 class="text-xs font-black text-red-500 mb-4 uppercase tracking-widest">Jadwal Minggu / Libur</h4>
                         <div class="grid grid-cols-2 gap-4">
@@ -275,7 +282,7 @@
                             <div class="col-span-2"><label class="text-[9px] font-bold text-slate-400 uppercase">Batas Mulai Lembur</label><input type="time" id="cfg-sun-ot" class="w-full p-3 bg-slate-50 rounded-xl text-xs font-bold"></div>
                         </div>
                     </div>
-
+                    
                     <!-- HARI LIBUR KHUSUS -->
                     <div class="pt-4 border-t border-slate-50">
                         <h4 class="text-xs font-black text-emerald-600 mb-4 uppercase tracking-widest">Hari Libur Khusus</h4>
@@ -398,7 +405,7 @@
     <!-- My Profile -->
     <div id="my-profile-modal" class="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm hidden-element"><div class="bg-white w-full max-w-md rounded-[2.5rem] p-8 max-h-[90vh] overflow-y-auto"><div class="flex justify-between items-center mb-6"><h4 class="text-xl font-black">Profil Saya</h4><button onclick="closeMyProfile()" class="text-slate-300 text-2xl"><i class="fas fa-times-circle"></i></button></div><div class="flex flex-col items-center mb-6"><div id="my-profile-pic" class="w-20 h-20 rounded-2xl overflow-hidden border mb-3"></div><h5 id="my-profile-fullname" class="text-base font-black">-</h5><p id="my-profile-sub" class="text-[10px] text-blue-600 font-bold uppercase">-</p></div><div class="space-y-3 text-xs"><p><b>Email:</b> <span id="my-profile-email"></span></p><p><b>Username:</b> <span id="my-profile-username"></span></p><input type="text" id="my-profile-password" class="w-full p-3 bg-blue-50 rounded-xl" placeholder="Ubah Password"><button onclick="saveMyPassword()" class="w-full py-3 gradient-bg text-white rounded-xl font-black">SIMPAN PERUBAHAN</button></div></div></div>
 
-    <!-- User Admin Form Modal (MEWAH & LENGKAP) -->
+    <!-- User Admin Form Modal (DIKEMBALIKAN KE DESAIN MEWAH & LENGKAP) -->
     <div id="user-form-modal" class="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm hidden-element">
         <div class="bg-white w-full max-w-md rounded-[2.5rem] p-8 animate-fade max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-6">
@@ -586,13 +593,14 @@
                 const cfgSnap = await getDocs(collection(db, "config"));
                 cfgSnap.forEach(d => { if(d.id === "schedule") window.scheduleConfig = d.data(); });
                 if(!window.scheduleConfig.specialHolidays) window.scheduleConfig.specialHolidays = [];
-                if(!window.scheduleConfig.sunday) window.scheduleConfig.sunday = { in: "09:00", out: "17:00", ot: "17:15" };
 
                 window.updateUI(); window.checkBirthdays();
                 if (adminTab === 'users') window.renderUserList();
                 if (adminTab === 'all-logs') window.renderAllLogs();
                 if (adminTab === 'news') window.renderNewsAdmin();
                 if (adminTab === 'config') window.renderScheduleConfig();
+                if (adminTab === 'worklists') window.renderWorklists();
+                if (adminTab === 'links') window.renderPersonalLinks();
             } catch (e) { console.error("Sync Error:", e); }
             window.hideMiniSync();
         };
@@ -656,7 +664,7 @@
                     document.getElementById('welcome-name').textContent = window.currentUser.name;
                     document.getElementById('welcome-role').textContent = window.currentUser.jabatan || "Staff";
                     if(window.currentUser.profilePic) document.getElementById('welcome-profile-pic-container').innerHTML = `<img src="${window.currentUser.profilePic}" class="w-full h-full object-cover">`;
-                    window.updateUI(); window.checkBirthdays(); 
+                    window.updateUI(); window.checkBirthdays(); window.renderUserNews(); window.renderUserPersonalLink();
                 }
             }
         };
@@ -687,11 +695,9 @@
             document.getElementById('cfg-weekday-in').value = window.scheduleConfig.weekday?.in || "09:00";
             document.getElementById('cfg-weekday-out').value = window.scheduleConfig.weekday?.out || "17:00";
             document.getElementById('cfg-weekday-ot').value = window.scheduleConfig.weekday?.ot || "17:15";
-            
             document.getElementById('cfg-sat-in').value = window.scheduleConfig.saturday?.in || "09:00";
             document.getElementById('cfg-sat-out').value = window.scheduleConfig.saturday?.out || "14:30";
             document.getElementById('cfg-sat-ot').value = window.scheduleConfig.saturday?.ot || "14:30";
-
             document.getElementById('cfg-sun-in').value = window.scheduleConfig.sunday?.in || "09:00";
             document.getElementById('cfg-sun-out').value = window.scheduleConfig.sunday?.out || "17:00";
             document.getElementById('cfg-sun-ot').value = window.scheduleConfig.sunday?.ot || "17:15";
@@ -708,8 +714,10 @@
             });
             if(t==='users') window.renderUserList();
             if(t==='all-logs') window.renderAllLogs();
-            if(t==='news') window.renderNewsAdmin(); // assuming defined globally or skipped for brevity if not requested, wait I need it.
+            if(t==='news') window.renderNewsAdmin();
             if(t==='config') window.renderScheduleConfig();
+            if(t==='worklists') window.renderWorklists();
+            if(t==='links') window.renderPersonalLinks();
         };
 
         // ACCORDION HISTORY RENDER (All Logs)
@@ -719,6 +727,7 @@
             const nQ = document.getElementById('filter-all-name').value.toLowerCase();
             let filtered = window.dutyHistory.filter(s => (s.userName||"").toLowerCase().includes(nQ));
             filtered.sort((a,b) => b.checkIn.timestamp - a.checkIn.timestamp);
+            if(filtered.length > 200) filtered = filtered.slice(0, 200); // UI Limit memory
             
             if(!filtered.length) return container.innerHTML = '<p class="text-center py-10 text-xs">Kosong</p>';
             
@@ -731,7 +740,7 @@
         };
 
         // ==========================================
-        // USER CRUD & RENDER LIST (DESAIN LENGKAP)
+        // USER CRUD & RENDER LIST (DESAIN LENGKAP & MEWAH)
         // ==========================================
         window.renderUserList = function() {
             const container = document.getElementById('user-list-container');
@@ -760,17 +769,17 @@
             });
             
             for (const div in groups) {
-                let html = `<div><div class="flex items-center gap-3 mb-4 px-2"><span class="h-px bg-slate-200 flex-grow"></span><span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">${div}</span><span class="h-px bg-slate-200 flex-grow"></span></div><div class="grid grid-cols-1 gap-3">`;
+                let html = '<div><div class="flex items-center gap-3 mb-4 px-2"><span class="h-px bg-slate-200 flex-grow"></span><span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">' + div + '</span><span class="h-px bg-slate-200 flex-grow"></span></div><div class="grid grid-cols-1 gap-3">';
                 groups[div].forEach(u => {
-                    const avatar = u.profilePic ? `<img src="${u.profilePic}" class="w-full h-full object-cover">` : `<i class="fas fa-user text-slate-300 text-2xl"></i>`;
-                    html += `<div onclick="openUserForm('${u.id}')" class="bg-white p-5 rounded-3xl shadow-sm flex items-center justify-between hover:shadow-md transition-all cursor-pointer border border-slate-50"><div class="flex items-center gap-4"><div class="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center overflow-hidden border border-slate-100">${avatar}</div><div><h4 class="text-sm font-black text-slate-800">${u.name}</h4><p class="text-[10px] font-bold text-blue-600 uppercase">${u.jabatan || '-'}</p></div></div><i class="fas fa-chevron-right text-slate-200 text-xs"></i></div>`;
+                    const avatar = u.profilePic ? '<img src="' + u.profilePic + '" class="w-full h-full object-cover">' : '<i class="fas fa-user text-slate-300 text-2xl"></i>';
+                    html += '<div onclick="openUserForm(\'' + u.id + '\')" class="bg-white p-5 rounded-3xl shadow-sm flex items-center justify-between hover:shadow-md transition-all cursor-pointer border border-slate-50"><div class="flex items-center gap-4"><div class="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center overflow-hidden border border-slate-100">' + avatar + '</div><div><h4 class="text-sm font-black text-slate-800">' + u.name + '</h4><p class="text-[10px] font-bold text-blue-600 uppercase">' + u.jabatan + '</p></div></div><i class="fas fa-chevron-right text-slate-200 text-xs"></i></div>';
                 });
                 html += '</div></div>';
                 if (container) container.insertAdjacentHTML('beforeend', html);
             }
             
             const datalist = document.getElementById('admin-user-datalist');
-            if (datalist) datalist.innerHTML = window.users.map(u => `<option value="${u.name}">`).join('');
+            if (datalist) datalist.innerHTML = window.users.map(u => '<option value="' + u.name + '">').join('');
         };
 
         window.openUserForm = function(id = null) {
@@ -799,38 +808,25 @@
                 document.getElementById('reg-email').value = u.email || "";
                 document.getElementById('reg-position').value = u.jabatan || ""; 
                 document.getElementById('reg-signature').value = u.signature || "";
-                
-                if (u.dob) document.getElementById('reg-dob').value = u.dob;
-                else document.getElementById('reg-dob').value = "";
+                document.getElementById('reg-dob').value = u.dob || "";
                 
                 if (u.rank) r.value = u.rank;
                 if (u.divisi) d.value = u.divisi;
 
                 if (u.profilePic) {
-                    window.profilePicBase64 = u.profilePic;
-                    picPreview.src = u.profilePic;
-                    picPreview.classList.remove('hidden-element');
-                    picPlaceholder.classList.add('hidden-element');
+                    window.profilePicBase64 = u.profilePic; picPreview.src = u.profilePic;
+                    picPreview.classList.remove('hidden-element'); picPlaceholder.classList.add('hidden-element');
                 } else {
-                    window.profilePicBase64 = null;
-                    picPreview.classList.add('hidden-element');
-                    picPlaceholder.classList.remove('hidden-element');
+                    window.profilePicBase64 = null; picPreview.classList.add('hidden-element'); picPlaceholder.classList.remove('hidden-element');
                 }
 
-                if (u.signature) {
-                    sigPreview.src = u.signature;
-                    sigPreviewCont.classList.remove('hidden-element');
-                } else {
-                    sigPreviewCont.classList.add('hidden-element');
-                }
-
+                if (u.signature) { sigPreview.src = u.signature; sigPreviewCont.classList.remove('hidden-element'); } 
+                else { sigPreviewCont.classList.add('hidden-element'); }
             } else {
                 document.getElementById('user-form-title').textContent = "Tambah User";
                 deleteBtn.classList.add('hidden-element');
                 ['reg-name','reg-password','reg-username','reg-email','reg-position','reg-signature', 'reg-dob'].forEach(x => document.getElementById(x).value = "");
-                window.profilePicBase64 = null;
-                picPreview.classList.add('hidden-element');
-                picPlaceholder.classList.remove('hidden-element');
+                window.profilePicBase64 = null; picPreview.classList.add('hidden-element'); picPlaceholder.classList.remove('hidden-element');
                 sigPreviewCont.classList.add('hidden-element');
             }
         };
@@ -840,25 +836,19 @@
         window.saveUser = async function() {
             const data = {
                 id: document.getElementById('edit-user-id').value || Date.now().toString(),
-                name: document.getElementById('reg-name').value, 
-                password: document.getElementById('reg-password').value,
-                username: document.getElementById('reg-username').value, 
-                email: document.getElementById('reg-email').value,
-                jabatan: document.getElementById('reg-position').value, 
-                rank: document.getElementById('reg-rank').value,
-                divisi: document.getElementById('reg-division').value, 
-                signature: document.getElementById('reg-signature').value,
-                dob: document.getElementById('reg-dob').value,
-                profilePic: window.profilePicBase64
+                name: document.getElementById('reg-name').value, password: document.getElementById('reg-password').value,
+                username: document.getElementById('reg-username').value, email: document.getElementById('reg-email').value,
+                jabatan: document.getElementById('reg-position').value, rank: document.getElementById('reg-rank').value,
+                divisi: document.getElementById('reg-division').value, signature: document.getElementById('reg-signature').value,
+                dob: document.getElementById('reg-dob').value, profilePic: window.profilePicBase64
             };
-            if(!data.name || !data.username) return alert("Isi form!");
+            if(!data.name || !data.username) return alert("Nama dan Username wajib diisi!");
             await setDoc(doc(db, "users", data.id), data);
             
             const idx = window.users.findIndex(u => u.id == data.id);
             if(idx > -1) window.users[idx] = data; else window.users.push(data);
             
-            window.renderUserList(); 
-            window.closeUserForm();
+            window.renderUserList(); window.closeUserForm();
         };
 
         window.handleSignatureUrl = function(input) {
@@ -878,13 +868,123 @@
             if (!idInput) return;
             if (confirm("Hapus karyawan ini secara permanen dari server?")) {
                 window.users = window.users.filter(u => u.id != idInput);
-                window.closeUserForm();
-                window.renderUserList();
+                window.closeUserForm(); window.renderUserList();
                 await deleteDoc(doc(db, "users", idInput.toString()));
             }
         };
+        // ==========================================
 
-        // CAMERA iOS FIX
+        // ==========================================
+        // MESIN FITUR (BERITA, LINK, WORKLISTS)
+        // ==========================================
+
+        // 1. BERITA & INFO
+        window.handleNewsImage = async function(input) {
+            if(!input.files[0]) return;
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                window.newsImageBase64 = await compressImage(e.target.result, 800, 800, 0.7);
+                document.getElementById('news-image-preview').src = window.newsImageBase64;
+                document.getElementById('news-image-preview').classList.remove('hidden-element');
+                document.getElementById('news-image-placeholder').classList.add('hidden-element');
+            };
+            reader.readAsDataURL(input.files[0]);
+        };
+
+        window.addNewsItem = async function() {
+            const title = document.getElementById('news-title-input').value.trim();
+            const type = document.getElementById('news-type-input').value;
+            const content = document.getElementById('news-content-input').value.trim();
+            if(!title || !content) return alert("Judul dan isi berita wajib diisi!");
+            
+            const id = 'N-' + Date.now().toString().slice(-6);
+            const newsData = { id, title, type, content, image: window.newsImageBase64, date: Date.now() };
+            
+            await setDoc(doc(db, "news", id), newsData);
+            window.syncWithCloud();
+            
+            document.getElementById('news-title-input').value = ""; document.getElementById('news-content-input').value = "";
+            window.newsImageBase64 = null; document.getElementById('news-image-preview').classList.add('hidden-element');
+            document.getElementById('news-image-placeholder').classList.remove('hidden-element');
+        };
+
+        window.renderNewsAdmin = function() {
+            const list = document.getElementById('admin-news-list');
+            if(!list) return;
+            if(!window.newsItems || window.newsItems.length === 0) return list.innerHTML = '<p class="text-center text-xs text-slate-400 py-4">Belum ada pengumuman.</p>';
+            list.innerHTML = window.newsItems.map(n => `<div class="bg-white p-4 rounded-2xl border mb-2 flex justify-between items-center"><div class="flex items-center gap-3"><img src="${n.image || 'https://via.placeholder.com/50'}" class="w-10 h-10 rounded-xl object-cover"><div><h4 class="text-xs font-bold">${n.title}</h4><p class="text-[9px] text-slate-400">${new Date(n.date).toLocaleDateString('id-ID')}</p></div></div><button onclick="deleteNews('${n.id}')" class="text-red-500 p-2"><i class="fas fa-trash"></i></button></div>`).join('');
+        };
+        
+        window.deleteNews = async function(id) {
+            if(confirm("Hapus pengumuman ini?")) { await deleteDoc(doc(db, "news", id)); window.syncWithCloud(); }
+        };
+
+        // 2. WORKLISTS (TYPE OF WORK & DUTY ROLE)
+        window.addWorkType = async function() {
+            const val = document.getElementById('new-work-type').value.trim();
+            if(!val) return;
+            if(!window.scheduleConfig.workTypes) window.scheduleConfig.workTypes = window.availableWorkTypes;
+            window.scheduleConfig.workTypes.push(val);
+            await setDoc(doc(db, "config", "schedule"), window.scheduleConfig);
+            document.getElementById('new-work-type').value = ""; window.renderWorklists();
+        };
+        window.addDutyRole = async function() {
+            const val = document.getElementById('new-duty-role').value.trim();
+            if(!val) return;
+            if(!window.scheduleConfig.dutyRoles) window.scheduleConfig.dutyRoles = window.availableDutyAs;
+            window.scheduleConfig.dutyRoles.push(val);
+            await setDoc(doc(db, "config", "schedule"), window.scheduleConfig);
+            document.getElementById('new-duty-role').value = ""; window.renderWorklists();
+        };
+        window.renderWorklists = function() {
+            const wList = document.getElementById('admin-work-type-list');
+            const dList = document.getElementById('admin-duty-role-list');
+            const wt = window.scheduleConfig.workTypes || window.availableWorkTypes;
+            const dr = window.scheduleConfig.dutyRoles || window.availableDutyAs;
+            
+            if(wList) wList.innerHTML = wt.map((w, i) => `<div class="flex justify-between items-center p-3 bg-slate-50 border rounded-xl mb-2"><span class="text-xs font-bold">${w}</span><button onclick="deleteWorkType(${i})" class="text-red-500"><i class="fas fa-trash"></i></button></div>`).join('');
+            if(dList) dList.innerHTML = dr.map((d, i) => `<div class="flex justify-between items-center p-3 bg-slate-50 border rounded-xl mb-2"><span class="text-xs font-bold">${d}</span><button onclick="deleteDutyRole(${i})" class="text-red-500"><i class="fas fa-trash"></i></button></div>`).join('');
+        };
+        window.deleteWorkType = async function(idx) { window.scheduleConfig.workTypes.splice(idx, 1); await setDoc(doc(db, "config", "schedule"), window.scheduleConfig); window.renderWorklists(); };
+        window.deleteDutyRole = async function(idx) { window.scheduleConfig.dutyRoles.splice(idx, 1); await setDoc(doc(db, "config", "schedule"), window.scheduleConfig); window.renderWorklists(); };
+
+        // 3. LINK PERSONAL
+        window.savePersonalLink = async function() {
+            const userId = document.getElementById('link-user-select').value;
+            const menuName = document.getElementById('link-menu-name').value.trim();
+            const url = document.getElementById('link-url-input').value.trim();
+            if(!userId || !menuName || !url) return alert("Isi semua data link!");
+            
+            if(!window.scheduleConfig.personalLinks) window.scheduleConfig.personalLinks = {};
+            if(!window.scheduleConfig.personalLinks[userId]) window.scheduleConfig.personalLinks[userId] = [];
+            window.scheduleConfig.personalLinks[userId].push({ name: menuName, url: url, id: Date.now() });
+            
+            await setDoc(doc(db, "config", "schedule"), window.scheduleConfig);
+            alert("Link tersimpan!"); document.getElementById('link-menu-name').value = ""; document.getElementById('link-url-input').value = ""; window.renderPersonalLinks();
+        };
+        window.renderPersonalLinks = function() {
+            const select = document.getElementById('link-user-select');
+            const list = document.getElementById('admin-link-list');
+            if(select && window.users) select.innerHTML = '<option value="">-- Pilih Karyawan --</option>' + window.users.map(u => `<option value="${u.id}">${u.name}</option>`).join('');
+            
+            if(!list || !window.scheduleConfig.personalLinks) return;
+            let html = "";
+            for(const [uId, links] of Object.entries(window.scheduleConfig.personalLinks)) {
+                const u = window.users.find(x => x.id === uId);
+                if(u && links.length > 0) {
+                    html += `<div class="mb-4"><p class="text-xs font-bold text-blue-600 mb-2">${u.name}</p>`;
+                    links.forEach((l, i) => html += `<div class="flex justify-between items-center p-3 bg-white border rounded-xl mb-2"><a href="${l.url}" target="_blank" class="text-[10px] font-bold underline">${l.name}</a><button onclick="deletePersonalLink('${uId}', ${i})" class="text-red-500"><i class="fas fa-trash"></i></button></div>`);
+                    html += `</div>`;
+                }
+            }
+            list.innerHTML = html;
+        };
+        window.deletePersonalLink = async function(uId, idx) {
+            window.scheduleConfig.personalLinks[uId].splice(idx, 1);
+            await setDoc(doc(db, "config", "schedule"), window.scheduleConfig); window.renderPersonalLinks();
+        };
+
+        // CAMERA iOS FIX & MAPS
         window.initCamera = async function() {
             try {
                 if(videoStream) videoStream.getTracks().forEach(t=>t.stop());
@@ -936,8 +1036,8 @@
             document.getElementById('main-actions').classList.add('hidden-element');
             
             const to = document.getElementById('type-of-work'), da = document.getElementById('duty-as');
-            to.innerHTML = window.availableWorkTypes.map(x=>`<option>${x}</option>`).join('');
-            da.innerHTML = window.availableDutyAs.map(x=>`<option>${x}</option>`).join('');
+            to.innerHTML = (window.scheduleConfig.workTypes || window.availableWorkTypes).map(x=>`<option>${x}</option>`).join('');
+            da.innerHTML = (window.scheduleConfig.dutyRoles || window.availableDutyAs).map(x=>`<option>${x}</option>`).join('');
             document.getElementById('checkout-fields').classList.toggle('hidden-element', mode === 'check-in');
         };
         window.closeForm = function() {
@@ -985,7 +1085,7 @@
             document.getElementById('success-modal').classList.remove('hidden-element');
         };
 
-        // ACCORDION USER HISTORY
+        // ACCORDION USER HISTORY & USER RENDER
         window.setHistoryFilter = function(f) {
             historyFilter = f;
             ['daily', 'monthly', 'yearly'].forEach(t => document.getElementById("tab-"+t)?.classList.toggle('active', t===f));
@@ -1033,14 +1133,43 @@
             return `<div onclick="showDetail('${s.id}')" class="bg-slate-50 p-4 rounded-xl mb-2 flex justify-between items-center"><div class="flex gap-3"><img src="${s.checkIn.photo}" class="w-10 h-10 rounded-lg object-cover"><div><p class="text-[10px] font-bold">${new Date(s.checkIn.timestamp).toLocaleDateString('id-ID')}</p><p class="text-[9px] text-slate-500">IN: ${window.formatTime(s.checkIn.time)} | OUT: ${co}</p></div></div></div>`;
         }
 
+        window.renderUserNews = function() {
+            const s = document.getElementById('user-news-slider'); const l = document.getElementById('user-announcement-list');
+            if(!s || !l) return;
+            const news = window.newsItems.filter(x => x.type === 'news'); const info = window.newsItems.filter(x => x.type === 'info');
+            
+            if(news.length === 0) s.innerHTML = '<p class="text-xs text-slate-400">Belum ada berita.</p>';
+            else s.innerHTML = news.map(n => `<div onclick="openNewsDetail('${n.id}')" class="news-card relative h-40 rounded-3xl overflow-hidden group"><img src="${n.image || 'https://via.placeholder.com/400'}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"><div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent"></div><div class="absolute bottom-0 left-0 p-4 w-full"><p class="text-white text-xs font-bold leading-tight line-clamp-2">${n.title}</p></div></div>`).join('');
+            
+            if(info.length === 0) l.innerHTML = '<p class="text-[10px] opacity-70">Belum ada pengumuman.</p>';
+            else l.innerHTML = info.map(n => `<div onclick="openNewsDetail('${n.id}')" class="bg-white/10 p-4 rounded-2xl border border-white/10 cursor-pointer active:scale-95 transition-transform"><p class="text-xs font-bold">${n.title}</p><p class="text-[9px] opacity-70 mt-1">${new Date(n.date).toLocaleDateString('id-ID')}</p></div>`).join('');
+        };
+        
+        window.renderUserPersonalLink = function() {
+            const btn = document.getElementById('btn-open-personal'); const lbl = document.getElementById('label-personal-data');
+            if(!btn || !window.currentUser) return;
+            const myLinks = (window.scheduleConfig.personalLinks || {})[window.currentUser.id];
+            if(myLinks && myLinks.length > 0) {
+                btn.classList.remove('hidden-element'); lbl.textContent = myLinks[0].name;
+                btn.onclick = () => openWebView(myLinks[0].url, myLinks[0].name);
+            } else { btn.classList.add('hidden-element'); }
+        };
+
         window.checkBirthdays = function() {
             if(!window.currentUser || window.currentUser.role==='admin') return;
             const t = new Date(), td = t.getDate(), tm = t.getMonth();
             const ob = window.users.filter(u => u.id != window.currentUser.id && u.dob && new Date(u.dob).getDate()===td && new Date(u.dob).getMonth()===tm);
             const sec = document.getElementById('birthday-section');
             if(ob.length > 0) {
-                let text = ob.length === 1 ? `${ob[0].name} ultah hari ini!` : `Ada ${ob.length} rekan ultah hari ini!`;
-                sec.innerHTML = `<div class="bg-white p-6 rounded-3xl border text-sm font-bold flex flex-col gap-2">🎉 ${text}</div>`;
+                let titleText = ob.length === 1 ? `${(ob[0].rank ? ob[0].rank + " " : "") + ob[0].name} berulang tahun hari ini!` : `Ada ${ob.length} rekan berulang tahun hari ini!`;
+                
+                let listHtml = "";
+                ob.forEach(p => {
+                    const displayName = (p.rank ? p.rank + " " : "") + p.name;
+                    listHtml += `<div class="flex items-center justify-between bg-slate-50 p-3 rounded-2xl border border-slate-100 mb-2"><p class="text-[10px] font-bold text-slate-700 truncate mr-2">${displayName}</p><button onclick="alert('Fitur Ucapan dalam pengembangan.')" class="px-4 py-2 birthday-gradient text-white rounded-xl text-[9px] font-black shadow-md shadow-pink-100 active:scale-95 transition-transform whitespace-nowrap">UCAPKAN</button></div>`;
+                });
+                
+                sec.innerHTML = `<div class="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col gap-4"><div class="flex items-center gap-4"><div class="w-12 h-12 bg-pink-50 text-pink-500 rounded-2xl flex items-center justify-center text-xl shrink-0">🎉</div><div><h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest">Hari Bahagia</h3><p class="text-xs font-bold text-slate-700">${titleText}</p></div></div><div class="max-h-48 overflow-y-auto no-scrollbar">${listHtml}</div></div>`;
                 sec.classList.remove('hidden-element');
             }
         };
@@ -1076,6 +1205,9 @@
             </div></body></html>`;
             const win = window.open('','_blank'); win.document.write(html); win.document.close(); setTimeout(()=>win.print(), 500);
         };
+
+        window.openWebView = function(url, title) { document.getElementById('webview-title').textContent = title; document.getElementById('external-frame').src = url; document.getElementById('webview-container').classList.remove('hidden-element'); };
+        window.closeWebView = function() { document.getElementById('external-frame').src = 'about:blank'; document.getElementById('webview-container').classList.add('hidden-element'); };
 
         window.closeSuccessModal = () => document.getElementById('success-modal').classList.add('hidden-element');
         window.closeDetail = () => document.getElementById('detail-modal').classList.add('hidden-element');
