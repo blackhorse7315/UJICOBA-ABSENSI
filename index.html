@@ -26,24 +26,13 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
 
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background: #f4f7fa;
-            touch-action: manipulation;
-        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f4f7fa; touch-action: manipulation; }
 
         .gradient-bg { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
         .hidden-element { display: none !important; }
 
-        #camera-preview, #photo-result {
-            transform: scaleX(-1);
-            border-radius: 1.25rem;
-            object-fit: cover;
-        }
-        .map-container {
-            height: 160px; width: 100%;
-            border-radius: 1.25rem; z-index: 1; border: 1px solid #e2e8f0;
-        }
+        #camera-preview, #photo-result { transform: scaleX(-1); border-radius: 1.25rem; object-fit: cover; }
+        .map-container { height: 160px; width: 100%; border-radius: 1.25rem; z-index: 1; border: 1px solid #e2e8f0; }
         #full-explorer-map { height: 100%; width: 100%; }
         .btn-disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
 
@@ -166,8 +155,7 @@
                 <div class="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
                     <input type="text" id="filter-user-name" oninput="renderUserList()" class="w-full p-3 bg-white rounded-xl text-xs font-bold border border-slate-200 shadow-sm outline-none" placeholder="Cari karyawan...">
                     <div class="flex gap-2">
-                        <button onclick="openBulkImport()" class="bg-emerald-600 text-white px-4 py-2 rounded-xl text-[10px] font-black shadow-lg">IMPORT MASAL</button>
-                        <button onclick="openUserForm()" class="bg-blue-600 text-white px-4 py-2 rounded-xl text-[10px] font-black shadow-lg">ADD USER</button>
+                        <button onclick="openUserForm()" class="w-full bg-blue-600 text-white px-4 py-3 rounded-xl text-[10px] font-black shadow-lg">ADD NEW USER</button>
                     </div>
                 </div>
                 <div id="user-list-container" class="space-y-4 pb-10"></div>
@@ -279,6 +267,15 @@
                         </div>
                     </div>
                     
+                    <div class="pt-4 border-t border-slate-50">
+                        <h4 class="text-xs font-black text-red-500 mb-4 uppercase tracking-widest">Jadwal Minggu / Libur</h4>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div><label class="text-[9px] font-bold text-slate-400 uppercase">Jam Masuk</label><input type="time" id="cfg-sun-in" class="w-full p-3 bg-slate-50 rounded-xl text-xs font-bold"></div>
+                            <div><label class="text-[9px] font-bold text-slate-400 uppercase">Jam Pulang</label><input type="time" id="cfg-sun-out" class="w-full p-3 bg-slate-50 rounded-xl text-xs font-bold"></div>
+                            <div class="col-span-2"><label class="text-[9px] font-bold text-slate-400 uppercase">Batas Mulai Lembur</label><input type="time" id="cfg-sun-ot" class="w-full p-3 bg-slate-50 rounded-xl text-xs font-bold"></div>
+                        </div>
+                    </div>
+
                     <!-- HARI LIBUR KHUSUS -->
                     <div class="pt-4 border-t border-slate-50">
                         <h4 class="text-xs font-black text-emerald-600 mb-4 uppercase tracking-widest">Hari Libur Khusus</h4>
@@ -401,8 +398,77 @@
     <!-- My Profile -->
     <div id="my-profile-modal" class="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm hidden-element"><div class="bg-white w-full max-w-md rounded-[2.5rem] p-8 max-h-[90vh] overflow-y-auto"><div class="flex justify-between items-center mb-6"><h4 class="text-xl font-black">Profil Saya</h4><button onclick="closeMyProfile()" class="text-slate-300 text-2xl"><i class="fas fa-times-circle"></i></button></div><div class="flex flex-col items-center mb-6"><div id="my-profile-pic" class="w-20 h-20 rounded-2xl overflow-hidden border mb-3"></div><h5 id="my-profile-fullname" class="text-base font-black">-</h5><p id="my-profile-sub" class="text-[10px] text-blue-600 font-bold uppercase">-</p></div><div class="space-y-3 text-xs"><p><b>Email:</b> <span id="my-profile-email"></span></p><p><b>Username:</b> <span id="my-profile-username"></span></p><input type="text" id="my-profile-password" class="w-full p-3 bg-blue-50 rounded-xl" placeholder="Ubah Password"><button onclick="saveMyPassword()" class="w-full py-3 gradient-bg text-white rounded-xl font-black">SIMPAN PERUBAHAN</button></div></div></div>
 
-    <!-- User Admin Form -->
-    <div id="user-form-modal" class="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm hidden-element"><div class="bg-white w-full max-w-md rounded-[2.5rem] p-8 max-h-[90vh] overflow-y-auto"><div class="flex justify-between mb-4"><h4 id="user-form-title" class="text-xl font-black">User</h4><button onclick="closeUserForm()" class="text-slate-300 text-2xl"><i class="fas fa-times-circle"></i></button></div><input type="hidden" id="edit-user-id"><div class="space-y-4 text-xs"><div class="flex justify-center"><div onclick="document.getElementById('profile-pic-input').click()" class="w-20 h-20 bg-slate-50 border-2 border-dashed rounded-xl flex items-center justify-center overflow-hidden"><input type="file" id="profile-pic-input" accept="image/*" class="hidden" onchange="handleProfilePhoto(this)"><i class="fas fa-camera text-slate-300" id="profile-pic-placeholder"></i><img id="profile-pic-preview" class="hidden w-full h-full object-cover"></div></div><input type="text" id="reg-name" placeholder="Nama" class="w-full p-3 border rounded-xl"><input type="date" id="reg-dob" class="w-full p-3 border rounded-xl"><select id="reg-rank" class="w-full p-3 border rounded-xl"></select><input type="text" id="reg-position" placeholder="Jabatan" class="w-full p-3 border rounded-xl"><select id="reg-division" class="w-full p-3 border rounded-xl"></select><input type="email" id="reg-email" placeholder="Email" class="w-full p-3 border rounded-xl"><input type="text" id="reg-username" placeholder="Username" class="w-full p-3 border rounded-xl"><input type="text" id="reg-password" placeholder="Password" class="w-full p-3 border rounded-xl"><input type="url" id="reg-signature" placeholder="URL Tanda Tangan" oninput="handleSignatureUrl(this)" class="w-full p-3 border rounded-xl"><img id="signature-preview" class="h-16 hidden-element object-contain"><div class="flex gap-2"><button onclick="saveUser()" class="flex-grow py-3 bg-blue-600 text-white rounded-xl font-black">SIMPAN</button><button id="btn-delete-user" onclick="handleDeleteUser()" class="hidden-element px-4 bg-red-50 text-red-500 rounded-xl"><i class="fas fa-trash"></i></button></div></div></div></div>
+    <!-- User Admin Form Modal (MEWAH & LENGKAP) -->
+    <div id="user-form-modal" class="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm hidden-element">
+        <div class="bg-white w-full max-w-md rounded-[2.5rem] p-8 animate-fade max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h4 id="user-form-title" class="text-xl font-black text-slate-800">Tambah User</h4>
+                <button onclick="closeUserForm()" class="text-slate-300 hover:text-red-500 transition-colors"><i class="fas fa-times-circle text-2xl"></i></button>
+            </div>
+            <div class="space-y-5">
+                <input type="hidden" id="edit-user-id">
+                <div class="flex flex-col items-center mb-4">
+                    <div onclick="document.getElementById('profile-pic-input').click()" class="relative w-24 h-24 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200 flex items-center justify-center overflow-hidden cursor-pointer hover:bg-slate-100 transition-all group">
+                        <input type="file" id="profile-pic-input" accept="image/*" class="hidden" onchange="handleProfilePhoto(this)">
+                        <div id="profile-pic-placeholder" class="text-center">
+                            <i class="fas fa-user-circle text-2xl text-slate-300 group-hover:text-blue-400"></i>
+                        </div>
+                        <img id="profile-pic-preview" class="hidden-element w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                            <i class="fas fa-camera text-white"></i>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase mb-2 block">Nama Lengkap</label>
+                    <input type="text" id="reg-name" class="w-full p-4 bg-slate-50 rounded-2xl outline-none text-sm font-bold border border-slate-100">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase mb-2 block">Tanggal Lahir</label>
+                    <input type="date" id="reg-dob" class="w-full p-4 bg-slate-50 rounded-2xl outline-none text-sm font-bold border border-slate-100">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase mb-2 block">Rank</label>
+                        <select id="reg-rank" class="w-full p-4 bg-slate-50 rounded-2xl outline-none text-sm font-bold border border-slate-100"></select>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase mb-2 block">Jabatan</label>
+                        <input type="text" id="reg-position" class="w-full p-4 bg-slate-50 rounded-2xl outline-none text-sm font-bold border border-slate-100">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase mb-2 block">Divisi</label>
+                    <select id="reg-division" class="w-full p-4 bg-slate-50 rounded-2xl outline-none text-sm font-bold border border-slate-100"></select>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase mb-2 block">Email</label>
+                    <input type="email" id="reg-email" class="w-full p-4 bg-slate-50 rounded-2xl outline-none text-sm font-bold border border-slate-100">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase mb-2 block">Username</label>
+                        <input type="text" id="reg-username" class="w-full p-4 bg-slate-50 rounded-2xl outline-none text-sm font-bold border border-slate-100">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase mb-2 block">Password</label>
+                        <input type="text" id="reg-password" class="w-full p-4 bg-slate-50 rounded-2xl outline-none text-sm font-bold border border-slate-100">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase mb-2 block">URL Tanda Tangan (Opsional)</label>
+                    <input type="url" id="reg-signature" oninput="handleSignatureUrl(this)" class="w-full p-4 bg-slate-50 rounded-2xl outline-none text-sm font-bold border border-slate-100" placeholder="Link Google Drive...">
+                    <div id="signature-preview-container" class="mt-3 hidden-element border-2 border-dashed border-slate-200 rounded-2xl p-2 bg-slate-50 flex justify-center">
+                        <img id="signature-preview" class="max-h-24 object-contain">
+                    </div>
+                </div>
+                <div class="flex gap-3 pt-4">
+                    <button onclick="saveUser()" class="flex-grow py-4 bg-blue-600 text-white rounded-2xl font-bold shadow-lg transition-opacity hover:opacity-90">SIMPAN USER</button>
+                    <button id="btn-delete-user" onclick="handleDeleteUser()" class="hidden-element px-6 py-4 bg-red-50 text-red-500 rounded-2xl font-bold border border-red-100"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Detail Log & Explorer -->
     <div id="detail-modal" class="fixed inset-0 z-[600] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm hidden-element"><div class="bg-white w-full max-w-lg rounded-[2.5rem] p-6 max-h-[90vh] overflow-y-auto"><div class="flex justify-between mb-4"><h4 class="text-xl font-black">Detail Tugas</h4><button onclick="closeDetail()" class="text-slate-400 text-2xl"><i class="fas fa-times"></i></button></div><div id="detail-content" class="space-y-4"></div><button onclick="closeDetail()" class="w-full py-4 bg-slate-900 text-white rounded-xl font-bold mt-4">Tutup</button></div></div>
@@ -444,6 +510,7 @@
         window.scheduleConfig = {
             weekday: { in: "09:00", out: "17:00", ot: "17:15" },
             saturday: { in: "09:00", out: "14:30", ot: "14:30" },
+            sunday: { in: "09:00", out: "17:00", ot: "17:15" },
             specialHolidays: []
         };
 
@@ -519,6 +586,7 @@
                 const cfgSnap = await getDocs(collection(db, "config"));
                 cfgSnap.forEach(d => { if(d.id === "schedule") window.scheduleConfig = d.data(); });
                 if(!window.scheduleConfig.specialHolidays) window.scheduleConfig.specialHolidays = [];
+                if(!window.scheduleConfig.sunday) window.scheduleConfig.sunday = { in: "09:00", out: "17:00", ot: "17:15" };
 
                 window.updateUI(); window.checkBirthdays();
                 if (adminTab === 'users') window.renderUserList();
@@ -588,7 +656,7 @@
                     document.getElementById('welcome-name').textContent = window.currentUser.name;
                     document.getElementById('welcome-role').textContent = window.currentUser.jabatan || "Staff";
                     if(window.currentUser.profilePic) document.getElementById('welcome-profile-pic-container').innerHTML = `<img src="${window.currentUser.profilePic}" class="w-full h-full object-cover">`;
-                    window.updateUI(); window.checkBirthdays(); window.updateWeather();
+                    window.updateUI(); window.checkBirthdays(); 
                 }
             }
         };
@@ -597,6 +665,7 @@
         window.saveScheduleConfig = async function() {
             window.scheduleConfig.weekday = { in: document.getElementById('cfg-weekday-in').value, out: document.getElementById('cfg-weekday-out').value, ot: document.getElementById('cfg-weekday-ot').value };
             window.scheduleConfig.saturday = { in: document.getElementById('cfg-sat-in').value, out: document.getElementById('cfg-sat-out').value, ot: document.getElementById('cfg-sat-ot').value };
+            window.scheduleConfig.sunday = { in: document.getElementById('cfg-sun-in').value, out: document.getElementById('cfg-sun-out').value, ot: document.getElementById('cfg-sun-ot').value };
             await setDoc(doc(db, "config", "schedule"), window.scheduleConfig);
             alert("Konfigurasi tersimpan!");
         };
@@ -618,9 +687,14 @@
             document.getElementById('cfg-weekday-in').value = window.scheduleConfig.weekday?.in || "09:00";
             document.getElementById('cfg-weekday-out').value = window.scheduleConfig.weekday?.out || "17:00";
             document.getElementById('cfg-weekday-ot').value = window.scheduleConfig.weekday?.ot || "17:15";
+            
             document.getElementById('cfg-sat-in').value = window.scheduleConfig.saturday?.in || "09:00";
             document.getElementById('cfg-sat-out').value = window.scheduleConfig.saturday?.out || "14:30";
             document.getElementById('cfg-sat-ot').value = window.scheduleConfig.saturday?.ot || "14:30";
+
+            document.getElementById('cfg-sun-in').value = window.scheduleConfig.sunday?.in || "09:00";
+            document.getElementById('cfg-sun-out').value = window.scheduleConfig.sunday?.out || "17:00";
+            document.getElementById('cfg-sun-ot').value = window.scheduleConfig.sunday?.ot || "17:15";
             
             const hl = document.getElementById('admin-holidays-list');
             if(hl) hl.innerHTML = (window.scheduleConfig.specialHolidays||[]).map((h, i) => `<div class="flex justify-between items-center p-2 bg-slate-50 border rounded-xl"><div class="text-[10px] font-bold"><span>${h.date}</span> - <span class="text-emerald-600">${h.name}</span></div><button onclick="deleteSpecialHoliday(${i})" class="text-red-500"><i class="fas fa-trash"></i></button></div>`).join('');
@@ -634,18 +708,17 @@
             });
             if(t==='users') window.renderUserList();
             if(t==='all-logs') window.renderAllLogs();
-            if(t==='news') window.renderNewsAdmin();
+            if(t==='news') window.renderNewsAdmin(); // assuming defined globally or skipped for brevity if not requested, wait I need it.
             if(t==='config') window.renderScheduleConfig();
         };
 
-        // ACCORDION HISTORY RENDER (All Logs & User Logs)
+        // ACCORDION HISTORY RENDER (All Logs)
         window.renderAllLogs = function() {
             const container = document.getElementById('all-logs-container');
             if(!container) return;
             const nQ = document.getElementById('filter-all-name').value.toLowerCase();
             let filtered = window.dutyHistory.filter(s => (s.userName||"").toLowerCase().includes(nQ));
             filtered.sort((a,b) => b.checkIn.timestamp - a.checkIn.timestamp);
-            if(filtered.length > 200) filtered = filtered.slice(0, 200); // UI Limit memory
             
             if(!filtered.length) return container.innerHTML = '<p class="text-center py-10 text-xs">Kosong</p>';
             
@@ -657,43 +730,158 @@
             container.innerHTML = html;
         };
 
+        // ==========================================
+        // USER CRUD & RENDER LIST (DESAIN LENGKAP)
+        // ==========================================
         window.renderUserList = function() {
             const container = document.getElementById('user-list-container');
-            const sq = document.getElementById('filter-user-name')?.value.toLowerCase() || "";
-            const fl = window.users.filter(u => u.name.toLowerCase().includes(sq));
-            container.innerHTML = fl.map(u => `<div onclick="openUserForm('${u.id}')" class="p-4 bg-white rounded-xl border mb-2 cursor-pointer text-sm font-bold">${u.name} <span class="text-xs text-blue-500">${u.jabatan}</span></div>`).join('');
+            const searchInput = document.getElementById('filter-user-name');
+            const sq = searchInput ? searchInput.value.toLowerCase() : "";
+            
+            if (container) container.innerHTML = "";
+            if (window.users.length === 0) {
+                if (container) container.innerHTML = '<div class="text-center py-20 bg-white rounded-[2.5rem] border-2 border-dashed border-slate-100"><p class="text-slate-400 text-xs font-bold uppercase">Belum ada karyawan</p></div>';
+                return;
+            }
+            
+            let filteredUsers = window.users;
+            if (sq) {
+                filteredUsers = window.users.filter(u => 
+                    (u.name && u.name.toLowerCase().includes(sq)) || 
+                    (u.username && String(u.username).toLowerCase().includes(sq))
+                );
+            }
+
+            let groups = {};
+            filteredUsers.forEach(u => {
+                const div = u.divisi || "Tanpa Divisi";
+                if (!groups[div]) groups[div] = [];
+                groups[div].push(u);
+            });
+            
+            for (const div in groups) {
+                let html = `<div><div class="flex items-center gap-3 mb-4 px-2"><span class="h-px bg-slate-200 flex-grow"></span><span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">${div}</span><span class="h-px bg-slate-200 flex-grow"></span></div><div class="grid grid-cols-1 gap-3">`;
+                groups[div].forEach(u => {
+                    const avatar = u.profilePic ? `<img src="${u.profilePic}" class="w-full h-full object-cover">` : `<i class="fas fa-user text-slate-300 text-2xl"></i>`;
+                    html += `<div onclick="openUserForm('${u.id}')" class="bg-white p-5 rounded-3xl shadow-sm flex items-center justify-between hover:shadow-md transition-all cursor-pointer border border-slate-50"><div class="flex items-center gap-4"><div class="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center overflow-hidden border border-slate-100">${avatar}</div><div><h4 class="text-sm font-black text-slate-800">${u.name}</h4><p class="text-[10px] font-bold text-blue-600 uppercase">${u.jabatan || '-'}</p></div></div><i class="fas fa-chevron-right text-slate-200 text-xs"></i></div>`;
+                });
+                html += '</div></div>';
+                if (container) container.insertAdjacentHTML('beforeend', html);
+            }
+            
+            const datalist = document.getElementById('admin-user-datalist');
+            if (datalist) datalist.innerHTML = window.users.map(u => `<option value="${u.name}">`).join('');
         };
 
-        // USER CRUD
-        window.openUserForm = function(id=null) {
+        window.openUserForm = function(id = null) {
             document.getElementById('user-form-modal').classList.remove('hidden-element');
-            document.getElementById('edit-user-id').value = id||"";
-            const r = document.getElementById('reg-rank'), d = document.getElementById('reg-division');
+            document.getElementById('edit-user-id').value = id || "";
+            
+            const r = document.getElementById('reg-rank');
+            const d = document.getElementById('reg-division');
             r.innerHTML = window.availableRanks.map(x => `<option>${x}</option>`).join('');
             d.innerHTML = window.availableDivisions.map(x => `<option>${x}</option>`).join('');
             
-            if(id) {
-                const u = window.users.find(x=>x.id==id);
-                document.getElementById('reg-name').value = u.name; document.getElementById('reg-password').value = u.password;
-                document.getElementById('reg-username').value = u.username; document.getElementById('reg-email').value = u.email;
-                document.getElementById('reg-position').value = u.jabatan; document.getElementById('reg-signature').value = u.signature || "";
+            const picPreview = document.getElementById('profile-pic-preview');
+            const picPlaceholder = document.getElementById('profile-pic-placeholder');
+            const sigPreviewCont = document.getElementById('signature-preview-container');
+            const sigPreview = document.getElementById('signature-preview');
+            const deleteBtn = document.getElementById('btn-delete-user');
+
+            if (id) {
+                const u = window.users.find(x => x.id == id);
+                document.getElementById('user-form-title').textContent = "Edit User";
+                deleteBtn.classList.remove('hidden-element');
+
+                document.getElementById('reg-name').value = u.name || ""; 
+                document.getElementById('reg-password').value = u.password || "";
+                document.getElementById('reg-username').value = u.username || ""; 
+                document.getElementById('reg-email').value = u.email || "";
+                document.getElementById('reg-position').value = u.jabatan || ""; 
+                document.getElementById('reg-signature').value = u.signature || "";
+                
+                if (u.dob) document.getElementById('reg-dob').value = u.dob;
+                else document.getElementById('reg-dob').value = "";
+                
+                if (u.rank) r.value = u.rank;
+                if (u.divisi) d.value = u.divisi;
+
+                if (u.profilePic) {
+                    window.profilePicBase64 = u.profilePic;
+                    picPreview.src = u.profilePic;
+                    picPreview.classList.remove('hidden-element');
+                    picPlaceholder.classList.add('hidden-element');
+                } else {
+                    window.profilePicBase64 = null;
+                    picPreview.classList.add('hidden-element');
+                    picPlaceholder.classList.remove('hidden-element');
+                }
+
+                if (u.signature) {
+                    sigPreview.src = u.signature;
+                    sigPreviewCont.classList.remove('hidden-element');
+                } else {
+                    sigPreviewCont.classList.add('hidden-element');
+                }
+
             } else {
-                ['reg-name','reg-password','reg-username','reg-email','reg-position','reg-signature'].forEach(x=>document.getElementById(x).value="");
+                document.getElementById('user-form-title').textContent = "Tambah User";
+                deleteBtn.classList.add('hidden-element');
+                ['reg-name','reg-password','reg-username','reg-email','reg-position','reg-signature', 'reg-dob'].forEach(x => document.getElementById(x).value = "");
+                window.profilePicBase64 = null;
+                picPreview.classList.add('hidden-element');
+                picPlaceholder.classList.remove('hidden-element');
+                sigPreviewCont.classList.add('hidden-element');
             }
         };
+
         window.closeUserForm = () => document.getElementById('user-form-modal').classList.add('hidden-element');
+
         window.saveUser = async function() {
             const data = {
                 id: document.getElementById('edit-user-id').value || Date.now().toString(),
-                name: document.getElementById('reg-name').value, password: document.getElementById('reg-password').value,
-                username: document.getElementById('reg-username').value, email: document.getElementById('reg-email').value,
-                jabatan: document.getElementById('reg-position').value, rank: document.getElementById('reg-rank').value,
-                divisi: document.getElementById('reg-division').value, signature: document.getElementById('reg-signature').value,
+                name: document.getElementById('reg-name').value, 
+                password: document.getElementById('reg-password').value,
+                username: document.getElementById('reg-username').value, 
+                email: document.getElementById('reg-email').value,
+                jabatan: document.getElementById('reg-position').value, 
+                rank: document.getElementById('reg-rank').value,
+                divisi: document.getElementById('reg-division').value, 
+                signature: document.getElementById('reg-signature').value,
+                dob: document.getElementById('reg-dob').value,
                 profilePic: window.profilePicBase64
             };
             if(!data.name || !data.username) return alert("Isi form!");
             await setDoc(doc(db, "users", data.id), data);
-            window.syncWithCloud(); window.closeUserForm();
+            
+            const idx = window.users.findIndex(u => u.id == data.id);
+            if(idx > -1) window.users[idx] = data; else window.users.push(data);
+            
+            window.renderUserList(); 
+            window.closeUserForm();
+        };
+
+        window.handleSignatureUrl = function(input) {
+            let url = input.value.trim();
+            const previewCont = document.getElementById('signature-preview-container');
+            const previewImg = document.getElementById('signature-preview');
+            if (!url) { previewCont.classList.add('hidden-element'); return; }
+            
+            const driveRegex = /(?:drive\.google\.com\/file\/d\/|drive\.google\.com\/open\?id=)([\w-]+)/;
+            const match = url.match(driveRegex);
+            if (match && match[1]) { url = `https://lh3.googleusercontent.com/d/${match[1]}`; input.value = url; }
+            previewImg.src = url; previewCont.classList.remove('hidden-element');
+        };
+
+        window.handleDeleteUser = async function() {
+            const idInput = document.getElementById('edit-user-id').value;
+            if (!idInput) return;
+            if (confirm("Hapus karyawan ini secara permanen dari server?")) {
+                window.users = window.users.filter(u => u.id != idInput);
+                window.closeUserForm();
+                window.renderUserList();
+                await deleteDoc(doc(db, "users", idInput.toString()));
+            }
         };
 
         // CAMERA iOS FIX
@@ -821,7 +1009,6 @@
                 if(!grouped[k]) grouped[k] = []; grouped[k].push(s);
             });
 
-            // Using Details (Accordion) for Monthly/Yearly
             let html = "";
             Object.keys(grouped).forEach(k => {
                 if (historyFilter === 'daily') {
@@ -835,7 +1022,6 @@
             });
             list.innerHTML = html;
             
-            // Check active session
             isWorking = !!uh.find(x => !x.checkOut);
             document.getElementById('btn-open-checkin').classList.toggle('btn-disabled', isWorking);
             document.getElementById('btn-open-checkout').classList.toggle('btn-disabled', !isWorking);
@@ -860,7 +1046,6 @@
         };
 
         window.printFilteredLogs = function() {
-            // PDF Printing logic (Signature HRD & Karyawan parallel)
             const nQ = document.getElementById('filter-all-name').value.toLowerCase();
             const sVal = document.getElementById('filter-all-start').value;
             const eVal = document.getElementById('filter-all-end').value;
@@ -907,4 +1092,3 @@
     </script>
 </body>
 </html>
-
