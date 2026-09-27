@@ -489,11 +489,11 @@
                                 <label id="checkout-reason-label" class="text-[10px] font-bold text-blue-600 uppercase mb-2 block tracking-widest">Alasan (Wajib diisi)</label>
                                 <textarea id="checkout-status-reason" rows="2" class="w-full p-4 bg-blue-50 border border-blue-200 rounded-2xl outline-none text-sm font-medium resize-none whitespace-pre-wrap" placeholder="Alasan..."></textarea>
                             </div>
-                            <div>
+                            <div id="checkout-remarks-container">
                                 <label class="text-[10px] font-bold text-slate-400 uppercase mb-2 block tracking-widest">Laporan Pekerjaan (Remarks) <span class="text-red-500">*</span></label>
                                 <textarea id="remarks" rows="4" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-sm font-medium resize-none whitespace-pre-wrap" placeholder="Sebutkan detail pekerjaan hari ini secara lengkap..."></textarea>
                             </div>
-                            <div>
+                            <div id="checkout-photo-container">
                                 <label class="text-[10px] font-bold text-slate-400 uppercase mb-2 block tracking-widest">Tambahan foto (mode landscape) <span class="text-red-500">*</span></label>
                                 <div onclick="document.getElementById('work-photo-input').click()" class="w-full p-6 border-2 border-dashed border-slate-200 bg-slate-50 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-slate-100 transition-colors">
                                     <input type="file" id="work-photo-input" accept="image/*" class="hidden" onchange="handleWorkPhoto(this)">
@@ -2080,6 +2080,16 @@
             const notice = document.getElementById('attendance-notice'),
                 noticeText = document.getElementById('attendance-notice-text');
             
+            const remarksCont = document.getElementById('checkout-remarks-container');
+            const photoCont = document.getElementById('checkout-photo-container');
+            if (mode === 'check-out' && day === 0) {
+                if(remarksCont) remarksCont.classList.add('hidden-element');
+                if(photoCont) photoCont.classList.add('hidden-element');
+            } else {
+                if(remarksCont) remarksCont.classList.remove('hidden-element');
+                if(photoCont) photoCont.classList.remove('hidden-element');
+            }
+
             if (mode === 'check-in') {
                 let isLate = false;
                 if (!isSpecialHoliday && day !== 0) {
@@ -2244,8 +2254,10 @@
                 speakNotification("Berhasil, anda telah check in.");
             } else {
                 const remarksValue = document.getElementById('remarks').value.trim();
-                if (!remarksValue) { showFormError("Kolom Laporan Pekerjaan (Remarks) wajib diisi!"); return; }
-                if (!workPhotoBase64) { showFormError("Tambahan foto dokumentasi wajib diunggah!"); return; }
+                if (day !== 0) {
+                    if (!remarksValue) { showFormError("Kolom Laporan Pekerjaan (Remarks) wajib diisi!"); return; }
+                    if (!workPhotoBase64) { showFormError("Tambahan foto dokumentasi wajib diunggah!"); return; }
+                }
                 
                 let outsideReasonOut = "";
                 if (isOutsideOffice) {
