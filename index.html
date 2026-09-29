@@ -1,7 +1,9 @@
-<!DOCTYPE html><html lang="id"><head>
+<!DOCTYPE html>
+<html lang="id">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ECrew-Attendant List - Transwisata Prima Aviation</title>
+    <title>ECrew-Attendance System - Transwisata Prima Aviation</title>
     <meta name="theme-color" content="#0f172a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -16,6 +18,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f4f7fa; touch-action: manipulation; }
@@ -72,7 +75,7 @@
                 <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center overflow-hidden mx-auto mb-4 shadow-lg p-2">
                     <img src="https://lh3.googleusercontent.com/d/14XvFbNETCuybdeUeH6BPrPaC33uBijMc" alt="Logo" class="w-full h-full object-contain" />
                 </div>
-                <h1 class="text-2xl font-black text-slate-800">E Crew <span class="text-blue-600">Attendant List</span></h1>
+                <h1 class="text-2xl font-black text-slate-800">E Crew <span class="text-blue-600">Attendance System</span></h1>
                 <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Transwisata Prima Aviation</p>
             </div>
             <div class="space-y-4">
@@ -82,7 +85,12 @@
                 </div>
                 <div>
                     <label class="text-[10px] font-black text-slate-400 uppercase ml-2 mb-1 block">Password</label>
-                    <input type="password" id="login-password" class="w-full p-4 bg-white border border-slate-100 rounded-2xl outline-none text-sm font-bold shadow-sm focus:ring-2 focus:ring-blue-500 transition-all" placeholder="Enter password">
+                    <div class="relative">
+                        <input type="password" id="login-password" class="w-full p-4 pr-12 bg-white border border-slate-100 rounded-2xl outline-none text-sm font-bold shadow-sm focus:ring-2 focus:ring-blue-500 transition-all" placeholder="Enter password">
+                        <button onclick="togglePasswordVisibility('login-password', 'login-eye-icon')" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-blue-500 transition-colors">
+                            <i id="login-eye-icon" class="fas fa-eye text-lg"></i>
+                        </button>
+                    </div>
                 </div>
                 <div id="login-error" class="hidden-element text-center py-2 bg-red-50 text-red-500 text-[10px] font-bold rounded-xl border border-red-100">
                     Username atau password salah!
@@ -103,7 +111,7 @@
                     <div class="w-10 h-10 bg-white border border-slate-100 rounded-xl flex items-center justify-center overflow-hidden shadow-sm p-1">
                         <img src="https://lh3.googleusercontent.com/d/14XvFbNETCuybdeUeH6BPrPaC33uBijMc" alt="Logo" class="w-full h-full object-contain" />
                     </div>
-                    <h1 class="font-bold text-lg tracking-tight">E Crew <span class="text-blue-600">Attendant List</span></h1>
+                    <h1 class="font-bold text-lg tracking-tight">E Crew <span class="text-blue-600">Attendance System</span></h1>
                 </div>
                 <div class="flex items-center gap-2">
                     <div id="working-badge" class="hidden-element flex items-center gap-2 text-[10px] font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-100 working-pulse">
@@ -306,6 +314,7 @@
                             </div>
                         </div>
                     </div>
+                    <!-- Hari Libur Khusus -->
                     <div class="pt-4 border-t border-slate-50">
                         <h4 class="text-xs font-black text-purple-600 mb-4 uppercase tracking-widest">Hari Libur Khusus (Bebas Radius)</h4>
                         <div class="grid grid-cols-1 gap-4">
@@ -934,6 +943,20 @@
 
         window.closeCustomDialog = function() {
             document.getElementById('custom-dialog-modal').classList.add('hidden-element');
+        };
+
+        window.togglePasswordVisibility = function(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.remove("fa-eye");
+                icon.classList.add("fa-eye-slash");
+            } else {
+                input.type = "password";
+                icon.classList.remove("fa-eye-slash");
+                icon.classList.add("fa-eye");
+            }
         };
 
         function showMiniSync(msg = "SINKRONISASI...") {
@@ -2050,20 +2073,31 @@
 
             document.getElementById('checkout-fields').classList.toggle('hidden-element', mode === 'check-in');
 
+            const now = new Date(),
+                day = now.getDay(),
+                h = now.getHours(),
+                m = now.getMinutes(),
+                currentTimeVal = h * 100 + m;
+
             if (mode === 'check-out') {
                 const active = dutyHistory.find(s => s.checkOut === null && s.userId == currentUser.id);
                 if (active) {
                     if (typeEl) typeEl.value = active.workType;
                     if (dutyEl) dutyEl.value = active.dutyAs;
                 }
+
+                // Logika Check-out Minggu: Remarks wajib, foto sembunyi
+                const remarksCont = document.getElementById('checkout-remarks-container');
+                const photoCont = document.getElementById('checkout-photo-container');
+                
+                if(remarksCont) remarksCont.classList.remove('hidden-element'); // Selalu tampil
+                if (day === 0) {
+                    if(photoCont) photoCont.classList.add('hidden-element'); // Foto sembunyi hari Minggu
+                } else {
+                    if(photoCont) photoCont.classList.remove('hidden-element');
+                }
             }
 
-            const now = new Date(),
-                day = now.getDay(),
-                h = now.getHours(),
-                m = now.getMinutes(),
-                currentTimeVal = h * 100 + m;
-            
             const todayStr = now.getFullYear() + "-" + String(now.getMonth()+1).padStart(2, '0') + "-" + String(now.getDate()).padStart(2, '0');
             const isSpecialHoliday = scheduleConfig.holiday && scheduleConfig.holiday.date === todayStr;
 
@@ -2079,16 +2113,6 @@
 
             const notice = document.getElementById('attendance-notice'),
                 noticeText = document.getElementById('attendance-notice-text');
-            
-            const remarksCont = document.getElementById('checkout-remarks-container');
-            const photoCont = document.getElementById('checkout-photo-container');
-            if (mode === 'check-out' && day === 0) {
-                if(remarksCont) remarksCont.classList.add('hidden-element');
-                if(photoCont) photoCont.classList.add('hidden-element');
-            } else {
-                if(remarksCont) remarksCont.classList.remove('hidden-element');
-                if(photoCont) photoCont.classList.remove('hidden-element');
-            }
 
             if (mode === 'check-in') {
                 let isLate = false;
@@ -2254,8 +2278,11 @@
                 speakNotification("Berhasil, anda telah check in.");
             } else {
                 const remarksValue = document.getElementById('remarks').value.trim();
+                // Check Out: Remarks (Laporan Pekerjaan) wajib diisi (hari Minggu maupun hari biasa)
+                if (!remarksValue) { showFormError("Kolom Laporan Pekerjaan (Remarks) wajib diisi!"); return; }
+                
                 if (day !== 0) {
-                    if (!remarksValue) { showFormError("Kolom Laporan Pekerjaan (Remarks) wajib diisi!"); return; }
+                    // Wajib unggah foto HANYA jika BUKAN hari minggu
                     if (!workPhotoBase64) { showFormError("Tambahan foto dokumentasi wajib diunggah!"); return; }
                 }
                 
@@ -3019,7 +3046,7 @@
         function initPWA() {
             const iconUrl = "https://lh3.googleusercontent.com/d/14XvFbNETCuybdeUeH6BPrPaC33uBijMc";
             const manifestData = {
-                "name": "E Crew Attendant List", "short_name": "E-Crew", "start_url": "./", "display": "standalone", "background_color": "#0f172a", "theme_color": "#0f172a",
+                "name": "E Crew Attendance System", "short_name": "E-Crew", "start_url": "./", "display": "standalone", "background_color": "#0f172a", "theme_color": "#0f172a",
                 "icons": [ { "src": iconUrl, "sizes": "192x192", "type": "image/png", "purpose": "any" }, { "src": iconUrl, "sizes": "512x512", "type": "image/png", "purpose": "any" }, { "src": iconUrl, "sizes": "192x192", "type": "image/png", "purpose": "maskable" } ]
             };
             const manifestBlob = new Blob([JSON.stringify(manifestData)], {type: 'application/json'});
@@ -3041,6 +3068,33 @@
                 btn.onclick = async () => {
                     if (deferredPrompt) { deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; deferredPrompt = null; btn.classList.add('hidden-element'); }
                 };
+            }
+        });
+
+        // JEBAKAN TOMBOL BACK (MOBILE)
+        let exitTrapActive = true;
+        window.history.pushState('trap', null, '');
+        window.history.pushState('main', null, '');
+
+        window.addEventListener('popstate', function(e) {
+            if (!exitTrapActive) return;
+            
+            // Langsung kembalikan state untuk menggagalkan efek tombol back
+            window.history.pushState('main', null, '');
+            
+            // Tampilkan dialog konfirmasi
+            askConfirm('Apakah Anda yakin ingin keluar dari aplikasi E-Crew?', function() {
+                // Jika klik "Ya", nonaktifkan jebakan dan mundurkan history
+                exitTrapActive = false;
+                window.history.go(-2);
+            });
+        });
+
+        // Tambahan penjaga jika user mencoba refresh/menutup tab secara tiba-tiba
+        window.addEventListener('beforeunload', function(e) {
+            if (exitTrapActive) {
+                e.preventDefault();
+                e.returnValue = 'Apakah Anda yakin ingin keluar?';
             }
         });
 
