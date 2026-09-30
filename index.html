@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ECrew-Attendance System - Transwisata Prima Aviation</title>
+    <title>E Crew Attendance System - Transwisata Prima Aviation</title>
     <meta name="theme-color" content="#0f172a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="E-Crew">
     
-    <link rel="icon" type="image/png" href="https://lh3.googleusercontent.com/d/14XvFbNETCuybdeUeH6BPrPaC33uBijMc">
-    <link rel="shortcut icon" href="https://lh3.googleusercontent.com/d/14XvFbNETCuybdeUeH6BPrPaC33uBijMc">
-    <link rel="apple-touch-icon" href="https://lh3.googleusercontent.com/d/14XvFbNETCuybdeUeH6BPrPaC33uBijMc">
+    <link rel="icon" type="image/png" href="https://lh3.googleusercontent.com/d/11QYhvku5Yd10Al2SGgWLyxXn1AFZp5gx">
+    <link rel="shortcut icon" href="https://lh3.googleusercontent.com/d/11QYhvku5Yd10Al2SGgWLyxXn1AFZp5gx">
+    <link rel="apple-touch-icon" href="https://lh3.googleusercontent.com/d/11QYhvku5Yd10Al2SGgWLyxXn1AFZp5gx">
     
     <link rel="manifest" id="pwa-manifest">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -70,10 +70,10 @@
 
     <!-- Login Page -->
     <div id="login-page" class="fixed inset-0 z-[1000] gradient-bg flex items-center justify-center p-6">
-        <div class="w-full max-sm login-card p-8 rounded-[2.5rem] shadow-2xl animate-fade">
+        <div class="w-full max-w-sm login-card p-8 rounded-[2.5rem] shadow-2xl animate-fade">
             <div class="text-center mb-8">
                 <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center overflow-hidden mx-auto mb-4 shadow-lg p-2">
-                    <img src="https://lh3.googleusercontent.com/d/14XvFbNETCuybdeUeH6BPrPaC33uBijMc" alt="Logo" class="w-full h-full object-contain" />
+                    <img src="https://lh3.googleusercontent.com/d/11QYhvku5Yd10Al2SGgWLyxXn1AFZp5gx" alt="Logo" class="w-full h-full object-contain" style="clip-path: inset(3px);" />
                 </div>
                 <h1 class="text-2xl font-black text-slate-800">E Crew <span class="text-blue-600">Attendance System</span></h1>
                 <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Transwisata Prima Aviation</p>
@@ -109,7 +109,7 @@
             <div class="max-w-md mx-auto flex justify-between items-center">
                 <div class="flex items-center gap-2">
                     <div class="w-10 h-10 bg-white border border-slate-100 rounded-xl flex items-center justify-center overflow-hidden shadow-sm p-1">
-                        <img src="https://lh3.googleusercontent.com/d/14XvFbNETCuybdeUeH6BPrPaC33uBijMc" alt="Logo" class="w-full h-full object-contain" />
+                        <img src="https://lh3.googleusercontent.com/d/11QYhvku5Yd10Al2SGgWLyxXn1AFZp5gx" alt="Logo" class="w-full h-full object-contain" style="clip-path: inset(3px);" />
                     </div>
                     <h1 class="font-bold text-lg tracking-tight">E Crew <span class="text-blue-600">Attendance System</span></h1>
                 </div>
@@ -2086,7 +2086,6 @@
                     if (dutyEl) dutyEl.value = active.dutyAs;
                 }
 
-                // Logika Check-out Minggu: Remarks wajib, foto sembunyi
                 const remarksCont = document.getElementById('checkout-remarks-container');
                 const photoCont = document.getElementById('checkout-photo-container');
                 
@@ -2596,15 +2595,16 @@
         window.handleWorkPhoto = function(input) {
             const file = input.files[0];
             if (file) {
-                const fileSizeMB = file.size / (1024 * 1024);
-                if (fileSizeMB > 5) {
-                    showCustomAlert("⚠️ UKURAN FILE TERLALU BESAR! Foto dokumentasi maksimal 5MB. Harap gunakan foto dengan resolusi lebih rendah atau kompres terlebih dahulu.");
-                    input.value = ""; return;
-                }
+                // Notifikasi visual (opsional, agar terlihat sedang memproses)
+                const placeholder = document.getElementById('work-photo-placeholder');
+                const originalText = placeholder.innerHTML;
+                placeholder.innerHTML = '<i class="fas fa-spinner fa-spin text-blue-500 text-3xl mb-2"></i><p class="text-xs font-bold text-blue-400">Mengompres foto...</p>';
+                
                 const reader = new FileReader();
                 reader.onload = async (e) => {
                     workPhotoBase64 = await compressImage(e.target.result, 800, 800, 0.6);
-                    document.getElementById('work-photo-placeholder').classList.add('hidden-element');
+                    placeholder.classList.add('hidden-element');
+                    placeholder.innerHTML = originalText; // Kembalikan teks asli untuk sesi berikutnya
                     const preview = document.getElementById('work-photo-preview');
                     preview.src = workPhotoBase64; preview.classList.remove('hidden-element');
                 };
@@ -2627,7 +2627,7 @@
             }
 
             const userData = users.find(u => u.id == s.userId);
-            const profilePic = userData && userData.profilePic ? userData.profilePic : 'https://lh3.googleusercontent.com/d/14XvFbNETCuybdeUeH6BPrPaC33uBijMc';
+            const profilePic = userData && userData.profilePic ? userData.profilePic : 'https://lh3.googleusercontent.com/d/11QYhvku5Yd10Al2SGgWLyxXn1AFZp5gx';
             const checkInTime = formatTime(s.checkIn.time);
             const checkOutTime = s.checkOut ? formatTime(s.checkOut.time) : 'AKTIF';
             
@@ -2967,7 +2967,7 @@
                 } else { employeeName = rawNameQuery; }
             }
             
-            let html = '<html><head><title>Laporan Kehadiran E-Crew</title><style>body{font-family:sans-serif;padding:30px;color:#333}table{width:100%;border-collapse:collapse;margin-top:20px}th,td{border:1px solid #ccc;padding:8px;font-size:10px;vertical-align:top}th{background-color:#f8f9fa;text-align:center;font-size:10px}td{text-align:center}.header{text-align:center;border-bottom:2px solid #333;padding-bottom:10px;margin-bottom:30px}.header h1{font-size:14px;margin:10px 0}.header p{font-size:12px;margin:5px 0}.footer-container{margin-top:60px;width:100%;display:block;page-break-inside:avoid;font-size:11px}.footer-box{width:250px;text-align:center;float:left}.footer-box.right{float:right}.footer-box p{margin:5px 0}.remarks-cell{white-space:pre-wrap;word-wrap:break-word;max-width:250px;text-align:left}.logo-container{text-align:center;margin-bottom:10px}.logo-container img{height:70px;width:auto}.signature-img{height:80px;width:auto;margin:10px auto;display:block;}</style></head><body><div class="logo-container"><img src="https://lh3.googleusercontent.com/d/1WNcGjsZ9_Fp54xzOl01EYRqM6-wY5Zh7" alt="Logo"></div><div class="header"><h1>LAPORAN KEHADIRAN KARYAWAN</h1><p>Sistem E-Crew Attendant List</p><p>Periode: ' + formatLongIndo(startVal) + ' s/d ' + formatLongIndo(endVal) + '</p></div><table><thead><tr><th>No</th><th>Nama Karyawan</th><th>Divisi</th><th>Jabatan</th><th>Tanggal Check In</th><th>Check In</th><th>Tanggal Check Out</th><th>Check Out</th><th>Total Waktu Tugas</th><th>Type of Work/Duty Function</th><th>Detail Pekerjaan</th></tr></thead><tbody>';
+            let html = '<html><head><title>Laporan Kehadiran E-Crew</title><style>body{font-family:sans-serif;padding:30px;color:#333}table{width:100%;border-collapse:collapse;margin-top:20px}th,td{border:1px solid #ccc;padding:8px;font-size:10px;vertical-align:top}th{background-color:#f8f9fa;text-align:center;font-size:10px}td{text-align:center}.header{text-align:center;border-bottom:2px solid #333;padding-bottom:10px;margin-bottom:30px}.header h1{font-size:14px;margin:10px 0}.header p{font-size:12px;margin:5px 0}.footer-container{margin-top:60px;width:100%;display:block;page-break-inside:avoid;font-size:11px}.footer-box{width:250px;text-align:center;float:left}.footer-box.right{float:right}.footer-box p{margin:5px 0}.remarks-cell{white-space:pre-wrap;word-wrap:break-word;max-width:250px;text-align:left}.logo-container{text-align:center;margin-bottom:10px}.logo-container img{height:70px;width:auto;clip-path:inset(3px)}.signature-img{height:80px;width:auto;margin:10px auto;display:block;}</style></head><body><div class="logo-container"><img src="https://lh3.googleusercontent.com/d/11QYhvku5Yd10Al2SGgWLyxXn1AFZp5gx" alt="Logo"></div><div class="header"><h1>LAPORAN KEHADIRAN KARYAWAN</h1><p>Sistem E-Crew Attendance System</p><p>Periode: ' + formatLongIndo(startVal) + ' s/d ' + formatLongIndo(endVal) + '</p></div><table><thead><tr><th>No</th><th>Nama Karyawan</th><th>Divisi</th><th>Jabatan</th><th>Tanggal Check In</th><th>Check In</th><th>Tanggal Check Out</th><th>Check Out</th><th>Total Waktu Tugas</th><th>Type of Work/Duty Function</th><th>Detail Pekerjaan</th></tr></thead><tbody>';
 
             filtered.forEach((s, i) => {
                 const dIn = new Date(Number(s.checkIn.timestamp)),
@@ -3044,7 +3044,7 @@
         }
 
         function initPWA() {
-            const iconUrl = "https://lh3.googleusercontent.com/d/14XvFbNETCuybdeUeH6BPrPaC33uBijMc";
+            const iconUrl = "https://lh3.googleusercontent.com/d/11QYhvku5Yd10Al2SGgWLyxXn1AFZp5gx";
             const manifestData = {
                 "name": "E Crew Attendance System", "short_name": "E-Crew", "start_url": "./", "display": "standalone", "background_color": "#0f172a", "theme_color": "#0f172a",
                 "icons": [ { "src": iconUrl, "sizes": "192x192", "type": "image/png", "purpose": "any" }, { "src": iconUrl, "sizes": "512x512", "type": "image/png", "purpose": "any" }, { "src": iconUrl, "sizes": "192x192", "type": "image/png", "purpose": "maskable" } ]
