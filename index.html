@@ -95,9 +95,13 @@
                 <div id="login-error" class="hidden-element text-center py-2 bg-red-50 text-red-500 text-[10px] font-bold rounded-xl border border-red-100">
                     Username atau password salah!
                 </div>
-                <button onclick="handleLogin()" class="w-full py-4 bg-blue-600 text-white rounded-2xl font-black shadow-xl shadow-blue-900/20 hover:bg-blue-700 transition-all active:scale-95">
-                    LOG IN
+                
+                <!-- TOMBOL LOGIN DENGAN LOADING STATE -->
+                <button id="btn-login" onclick="handleLogin()" class="w-full py-4 bg-blue-600 text-white rounded-2xl font-black shadow-xl shadow-blue-900/20 transition-all active:scale-95 flex items-center justify-center gap-2 btn-disabled">
+                    <i id="login-spinner" class="fas fa-circle-notch fa-spin text-lg"></i>
+                    <span id="login-text">MEMUAT SERVER...</span>
                 </button>
+                
             </div>
             <p class="text-center text-[9px] text-slate-400 mt-8 font-medium italic">Powered by SkyOps Solution v2.0</p>
         </div>
@@ -1028,7 +1032,23 @@
 
         async function initRealtimeSync() {
             showMiniSync("MENYAMBUNGKAN...");
+            
+            // TIMEOUT FALLBACK (3 DETIK) - BUKA PAKSA TOMBOL JIKA SERVER LEMOT
+            setTimeout(() => {
+                const loginBtn = document.getElementById('btn-login');
+                if (loginBtn && loginBtn.classList.contains('btn-disabled')) {
+                    loginBtn.classList.remove('btn-disabled');
+                    loginBtn.classList.add('hover:bg-blue-700');
+                    const spinner = document.getElementById('login-spinner');
+                    if(spinner) spinner.classList.add('hidden-element');
+                    const textEl = document.getElementById('login-text');
+                    if(textEl) textEl.textContent = 'LOG IN';
+                    hideMiniSync();
+                }
+            }, 3000); 
+
             await window.initFirebaseAuth();
+            
             if (!window.fbAuth.currentUser) {
                 hideMiniSync();
                 return;
@@ -1040,6 +1060,18 @@
             window.fbOnSnapshot(usersCol, (snapshot) => {
                 users = [];
                 snapshot.forEach(docSnap => users.push(docSnap.data()));
+                
+                // AKTIFKAN TOMBOL LOGIN SETELAH DATA DATABASE SIAP 
+                const loginBtn = document.getElementById('btn-login');
+                if (loginBtn && loginBtn.classList.contains('btn-disabled')) {
+                    loginBtn.classList.remove('btn-disabled');
+                    loginBtn.classList.add('hover:bg-blue-700');
+                    const spinner = document.getElementById('login-spinner');
+                    if(spinner) spinner.classList.add('hidden-element');
+                    const textEl = document.getElementById('login-text');
+                    if(textEl) textEl.textContent = 'LOG IN';
+                }
+
                 updateUI();
                 checkBirthdays();
                 if (adminTab === 'users') renderUserList();
