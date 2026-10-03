@@ -863,7 +863,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection, query, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         const appId = 'ecrew-absensi-183ac';
         const firebaseConfig = {
             apiKey: "AIzaSyBiiTUcULMRCM_4FyAX8nSx1Rj1xCdJGSw",
@@ -885,6 +885,8 @@
         window.fbDeleteDoc = deleteDoc;
         window.fbCollection = collection;
         window.fbOnSnapshot = onSnapshot;
+        window.fbQuery = query;
+        window.fbWhere = where;
         window.initFirebaseAuth = async function() {
             try {
                 await signInAnonymously(auth);
@@ -917,6 +919,7 @@
         let mainMap, mainMarker, watchId, explorerMap, explorerMarkers = [];
         let isWorking = false, activeStartTime = null, timerInterval;
         let historyFilter = 'daily', adminTab = 'users', isOutsideOffice = false, deferredPrompt;
+        let isPostLoginSyncActive = false; // Penanda untuk memuat sisa data setelah login
 
         // Custom Alert & Confirm Utilities
         window.showCustomAlert = function(msg) {
@@ -1031,24 +1034,8 @@
         }
 
         async function initRealtimeSync() {
-            showMiniSync("MENYAMBUNGKAN...");
-            
-            // TIMEOUT FALLBACK (3 DETIK) - BUKA PAKSA TOMBOL JIKA SERVER LEMOT
-            setTimeout(() => {
-                const loginBtn = document.getElementById('btn-login');
-                if (loginBtn && loginBtn.classList.contains('btn-disabled')) {
-                    loginBtn.classList.remove('btn-disabled');
-                    loginBtn.classList.add('hover:bg-blue-700');
-                    const spinner = document.getElementById('login-spinner');
-                    if(spinner) spinner.classList.add('hidden-element');
-                    const textEl = document.getElementById('login-text');
-                    if(textEl) textEl.textContent = 'LOG IN';
-                    hideMiniSync();
-                }
-            }, 3000); 
-
+            showMiniSync("MEMUAT SISTEM LOGIN...");
             await window.initFirebaseAuth();
-            
             if (!window.fbAuth.currentUser) {
                 hideMiniSync();
                 return;
@@ -1056,42 +1043,64 @@
             const appId = window.fbAppId;
             const db = window.fbDb;
             
+            // FASE 1: HANYA LOAD DATA USER SAAT HALAMAN DIBUKA AGAR LOGIN INSTAN
             const usersCol = window.fbCollection(db, 'artifacts', appId, 'public', 'data', 'users');
             window.fbOnSnapshot(usersCol, (snapshot) => {
                 users = [];
                 snapshot.forEach(docSnap => users.push(docSnap.data()));
                 
-                // AKTIFKAN TOMBOL LOGIN SETELAH DATA DATABASE SIAP 
-                const loginBtn = document.getElementById('btn-login');
-                if (loginBtn && loginBtn.classList.contains('btn-disabled')) {
-                    loginBtn.classList.remove('btn-disabled');
-                    loginBtn.classList.add('hover:bg-blue-700');
-                    const spinner = document.getElementById('login-spinner');
-                    if(spinner) spinner.classList.add('hidden-element');
-                    const textEl = document.getElementById('login-text');
-                    if(textEl) textEl.textContent = 'LOG IN';
+                hideMiniSync(); // Sembunyikan notifikasi memuat
+
+                // AKTIFKAN TOMBOL LOG IN SETELAH DATA KREDENSIAL SIAP
+                const btnLogin = document.getElementById('btn-login');
+                const loginSpinner = document.getElementById('login-spinner');
+                const loginText = document.getElementById('login-text');
+                
+                if (btnLogin) {
+                    btnLogin.classList.remove('btn-disabled');
+                    if (loginSpinner) loginSpinner.classList.add('hidden-element');
+                    if (loginText) loginText.textContent = "LOG IN";
                 }
 
-                updateUI();
-                checkBirthdays();
-                if (adminTab === 'users') renderUserList();
-                if (adminTab === 'links') renderAdminLinkList();
-                updateAdminUserDatalist();
+                if (currentUser) {
+                    updateUI();
+                    checkBirthdays();
+                    if (adminTab === 'users') renderUserList();
+                    if (adminTab === 'links') renderAdminLinkList();
+                    updateAdminUserDatalist();
+                }
             });
+        }
 
-            const logsCol = window.fbCollection(db, 'artifacts', appId, 'public', 'data', 'logs');
-            window.fbOnSnapshot(logsCol, (snapshot) => {
+        function initPostLoginSync() {
+            if (isPostLoginSyncActive) return; // Mencegah double load
+            isPostLoginSyncActive = true;
+            
+            showMiniSync("MEMUAT DATA UTAMA...");
+            const appId = window.fbAppId;
+            const db = window.fbDb;
+
+            // FASE 2: LOAD LOGS, NEWS, CONFIG, GREETINGS (HANYA SETELAH LOGIN BERHASIL)
+            let logsRef = window.fbCollection(db, 'artifacts', appId, 'public', 'data', 'logs');
+            let logsQuery = logsRef;
+            
+            // OPTIMASI KECEPATAN: Jika yang login adalah user biasa, server HANYA akan mengirimkan log absen miliknya sendiri. (Super Cepat)
+            if (currentUser && currentUser.role === 'user') {
+                logsQuery = window.fbQuery(logsRef, window.fbWhere("userId", "==", currentUser.id));
+            }
+
+            window.fbOnSnapshot(logsQuery, (snapshot) => {
                 dutyHistory = [];
                 snapshot.forEach(docSnap => dutyHistory.push(docSnap.data()));
-                updateUI();
-                if (adminTab === 'all-logs') renderAllLogs();
+                debouncedUpdateUI();
+                if (adminTab === 'all-logs' && currentUser.role !== 'user') renderAllLogs();
             });
 
             const newsCol = window.fbCollection(db, 'artifacts', appId, 'public', 'data', 'news');
             window.fbOnSnapshot(newsCol, (snapshot) => {
                 newsItems = [];
                 snapshot.forEach(docSnap => newsItems.push(docSnap.data()));
-                updateUI();
+                debouncedUpdateUI();
                 if (adminTab === 'news') renderNewsAdmin();
             });
 
@@ -1116,9 +1125,23 @@
                         if (adminTab === 'worklists') renderAdminWorkLists();
                     }
                 });
+                hideMiniSync();
             });
-            hideMiniSync();
         }
+
+        // Membatasi update layar yang terlalu sering agar HP tidak freeze
+        let updateUITimeout;
+        function debouncedUpdateUI() {
+            clearTimeout(updateUITimeout);
+            updateUITimeout = setTimeout(() => {
+                updateUI();
+            }, 100);
+        }
+
+        window.syncWithCloud = function() {
+            showMiniSync("SINKRONISASI MANUAL...");
+            setTimeout(hideMiniSync, 1000);
+        };
 
         window.handleLogin = function() {
             const uInput = document.getElementById('login-username').value;
@@ -1130,15 +1153,17 @@
 
             if (cleanUser === 'admin' && cleanPass === 'TWA119-021') {
                 currentUser = { id: 'admin-001', role: 'admin', name: 'Administrator' };
+                initPostLoginSync();
                 showView('admin');
             } else if (cleanUser === 'news' && cleanPass === 'news119-021') {
                 currentUser = { id: 'news-admin-001', role: 'news_admin', name: 'Admin Berita & Info' };
+                initPostLoginSync();
                 showView('admin');
             } else {
                 if (users.length === 0) {
-                    errorBox.textContent = "Menyinkronkan data dari server, silakan klik Log In sekali lagi.";
+                    errorBox.textContent = "Sistem sedang mengunduh data kredensial, harap tunggu sebentar...";
                     errorBox.classList.remove('hidden-element');
-                    setTimeout(() => errorBox.classList.add('hidden-element'), 3500);
+                    setTimeout(() => errorBox.classList.add('hidden-element'), 2500);
                     return;
                 }
 
@@ -1150,6 +1175,7 @@
                 
                 if (foundUser) {
                     currentUser = { role: 'user', ...foundUser };
+                    initPostLoginSync(); // Panggil sisa data absensi dan berita
                     showView('user');
                 } else {
                     errorBox.textContent = "Username atau password salah!";
@@ -1166,6 +1192,10 @@
             document.getElementById('login-password').value = "";
             document.getElementById('working-badge').classList.add('hidden-element');
             document.getElementById('status-banner').classList.add('hidden-element');
+            
+            // Hapus flag agar saat login user lain data bisa memuat ulang
+            isPostLoginSyncActive = false;
+            
             showView('login');
         };
 
@@ -1208,6 +1238,91 @@
                 }
             }
         };
+
+        async function updateWeather() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(async (position) => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    try {
+                        const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`);
+                        const weatherData = await weatherRes.json();
+                        const temp = Math.round(weatherData.current_weather.temperature);
+                        const code = weatherData.current_weather.weathercode;
+                        let icon = "fas fa-cloud-sun text-orange-300";
+                        if (code === 0) icon = "fas fa-sun text-yellow-400";
+                        else if (code >= 1 && code <= 3) icon = "fas fa-cloud-sun text-orange-300";
+                        else if (code >= 45 && code <= 48) icon = "fas fa-smog text-slate-400";
+                        else if (code >= 51 && code <= 67) icon = "fas fa-cloud-rain text-blue-400";
+                        else if (code >= 71 && code <= 77) icon = "fas fa-snowflake text-blue-200";
+                        else if (code >= 80 && code <= 82) icon = "fas fa-cloud-showers-heavy text-blue-500";
+                        else if (code >= 95 && code <= 99) icon = "fas fa-bolt text-yellow-500";
+                        const geoRes = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=id`);
+                        const geoData = await geoRes.json();
+                        const city = geoData.city || geoData.locality || "Lokasi Anda";
+                        const iconEl = document.getElementById('weather-icon');
+                        const textEl = document.getElementById('weather-text');
+                        if (iconEl) iconEl.className = icon + " text-3xl mb-1";
+                        if (textEl) textEl.textContent = `${temp}°C ${city}`;
+                    } catch (error) {
+                        const textEl = document.getElementById('weather-text');
+                        if (textEl) textEl.textContent = "--°C Offline";
+                    }
+                }, () => {
+                    const textEl = document.getElementById('weather-text');
+                    if (textEl) textEl.textContent = "GPS Nonaktif";
+                });
+            }
+        }
+
+        function checkBirthdays() {
+            const section = document.getElementById('birthday-section');
+            if (!currentUser || currentUser.role === 'admin' || currentUser.role === 'news_admin') {
+                if (section) section.classList.add('hidden-element');
+                return;
+            }
+            const today = new Date(), tDay = today.getDate(), tMonth = today.getMonth();
+            let isMyBirthday = false;
+            if (currentUser.dob) {
+                const myDob = new Date(currentUser.dob);
+                if (myDob.getDate() === tDay && myDob.getMonth() === tMonth) isMyBirthday = true;
+            }
+            const othersBirthday = users.filter(u => {
+                if (u.id == currentUser.id || !u.dob) return false;
+                const uDob = new Date(u.dob);
+                return uDob.getDate() === tDay && uDob.getMonth() === tMonth;
+            });
+            if (isMyBirthday) {
+                const myGreetings = birthdayGreetings.filter(g => g.toId == currentUser.id);
+                let greetingsListHtml = "";
+                if (myGreetings.length > 0) {
+                    greetingsListHtml = '<div class="mt-4 p-4 bg-white/10 rounded-2xl border border-white/20"><p class="text-[10px] font-black uppercase tracking-widest mb-3 flex items-center gap-2"><i class="fas fa-heart text-white animate-pulse"></i> Ucapan Masuk (' + myGreetings.length + ')</p><div class="space-y-2 max-h-40 overflow-y-auto no-scrollbar">' + myGreetings.map(g => '<div class="flex items-center gap-3 bg-white/10 p-3 rounded-xl border border-white/10 animate-fade"><div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-xs">🎉</div><div><p class="text-[10px] font-bold">' + g.fromName + '</p><p class="text-[8px] opacity-70">Mengirimkan doa terbaik untuk Anda</p></div></div>').join('') + '</div></div>';
+                }
+                if (section) {
+                    section.innerHTML = '<div class="birthday-gradient p-6 rounded-[2.5rem] text-white shadow-xl shadow-pink-100 flex flex-col gap-4"><div class="flex items-center gap-5"><div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center text-3xl animate-bounce">🎂</div><div><h3 class="text-sm font-black uppercase tracking-widest mb-1">Happy Birthday!</h3><p class="text-[11px] leading-relaxed font-medium">Segenap Management dan Staff Transwisata mengucapkan selamat ulang tahun untuk Anda. Sukses selalu!</p></div></div>' + greetingsListHtml + '</div>';
+                    section.classList.remove('hidden-element');
+                }
+            } else if (othersBirthday.length > 0) {
+                let titleText = "";
+                if (othersBirthday.length === 1) {
+                    const p = othersBirthday[0];
+                    titleText = (p.rank ? p.rank + " " : "") + p.name + " berulang tahun hari ini!";
+                } else {
+                    titleText = "Ada " + othersBirthday.length + " rekan berulang tahun hari ini!";
+                }
+                let listHtml = "";
+                othersBirthday.forEach(p => {
+                    const displayName = (p.rank ? p.rank + " " : "") + p.name;
+                    listHtml += '<div class="flex items-center justify-between bg-slate-50 p-3 rounded-2xl border border-slate-100"><p class="text-[10px] font-bold text-slate-700 truncate mr-2">' + displayName + '</p><button onclick="sendBirthdayGreeting(\'' + displayName + '\', \'' + p.id + '\')" class="px-4 py-2 birthday-gradient text-white rounded-xl text-[9px] font-black shadow-md shadow-pink-100 active:scale-95 transition-transform whitespace-nowrap">UCAPKAN</button></div>';
+                });
+                if (section) {
+                    section.innerHTML = '<div class="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col gap-4"><div class="flex items-center gap-4"><div class="w-12 h-12 bg-pink-50 text-pink-500 rounded-2xl flex items-center justify-center text-xl shrink-0">🎉</div><div><h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest">Hari Bahagia</h3><p class="text-xs font-bold text-slate-700">' + titleText + '</p></div></div><div class="space-y-2 max-h-48 overflow-y-auto no-scrollbar">' + listHtml + '</div></div>';
+                    section.classList.remove('hidden-element');
+                }
+            } else {
+                if (section) section.classList.add('hidden-element');
+            }
+        }
 
         function formatTime(t) {
             if (!t) return "";
@@ -1431,52 +1546,6 @@
             document.getElementById('btn-retake').classList.add('hidden-element');
             document.getElementById('btn-submit').classList.add('btn-disabled');
         };
-
-        function checkBirthdays() {
-            const section = document.getElementById('birthday-section');
-            if (!currentUser || currentUser.role === 'admin') {
-                section.classList.add('hidden-element');
-                return;
-            }
-            const today = new Date(), tDay = today.getDate(), tMonth = today.getMonth();
-            let isMyBirthday = false;
-            if (currentUser.dob) {
-                const myDob = new Date(currentUser.dob);
-                if (myDob.getDate() === tDay && myDob.getMonth() === tMonth) isMyBirthday = true;
-            }
-            const othersBirthday = users.filter(u => {
-                if (u.id == currentUser.id || !u.dob) return false;
-                const uDob = new Date(u.dob);
-                return uDob.getDate() === tDay && uDob.getMonth() === tMonth;
-            });
-
-            if (isMyBirthday) {
-                const myGreetings = birthdayGreetings.filter(g => g.toId == currentUser.id);
-                let greetingsListHtml = "";
-                if (myGreetings.length > 0) {
-                    greetingsListHtml = '<div class="mt-4 p-4 bg-white/10 rounded-2xl border border-white/20"><p class="text-[10px] font-black uppercase tracking-widest mb-3 flex items-center gap-2"><i class="fas fa-heart text-white animate-pulse"></i> Ucapan Masuk (' + myGreetings.length + ')</p><div class="space-y-2 max-h-40 overflow-y-auto no-scrollbar">' + myGreetings.map(g => '<div class="flex items-center gap-3 bg-white/10 p-3 rounded-xl border border-white/10 animate-fade"><div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-xs">🎉</div><div><p class="text-[10px] font-bold">' + g.fromName + '</p><p class="text-[8px] opacity-70">Mengirimkan doa terbaik untuk Anda</p></div></div>').join('') + '</div></div>';
-                }
-                section.innerHTML = '<div class="birthday-gradient p-6 rounded-[2.5rem] text-white shadow-xl shadow-pink-100 flex flex-col gap-4"><div class="flex items-center gap-5"><div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center text-3xl animate-bounce">🎂</div><div><h3 class="text-sm font-black uppercase tracking-widest mb-1">Happy Birthday!</h3><p class="text-[11px] leading-relaxed font-medium">Segenap Management dan Staff Transwisata mengucapkan selamat ulang tahun untuk Anda. Sukses selalu!</p></div></div>' + greetingsListHtml + '</div>';
-                section.classList.remove('hidden-element');
-            } else if (othersBirthday.length > 0) {
-                let titleText = "";
-                if (othersBirthday.length === 1) {
-                    const p = othersBirthday[0];
-                    titleText = (p.rank ? p.rank + " " : "") + p.name + " berulang tahun hari ini!";
-                } else {
-                    titleText = "Ada " + othersBirthday.length + " rekan berulang tahun hari ini!";
-                }
-                let listHtml = "";
-                othersBirthday.forEach(p => {
-                    const displayName = (p.rank ? p.rank + " " : "") + p.name;
-                    listHtml += '<div class="flex items-center justify-between bg-slate-50 p-3 rounded-2xl border border-slate-100"><p class="text-[10px] font-bold text-slate-700 truncate mr-2">' + displayName + '</p><button onclick="sendBirthdayGreeting(\'' + displayName + '\', \'' + p.id + '\')" class="px-4 py-2 birthday-gradient text-white rounded-xl text-[9px] font-black shadow-md shadow-pink-100 active:scale-95 transition-transform whitespace-nowrap">UCAPKAN</button></div>';
-                });
-                section.innerHTML = '<div class="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col gap-4"><div class="flex items-center gap-4"><div class="w-12 h-12 bg-pink-50 text-pink-500 rounded-2xl flex items-center justify-center text-xl shrink-0">🎉</div><div><h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest">Hari Bahagia</h3><p class="text-xs font-bold text-slate-700">' + titleText + '</p></div></div><div class="space-y-2 max-h-48 overflow-y-auto no-scrollbar">' + listHtml + '</div></div>';
-                section.classList.remove('hidden-element');
-            } else {
-                section.classList.add('hidden-element');
-            }
-        }
 
         window.sendBirthdayGreeting = async function(name, toId) {
             const senderName = (currentUser.rank ? currentUser.rank + " " : "") + currentUser.name;
