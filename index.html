@@ -78,7 +78,7 @@
                 <h1 class="text-2xl font-black text-slate-800">E Crew <span class="text-blue-600">Attendance System</span></h1>
                 <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Transwisata Prima Aviation</p>
             </div>
-            <div class="space-y-4">
+            <form onsubmit="event.preventDefault(); handleLogin();" class="space-y-4">
                 <div>
                     <label class="text-[10px] font-black text-slate-400 uppercase ml-2 mb-1 block">Username</label>
                     <input type="text" id="login-username" autocomplete="username" class="w-full p-4 bg-white border border-slate-100 rounded-2xl outline-none text-sm font-bold shadow-sm focus:ring-2 focus:ring-blue-500 transition-all" placeholder="Enter username">
@@ -87,7 +87,7 @@
                     <label class="text-[10px] font-black text-slate-400 uppercase ml-2 mb-1 block">Password</label>
                     <div class="relative">
                         <input type="password" id="login-password" autocomplete="current-password" class="w-full p-4 pr-12 bg-white border border-slate-100 rounded-2xl outline-none text-sm font-bold shadow-sm focus:ring-2 focus:ring-blue-500 transition-all" placeholder="Enter password">
-                        <button onclick="togglePasswordVisibility('login-password', 'login-eye-icon')" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-blue-500 transition-colors">
+                        <button type="button" onclick="togglePasswordVisibility('login-password', 'login-eye-icon')" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-blue-500 transition-colors">
                             <i id="login-eye-icon" class="fas fa-eye text-lg"></i>
                         </button>
                     </div>
@@ -97,12 +97,12 @@
                 </div>
                 
                 <!-- TOMBOL LOGIN DENGAN LOADING STATE -->
-                <button id="btn-login" onclick="handleLogin()" class="w-full py-4 bg-blue-600 text-white rounded-2xl font-black shadow-xl shadow-blue-900/20 transition-all active:scale-95 flex items-center justify-center gap-2 btn-disabled">
+                <button id="btn-login" type="submit" class="w-full py-4 bg-blue-600 text-white rounded-2xl font-black shadow-xl shadow-blue-900/20 transition-all active:scale-95 flex items-center justify-center gap-2 btn-disabled">
                     <i id="login-spinner" class="fas fa-circle-notch fa-spin text-lg"></i>
                     <span id="login-text">MEMUAT SERVER...</span>
                 </button>
                 
-            </div>
+            </form>
             <p class="text-center text-[9px] text-slate-400 mt-8 font-medium italic">Powered by SkyOps Solution v2.0</p>
         </div>
     </div>
@@ -1121,49 +1121,42 @@
         }
 
         window.handleLogin = function() {
-            // Hilangkan fokus sementara agar browser melepaskan value autofill
-            document.getElementById('login-username').blur();
-            document.getElementById('login-password').blur();
+            const uInput = document.getElementById('login-username').value;
+            const pInput = document.getElementById('login-password').value;
+            const errorBox = document.getElementById('login-error');
+            
+            const cleanUser = String(uInput).trim();
+            const cleanPass = String(pInput).trim();
 
-            // Beri jeda sepersekian detik agar autofill browser terbaca dengan baik
-            setTimeout(() => {
-                const uInput = document.getElementById('login-username').value,
-                    pInput = document.getElementById('login-password').value,
-                    errorBox = document.getElementById('login-error');
-                const cleanUser = String(uInput).trim();
-                const cleanPass = String(pInput).trim();
-
-                if (cleanUser === 'admin' && cleanPass === 'TWA119-021') {
-                    currentUser = { id: 'admin-001', role: 'admin', name: 'Administrator' };
-                    showView('admin');
-                } else if (cleanUser === 'news' && cleanPass === 'news119-021') {
-                    currentUser = { id: 'news-admin-001', role: 'news_admin', name: 'Admin Berita & Info' };
-                    showView('admin');
-                } else {
-                    // Cek apabila tombol ditekan tapi data Firebase memang benar-benar belum selesai diunduh
-                    if (users.length === 0) {
-                        errorBox.textContent = "Menyinkronkan data dari server, silakan klik Log In sekali lagi.";
-                        errorBox.classList.remove('hidden-element');
-                        setTimeout(() => errorBox.classList.add('hidden-element'), 3500);
-                        return;
-                    }
-
-                    const foundUser = users.find(u => {
-                        const sheetUser = u.username ? String(u.username).trim() : "";
-                        const sheetPass = u.password ? String(u.password).trim() : "";
-                        return sheetUser === cleanUser && sheetPass === cleanPass;
-                    });
-                    
-                    if (foundUser) {
-                        currentUser = { role: 'user', ...foundUser };
-                        showView('user');
-                    } else {
-                        errorBox.textContent = "Username atau password salah!";
-                        errorBox.classList.remove('hidden-element');
-                        setTimeout(() => errorBox.classList.add('hidden-element'), 3000);
-                    }
+            if (cleanUser === 'admin' && cleanPass === 'TWA119-021') {
+                currentUser = { id: 'admin-001', role: 'admin', name: 'Administrator' };
+                showView('admin');
+            } else if (cleanUser === 'news' && cleanPass === 'news119-021') {
+                currentUser = { id: 'news-admin-001', role: 'news_admin', name: 'Admin Berita & Info' };
+                showView('admin');
+            } else {
+                if (users.length === 0) {
+                    errorBox.textContent = "Menyinkronkan data dari server, silakan klik Log In sekali lagi.";
+                    errorBox.classList.remove('hidden-element');
+                    setTimeout(() => errorBox.classList.add('hidden-element'), 3500);
+                    return;
                 }
-            }, 100);
+
+                const foundUser = users.find(u => {
+                    const sheetUser = u.username ? String(u.username).trim() : "";
+                    const sheetPass = u.password ? String(u.password).trim() : "";
+                    return sheetUser === cleanUser && sheetPass === cleanPass;
+                });
+                
+                if (foundUser) {
+                    currentUser = { role: 'user', ...foundUser };
+                    showView('user');
+                } else {
+                    errorBox.textContent = "Username atau password salah!";
+                    errorBox.classList.remove('hidden-element');
+                    setTimeout(() => errorBox.classList.add('hidden-element'), 3000);
+                }
+            }
         };
 
         window.handleLogout = function() {
@@ -1438,42 +1431,6 @@
             document.getElementById('btn-retake').classList.add('hidden-element');
             document.getElementById('btn-submit').classList.add('btn-disabled');
         };
-
-        async function updateWeather() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(async (position) => {
-                    const lat = position.coords.latitude;
-                    const lng = position.coords.longitude;
-                    try {
-                        const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`);
-                        const weatherData = await weatherRes.json();
-                        const temp = Math.round(weatherData.current_weather.temperature);
-                        const code = weatherData.current_weather.weathercode;
-                        let icon = "fas fa-cloud-sun text-orange-300";
-                        if (code === 0) icon = "fas fa-sun text-yellow-400";
-                        else if (code >= 1 && code <= 3) icon = "fas fa-cloud-sun text-orange-300";
-                        else if (code >= 45 && code <= 48) icon = "fas fa-smog text-slate-400";
-                        else if (code >= 51 && code <= 67) icon = "fas fa-cloud-rain text-blue-400";
-                        else if (code >= 71 && code <= 77) icon = "fas fa-snowflake text-blue-200";
-                        else if (code >= 80 && code <= 82) icon = "fas fa-cloud-showers-heavy text-blue-500";
-                        else if (code >= 95 && code <= 99) icon = "fas fa-bolt text-yellow-500";
-                        
-                        const geoRes = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=id`);
-                        const geoData = await geoRes.json();
-                        const city = geoData.city || geoData.locality || "Lokasi Anda";
-                        
-                        const iconEl = document.getElementById('weather-icon');
-                        const textEl = document.getElementById('weather-text');
-                        if (iconEl) iconEl.className = icon + " text-3xl mb-1";
-                        if (textEl) textEl.textContent = `${temp}°C ${city}`;
-                    } catch (error) {
-                        document.getElementById('weather-text').textContent = "--°C Offline";
-                    }
-                }, () => {
-                    document.getElementById('weather-text').textContent = "GPS Nonaktif";
-                });
-            }
-        }
 
         function checkBirthdays() {
             const section = document.getElementById('birthday-section');
